@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  gender        String
+  dob           DateTime
+  phone         String?
+  isVerified    Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  profile       Profile?
+  membership    Membership?
+  sentMessages  Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  sentInterests Interest[] @relation("SentInterests")
+  receivedInterests Interest[] @relation("ReceivedInterests")
+  photos        Photo[]
+  horoscope     Horoscope?
+  preferences   Preferences?
+  shortlist     Shortlist[]
+  blockedUsers  BlockedUser[]
+  notifications Notification[]
+}
+
+model Profile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  height            String?
+  weight            String?
+  maritalStatus     String?
+  religion          String?
+  caste             String?
+  subCaste          String?
+  motherTongue      String?
+  education         String?
+  occupation        String?
+  annualIncome      String?
+  workLocation      String?
+  fatherName        String?
+  fatherOccupation  String?
+  motherName        String?
+  motherOccupation  String?
+  siblings          String?
+  familyType        String?
+  familyStatus      String?
+  aboutMe           String?
+  hobbies           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Membership {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  plan          String
+  duration      Int
+  paymentStatus String
+  startDate     DateTime
+  endDate       DateTime
+  features      String[]
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  senderId  String
+  receiverId String
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Interest {
+  id        String   @id @default(cuid())
+  senderId  String
+  receiverId String
+  sender    User     @relation("SentInterests", fields: [senderId], references: [id])
+  receiver  User     @relation("ReceivedInterests", fields: [receiverId], references: [id])
+  status    String   @default("pending") // pending, accepted, rejected
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([senderId, receiverId])
+}
+
+model Photo {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  url           String
+  isProfile     Boolean  @default(false)
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Horoscope {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  dateOfBirth   DateTime
+  timeOfBirth   String?
+  placeOfBirth  String?
+  rashi         String?
+  nakshatra     String?
+  gotra         String?
+  manglik       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Preferences {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  ageFrom       Int?
+  ageTo         Int?
+  heightFrom    String?
+  heightTo      String?
+  maritalStatus String?
+  religion      String?
+  caste         String?
+  education     String?
+  occupation    String?
+  location      String?
+  income        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Shortlist {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  shortlistedUserId String
+  shortlistedUser User   @relation("ShortlistedUsers", fields: [shortlistedUserId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, shortlistedUserId])
+}
+
+model BlockedUser {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  blockedUserId String
+  blockedUser   User     @relation("BlockedUsers", fields: [blockedUserId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, blockedUserId])
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  type          String   // interest, message, match, etc.
+  message       String
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+} 
