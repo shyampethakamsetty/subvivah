@@ -4,28 +4,35 @@ import { prisma } from '@/lib/db';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const email = searchParams.get('email');
 
-    if (!userId) {
+    if (!email) {
       return new NextResponse(
-        JSON.stringify({ error: 'User ID is required' }),
+        JSON.stringify({ error: 'Email is required' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     try {
-      const verification = await prisma.verification.findUnique({
-        where: { userId }
+      const verificationToken = await prisma.verificationToken.findFirst({
+        where: { email }
       });
 
+      if (!verificationToken) {
+        return new NextResponse(
+          JSON.stringify({ error: 'Verification token not found' }),
+          { status: 404, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new NextResponse(
-        JSON.stringify(verification),
+        JSON.stringify(verificationToken),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } catch (error) {
       console.error('Database error:', error);
       return new NextResponse(
-        JSON.stringify({ error: 'Failed to fetch verification status' }),
+        JSON.stringify({ error: 'Failed to fetch verification token' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -41,103 +48,36 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const { userId, documentType, documentUrl, selfieUrl } = data;
+    const { email } = data;
 
-    if (!userId || !documentType || !documentUrl || !selfieUrl) {
+    if (!email) {
       return new NextResponse(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Email is required' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     try {
-      const verification = await prisma.verification.upsert({
-        where: { userId },
-        update: {
-          documentType,
-          documentUrl,
-          selfieUrl,
-          status: 'pending',
-          submittedAt: new Date()
-        },
-        create: {
-          userId,
-          documentType,
-          documentUrl,
-          selfieUrl,
-          status: 'pending',
-          submittedAt: new Date()
-        }
-      });
+      const token = Math.random().toString(36).substring(2, 15);
+      const expires = new Date();
+      expires.setHours(expires.getHours() + 24); // Token expires in 24 hours
 
-      // Create notification for admin
-      await prisma.notification.create({
+      const verificationToken = await prisma.verificationToken.create({
         data: {
-          userId: 'admin', // This should be replaced with actual admin user ID
-          type: 'verification',
-          message: `New verification request from user ${userId}`
+          email,
+          token,
+          expires
         }
       });
 
       return new NextResponse(
-        JSON.stringify(verification),
+        JSON.stringify(verificationToken),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } catch (error) {
       console.error('Database error:', error);
       return new NextResponse(
-        JSON.stringify({ error: 'Failed to submit verification request' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-  } catch (error) {
-    console.error('API error:', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    const data = await request.json();
-    const { userId, status, adminNotes } = data;
-
-    if (!userId || !status || !['approved', 'rejected'].includes(status)) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Invalid request data' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    try {
-      const verification = await prisma.verification.update({
-        where: { userId },
-        data: {
-          status,
-          adminNotes,
-          reviewedAt: new Date()
-        }
-      });
-
-      // Create notification for user
-      await prisma.notification.create({
-        data: {
-          userId,
-          type: 'verification',
-          message: `Your verification request has been ${status}`
-        }
-      });
-
-      return new NextResponse(
-        JSON.stringify(verification),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } catch (error) {
-      console.error('Database error:', error);
-      return new NextResponse(
-        JSON.stringify({ error: 'Failed to update verification status' }),
+        JSON.stringify({ error: 'Failed to create verification token' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }

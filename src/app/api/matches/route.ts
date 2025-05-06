@@ -30,7 +30,10 @@ export async function GET(request: Request) {
 
       // Get user's profile
       const userProfile = await prisma.profile.findUnique({
-        where: { userId }
+        where: { userId },
+        include: {
+          user: true
+        }
       });
 
       if (!userProfile) {
@@ -43,20 +46,18 @@ export async function GET(request: Request) {
       // Build match query based on preferences
       const whereClause = {
         AND: [
-          { userId: { not: userId } }, // Exclude self
-          { gender: { not: userProfile.gender } }, // Match opposite gender
-          userPreferences.ageFrom ? {
-            age: {
-              gte: userPreferences.ageFrom,
-              lte: userPreferences.ageTo
+          {
+            userId: {
+              not: userId
             }
-          } : {},
-          userPreferences.heightFrom ? {
-            height: {
-              gte: userPreferences.heightFrom,
-              lte: userPreferences.heightTo
+          },
+          {
+            user: {
+              gender: {
+                not: userProfile.user.gender
+              }
             }
-          } : {},
+          },
           userPreferences.maritalStatus ? {
             maritalStatus: userPreferences.maritalStatus
           } : {},
@@ -73,9 +74,9 @@ export async function GET(request: Request) {
             occupation: userPreferences.occupation
           } : {},
           userPreferences.location ? {
-            location: userPreferences.location
+            workLocation: userPreferences.location
           } : {}
-        ]
+        ].filter(condition => Object.keys(condition).length > 0)
       };
 
       // Get total count for pagination
@@ -94,6 +95,7 @@ export async function GET(request: Request) {
               firstName: true,
               lastName: true,
               email: true,
+              gender: true,
               photos: {
                 where: { isProfile: true },
                 take: 1

@@ -14,28 +14,34 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '12');
 
     try {
-      const whereClause: any = {};
+      const whereClause: any = {
+        user: {}
+      };
 
       if (age) {
         const [minAge, maxAge] = age.split('-').map(Number);
-        whereClause.dateOfBirth = {
+        whereClause.user.dob = {
           gte: new Date(new Date().setFullYear(new Date().getFullYear() - maxAge)),
           lte: new Date(new Date().setFullYear(new Date().getFullYear() - minAge))
         };
       }
 
-      if (location) whereClause.location = { contains: location, mode: 'insensitive' };
+      if (location) whereClause.workLocation = { contains: location, mode: 'insensitive' };
       if (education) whereClause.education = education;
-      if (profession) whereClause.profession = profession;
+      if (profession) whereClause.occupation = profession;
       if (religion) whereClause.religion = religion;
       if (caste) whereClause.caste = caste;
 
       const profiles = await prisma.profile.findMany({
         where: whereClause,
         include: {
-          photos: {
-            where: { isProfile: true },
-            take: 1
+          user: {
+            include: {
+              photos: {
+                where: { isProfile: true },
+                take: 1
+              }
+            }
           }
         },
         orderBy: { createdAt: 'desc' },

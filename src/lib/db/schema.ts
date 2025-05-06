@@ -2,105 +2,224 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+interface Profile {
+  id: string;
+  userId: string;
+  height: string;
+  weight: string;
+  maritalStatus: string;
+  religion: string;
+  caste: string;
+  motherTongue: string;
+  education: string;
+  occupation: string;
+  annualIncome: string;
+  workLocation: string;
+  fatherName: string;
+  fatherOccupation: string;
+  motherName: string;
+  motherOccupation: string;
+  siblings: string;
+  familyType: string;
+  horoscope: Horoscope;
+  preferences: Preferences;
+  photos: Photo[];
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Horoscope {
+  id: string;
+  profileId: string;
+  dateOfBirth: Date;
+  timeOfBirth: string;
+  placeOfBirth: string;
+  rashi: string;
+  nakshatra: string;
+  gotra: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Preferences {
+  id: string;
+  profileId: string;
+  ageRange: string;
+  height: string;
+  maritalStatus: string;
+  religion: string;
+  education: string;
+  location: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Photo {
+  id: string;
+  profileId: string;
+  url: string;
+  isProfilePhoto: boolean;
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Membership {
+  id: string;
+  userId: string;
+  type: string;
+  startDate: Date;
+  endDate: Date;
+  features: string[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Interest {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface User {
+  id: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  dateOfBirth: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  profile: Profile;
+  membership: Membership;
+}
+
+export type {
+  User,
+  Profile,
+  Horoscope,
+  Preferences,
+  Photo,
+  Membership,
+  Message,
+  Interest
+};
+
 export const schema = {
   User: {
-    id: String,
-    email: String,
-    password: String,
-    firstName: String,
-    lastName: String,
-    gender: String,
-    dateOfBirth: DateTime,
-    createdAt: DateTime,
-    updatedAt: DateTime,
-    profile: Profile,
-    membership: Membership,
+    id: 'string',
+    email: 'string',
+    password: 'string',
+    firstName: 'string',
+    lastName: 'string',
+    gender: 'string',
+    dateOfBirth: 'date',
+    createdAt: 'date',
+    updatedAt: 'date',
+    profile: 'Profile',
+    membership: 'Membership',
   },
   Profile: {
-    id: String,
-    userId: String,
-    height: String,
-    weight: String,
-    maritalStatus: String,
-    religion: String,
-    caste: String,
-    motherTongue: String,
-    education: String,
-    occupation: String,
-    annualIncome: String,
-    workLocation: String,
-    fatherName: String,
-    fatherOccupation: String,
-    motherName: String,
-    motherOccupation: String,
-    siblings: String,
-    familyType: String,
-    horoscope: Horoscope,
-    preferences: Preferences,
-    photos: Photo[],
-    isVerified: Boolean,
-    createdAt: DateTime,
-    updatedAt: DateTime,
+    id: 'string',
+    userId: 'string',
+    height: 'string',
+    weight: 'string',
+    maritalStatus: 'string',
+    religion: 'string',
+    caste: 'string',
+    motherTongue: 'string',
+    education: 'string',
+    occupation: 'string',
+    annualIncome: 'string',
+    workLocation: 'string',
+    fatherName: 'string',
+    fatherOccupation: 'string',
+    motherName: 'string',
+    motherOccupation: 'string',
+    siblings: 'string',
+    familyType: 'string',
+    horoscope: 'Horoscope',
+    preferences: 'Preferences',
+    photos: 'Photo[]',
+    isVerified: 'boolean',
+    createdAt: 'date',
+    updatedAt: 'date',
   },
   Horoscope: {
-    id: String,
-    profileId: String,
-    dateOfBirth: DateTime,
-    timeOfBirth: String,
-    placeOfBirth: String,
-    rashi: String,
-    nakshatra: String,
-    gotra: String,
-    createdAt: DateTime,
-    updatedAt: DateTime,
+    id: 'string',
+    profileId: 'string',
+    dateOfBirth: 'date',
+    timeOfBirth: 'string',
+    placeOfBirth: 'string',
+    rashi: 'string',
+    nakshatra: 'string',
+    gotra: 'string',
+    createdAt: 'date',
+    updatedAt: 'date',
   },
   Preferences: {
-    id: String,
-    profileId: String,
-    ageRange: String,
-    height: String,
-    maritalStatus: String,
-    religion: String,
-    education: String,
-    location: String,
-    createdAt: DateTime,
-    updatedAt: DateTime,
+    id: 'string',
+    profileId: 'string',
+    ageRange: 'string',
+    height: 'string',
+    maritalStatus: 'string',
+    religion: 'string',
+    education: 'string',
+    location: 'string',
+    createdAt: 'date',
+    updatedAt: 'date',
   },
   Photo: {
-    id: String,
-    profileId: String,
-    url: String,
-    isProfilePhoto: Boolean,
-    isVerified: Boolean,
-    createdAt: DateTime,
-    updatedAt: DateTime,
+    id: 'string',
+    profileId: 'string',
+    url: 'string',
+    isProfilePhoto: 'boolean',
+    isVerified: 'boolean',
+    createdAt: 'date',
+    updatedAt: 'date',
   },
   Membership: {
-    id: String,
-    userId: String,
-    type: String, // 'free' or 'premium'
-    startDate: DateTime,
-    endDate: DateTime,
-    features: String[], // Array of enabled features
-    isActive: Boolean,
-    createdAt: DateTime,
-    updatedAt: DateTime,
+    id: 'string',
+    userId: 'string',
+    type: 'string',
+    startDate: 'date',
+    endDate: 'date',
+    features: 'string[]',
+    isActive: 'boolean',
+    createdAt: 'date',
+    updatedAt: 'date',
   },
   Message: {
-    id: String,
-    senderId: String,
-    receiverId: String,
-    content: String,
-    isRead: Boolean,
-    createdAt: DateTime,
-    updatedAt: DateTime,
+    id: 'string',
+    senderId: 'string',
+    receiverId: 'string',
+    content: 'string',
+    isRead: 'boolean',
+    createdAt: 'date',
+    updatedAt: 'date',
   },
   Interest: {
-    id: String,
-    senderId: String,
-    receiverId: String,
-    status: String, // 'pending', 'accepted', 'rejected'
-    createdAt: DateTime,
-    updatedAt: DateTime,
+    id: 'string',
+    senderId: 'string',
+    receiverId: 'string',
+    status: 'string',
+    createdAt: 'date',
+    updatedAt: 'date',
   },
 }; 

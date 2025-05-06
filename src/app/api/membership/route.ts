@@ -61,11 +61,14 @@ export async function POST(request: Request) {
     const endDate = new Date();
     endDate.setMonth(endDate.getMonth() + duration);
 
-    const features = {
+    type PlanType = 'basic' | 'premium' | 'platinum';
+    const features: Record<PlanType, string[]> = {
       'basic': ['View profiles', 'Send interests'],
       'premium': ['View profiles', 'Send interests', 'View contact details', 'Priority customer support'],
       'platinum': ['View profiles', 'Send interests', 'View contact details', 'Priority customer support', 'Advanced search', 'Profile boost']
-    }[plan] || [];
+    };
+
+    const planFeatures = features[plan as PlanType] || [];
 
     try {
       const membership = await prisma.membership.upsert({
@@ -76,7 +79,7 @@ export async function POST(request: Request) {
           paymentStatus,
           startDate,
           endDate,
-          features,
+          features: planFeatures,
           isActive: paymentStatus === 'completed'
         },
         create: {
@@ -86,7 +89,7 @@ export async function POST(request: Request) {
           paymentStatus,
           startDate,
           endDate,
-          features,
+          features: planFeatures,
           isActive: paymentStatus === 'completed'
         }
       });

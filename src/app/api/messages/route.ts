@@ -89,7 +89,7 @@ export async function GET(request: Request) {
 
         // Group messages by conversation
         const conversationMap = new Map();
-        conversations.forEach(message => {
+        conversations.forEach((message: { senderId: string; receiverId: string; isRead: boolean; sender: any; receiver: any; }) => {
           const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
           if (!conversationMap.has(otherUserId)) {
             conversationMap.set(otherUserId, {

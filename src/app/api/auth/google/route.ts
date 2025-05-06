@@ -35,21 +35,33 @@ export async function POST(request: Request) {
     // Find or create user
     let user = await prisma.user.findUnique({
       where: { email },
+      include: { profile: true }
     });
 
     if (!user) {
+      const [firstName, ...lastNameParts] = name?.split(' ') || ['', ''];
+      const lastName = lastNameParts.join(' ');
+
+      if (!email) {
+        throw new Error('Email is required for user creation');
+      }
+
       user = await prisma.user.create({
         data: {
           email,
-          name,
+          password: '', // You might want to handle this differently
+          firstName,
+          lastName,
+          gender: '', // Required field, but we don't get it from Google
+          dob: new Date(), // Required field, but we don't get it from Google
+          isVerified: true, // Google verified
           profile: {
             create: {
-              firstName: name?.split(' ')[0] || '',
-              lastName: name?.split(' ').slice(1).join(' ') || '',
-              profilePhoto: picture,
-            },
-          },
+              // Create an empty profile as required by the schema
+            }
+          }
         },
+        include: { profile: true }
       });
     }
 
@@ -65,7 +77,10 @@ export async function POST(request: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isVerified: user.isVerified,
+        profile: user.profile,
       },
     });
 

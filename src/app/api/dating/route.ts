@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     }
 
     // Get user's dating preferences
-    const userPreferences = await prisma.datingPreference.findUnique({
+    const userPreferences = await prisma.preferences.findUnique({
       where: { userId },
     });
 
@@ -29,18 +29,27 @@ export async function GET(request: Request) {
 
     // Build search criteria based on preferences
     const whereClause = {
-      age: {
-        gte: userPreferences.minAge,
-        lte: userPreferences.maxAge,
-      },
-      gender: userPreferences.gender,
-      location: userPreferences.location,
-      interests: {
-        hasSome: userPreferences.interests,
-      },
-      NOT: {
-        userId: userId, // Exclude current user
-      },
+      AND: [
+        {
+          user: {
+            dob: {
+              gte: new Date(new Date().setFullYear(new Date().getFullYear() - (userPreferences.ageTo || 99))),
+              lte: new Date(new Date().setFullYear(new Date().getFullYear() - (userPreferences.ageFrom || 18)))
+            }
+          }
+        },
+        userPreferences.maritalStatus ? { maritalStatus: userPreferences.maritalStatus } : {},
+        userPreferences.religion ? { religion: userPreferences.religion } : {},
+        userPreferences.caste ? { caste: userPreferences.caste } : {},
+        userPreferences.education ? { education: userPreferences.education } : {},
+        userPreferences.occupation ? { occupation: userPreferences.occupation } : {},
+        userPreferences.location ? { workLocation: userPreferences.location } : {},
+        {
+          NOT: {
+            userId: userId, // Exclude current user
+          }
+        }
+      ]
     };
 
     // Get potential matches
@@ -48,10 +57,14 @@ export async function GET(request: Request) {
       prisma.profile.findMany({
         where: whereClause,
         include: {
-          photos: {
-            where: { isProfilePhoto: true },
-            take: 1,
-          },
+          user: {
+            include: {
+              photos: {
+                where: { isProfile: true },
+                take: 1
+              }
+            }
+          }
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -77,9 +90,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userId, restaurant, date, time } = body;
+    const { userId, restaurant, date, time, guests } = body;
 
-    if (!userId || !restaurant || !date || !time) {
+    if (!userId || !restaurant || !date || !time || !guests) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -92,6 +105,7 @@ export async function POST(request: Request) {
         restaurant,
         date: new Date(date),
         time,
+        guests,
       },
     });
 

@@ -89,6 +89,12 @@ export async function POST(request: Request) {
           shortlistedUserId
         },
         include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
+          },
           shortlistedUser: {
             select: {
               firstName: true,

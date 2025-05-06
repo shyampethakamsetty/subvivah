@@ -35,20 +35,25 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
+      const [firstName, ...lastNameParts] = name?.split(' ') || ['', ''];
+      const lastName = lastNameParts.join(' ');
+      
       user = await prisma.user.create({
         data: {
           email,
-          name,
-          emailVerified: true, // Facebook verified emails are considered verified
+          password: '', // You might want to handle this differently
+          firstName,
+          lastName,
+          gender: '', // Required field, but we don't get it from Facebook
+          dob: new Date(), // Required field, but we don't get it from Facebook
+          isVerified: true, // Facebook verified
           profile: {
             create: {
-              firstName: name?.split(' ')[0] || '',
-              lastName: name?.split(' ').slice(1).join(' ') || '',
-              profilePhoto: picture?.data?.url,
-            },
-          },
+              // Create an empty profile as required by the schema
+            }
+          }
         },
-        include: { profile: true },
+        include: { profile: true }
       });
     }
 
@@ -64,8 +69,9 @@ export async function POST(request: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
-        emailVerified: user.emailVerified,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isVerified: user.isVerified,
         profile: user.profile,
       },
     });

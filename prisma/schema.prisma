@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Used for direct connection to the database
 }
 
 model User {
@@ -26,16 +27,21 @@ model User {
   updatedAt     DateTime @updatedAt
   profile       Profile?
   membership    Membership?
-  sentMessages  Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
+  sentMessages  Message[]  @relation("SentMessages")
+  receivedMessages Message[]  @relation("ReceivedMessages")
   sentInterests Interest[] @relation("SentInterests")
   receivedInterests Interest[] @relation("ReceivedInterests")
   photos        Photo[]
   horoscope     Horoscope?
   preferences   Preferences?
-  shortlist     Shortlist[]
-  blockedUsers  BlockedUser[]
-  notifications Notification[]
+  shortlistedUsers Shortlist[] @relation("ShortlistedUsers")
+  shortlistedBy    Shortlist[] @relation("UserShortlists")
+  blockedUsers     BlockedUser[] @relation("BlockedUsers")
+  blockedBy        BlockedUser[] @relation("UserBlockedBy")
+  notifications    Notification[]
+  restaurantBookings RestaurantBooking[]
+  viewedProfiles    ProfileView[] @relation("ProfileViewer")
+  profileViews      ProfileView[] @relation("ProfileViewed")
 }
 
 model Profile {
@@ -154,7 +160,7 @@ model Preferences {
 model Shortlist {
   id            String   @id @default(cuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation("UserShortlists", fields: [userId], references: [id])
   shortlistedUserId String
   shortlistedUser User   @relation("ShortlistedUsers", fields: [shortlistedUserId], references: [id])
   createdAt     DateTime @default(now())
@@ -166,7 +172,7 @@ model Shortlist {
 model BlockedUser {
   id            String   @id @default(cuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation("UserBlockedBy", fields: [userId], references: [id])
   blockedUserId String
   blockedUser   User     @relation("BlockedUsers", fields: [blockedUserId], references: [id])
   createdAt     DateTime @default(now())
@@ -184,4 +190,39 @@ model Notification {
   isRead        Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RestaurantBooking {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  restaurant  String
+  date        DateTime
+  time        String
+  guests      Int
+  status      String   @default("pending") // pending, confirmed, cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProfileView {
+  id            String   @id @default(cuid())
+  viewerId      String
+  viewer        User     @relation("ProfileViewer", fields: [viewerId], references: [id])
+  viewedUserId  String
+  viewedUser    User     @relation("ProfileViewed", fields: [viewedUserId], references: [id])
+  viewedAt      DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([viewerId, viewedUserId])
 } 
