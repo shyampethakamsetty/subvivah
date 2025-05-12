@@ -125,15 +125,15 @@ export default function Home() {
           <h2 className="text-2xl sm:text-3xl font-bold text-center text-red-900 mb-8 sm:mb-12">
             Featured Profiles
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {/* Profile 1 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden text-center md:text-center flex flex-col justify-between">
-              <div className="p-4 sm:p-6 flex flex-col h-full">
-                <div className="flex items-center justify-center mb-4">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center mb-4">
                   <div className="w-16 h-16 rounded-full bg-red-200 flex items-center justify-center">
                     <span className="text-2xl font-bold text-red-600">R</span>
                   </div>
-                  <div className="ml-4 text-left md:text-center">
+                  <div className="ml-4">
                     <h3 className="text-xl font-semibold text-gray-900">Rahul</h3>
                     <p className="text-gray-600">28 years, Software Engineer</p>
                   </div>
@@ -147,14 +147,15 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+
             {/* Profile 2 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden text-center md:text-center flex flex-col justify-between">
-              <div className="p-4 sm:p-6 flex flex-col h-full">
-                <div className="flex items-center justify-center mb-4">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center mb-4">
                   <div className="w-16 h-16 rounded-full bg-red-200 flex items-center justify-center">
                     <span className="text-2xl font-bold text-red-600">P</span>
                   </div>
-                  <div className="ml-4 text-left md:text-center">
+                  <div className="ml-4">
                     <h3 className="text-xl font-semibold text-gray-900">Priya</h3>
                     <p className="text-gray-600">26 years, Doctor</p>
                   </div>
@@ -168,14 +169,15 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+
             {/* Profile 3 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden text-center md:text-center flex flex-col justify-between">
-              <div className="p-4 sm:p-6 flex flex-col h-full">
-                <div className="flex items-center justify-center mb-4">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center mb-4">
                   <div className="w-16 h-16 rounded-full bg-red-200 flex items-center justify-center">
                     <span className="text-2xl font-bold text-red-600">A</span>
                   </div>
-                  <div className="ml-4 text-left md:text-center">
+                  <div className="ml-4">
                     <h3 className="text-xl font-semibold text-gray-900">Amit</h3>
                     <p className="text-gray-600">30 years, Business Owner</p>
                   </div>
@@ -199,81 +201,77 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center text-red-900 mb-12">
             Why Choose Us
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-            <div className="text-center flex flex-col h-full justify-between">
-              <div>
-                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Verified Profiles
-                </h3>
-                <p className="text-gray-600">
-                  All profiles are verified to ensure authenticity and safety.
-                </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  />
+                </svg>
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Verified Profiles
+              </h3>
+              <p className="text-gray-600">
+                All profiles are verified to ensure authenticity and safety.
+              </p>
             </div>
-            <div className="text-center flex flex-col h-full justify-between">
-              <div>
-                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Advanced Search
-                </h3>
-                <p className="text-gray-600">
-                  Find your perfect match with our detailed search filters.
-                </p>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Advanced Search
+              </h3>
+              <p className="text-gray-600">
+                Find your perfect match with our detailed search filters.
+              </p>
             </div>
-            <div className="text-center flex flex-col h-full justify-between">
-              <div>
-                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Secure Messaging
-                </h3>
-                <p className="text-gray-600">
-                  Connect with matches through our secure messaging system.
-                </p>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                  />
+                </svg>
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Secure Messaging
+              </h3>
+              <p className="text-gray-600">
+                Connect with matches through our secure messaging system.
+              </p>
             </div>
           </div>
         </div>
