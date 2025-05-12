@@ -79,22 +79,22 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Profile Information</h3>
+          <div className="px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+              <h3 className="text-lg sm:text-xl leading-6 font-medium text-gray-900">Profile Information</h3>
               <button
                 onClick={() => router.push('/profile/edit')}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto mt-2 sm:mt-0"
               >
                 Edit Profile
               </button>
             </div>
           </div>
-          <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-            <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+          <div className="border-t border-gray-200 px-4 py-4 sm:px-6 sm:py-5">
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:gap-y-8 sm:grid-cols-2">
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Full name</dt>
                 <dd className="mt-1 text-sm text-gray-900">
@@ -169,17 +169,17 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="mt-8 bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Account Settings</h3>
+        <div className="mt-6 sm:mt-8 bg-white shadow rounded-lg">
+          <div className="px-4 py-4 sm:px-6 sm:py-5">
+            <h3 className="text-lg sm:text-xl leading-6 font-medium text-gray-900">Account Settings</h3>
           </div>
-          <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+          <div className="border-t border-gray-200 px-4 py-4 sm:px-6 sm:py-5">
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium text-gray-900">Change Password</h4>
                 <button
                   onClick={() => router.push('/change-password')}
-                  className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto"
                 >
                   Update Password
                 </button>
@@ -188,7 +188,7 @@ export default function ProfilePage() {
                 <h4 className="text-sm font-medium text-gray-900">Delete Account</h4>
                 <button
                   onClick={() => router.push('/delete-account')}
-                  className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 w-full sm:w-auto"
                 >
                   Delete Account
                 </button>

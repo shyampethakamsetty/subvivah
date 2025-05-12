@@ -154,43 +154,43 @@ export default function KundliGenerator() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-purple-800 mb-6 text-center">
+    <div className="max-w-4xl mx-auto p-2 sm:p-6">
+      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-purple-800 mb-4 sm:mb-6 text-center">
           Generate Your Kundli
         </h2>
         
         {!generatedKundli ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-gray-700 mb-2">Date of Birth</label>
+              <label className="block text-gray-700 mb-1 sm:mb-2">Date of Birth</label>
               <input
                 type="date"
                 value={formData.dateOfBirth}
                 onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
+                className="w-full p-2 sm:p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-gray-700 mb-2">Time of Birth</label>
+              <label className="block text-gray-700 mb-1 sm:mb-2">Time of Birth</label>
               <input
                 type="time"
                 value={formData.timeOfBirth}
                 onChange={(e) => setFormData({ ...formData, timeOfBirth: e.target.value })}
-                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
+                className="w-full p-2 sm:p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-gray-700 mb-2">Place of Birth</label>
+              <label className="block text-gray-700 mb-1 sm:mb-2">Place of Birth</label>
               <input
                 type="text"
                 value={formData.placeOfBirth}
                 onChange={(e) => setFormData({ ...formData, placeOfBirth: e.target.value })}
-                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
+                className="w-full p-2 sm:p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter city and country"
                 required
               />
@@ -198,10 +198,9 @@ export default function KundliGenerator() {
             
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-purple-600 text-white py-3 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50"
+              className="w-full bg-purple-700 text-white py-2 sm:py-3 rounded-lg font-semibold hover:bg-purple-800 transition duration-300"
             >
-              {isLoading ? 'Generating...' : 'Generate Kundli'}
+              Generate Kundli
             </button>
           </form>
         ) : (

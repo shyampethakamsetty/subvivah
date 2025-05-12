@@ -39,7 +39,7 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-full max-w-xs sm:w-80 flex justify-end">
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
@@ -51,7 +51,7 @@ export default function Chatbot() {
           <span>ब्रह्मांड help</span>
         </button>
       ) : (
-        <div className="bg-white rounded-lg shadow-xl w-80">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-xs sm:w-80">
           <div className="bg-red-600 text-white p-4 rounded-t-lg flex justify-between items-center">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

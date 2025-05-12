@@ -82,7 +82,7 @@ export default function Register() {
           <div className="p-6">
             {/* Progress Steps */}
             <div className="mb-8">
-              <div className="flex items-center justify-between">
+              <div className="hidden sm:flex items-center justify-between">
                 {[1, 2, 3, 4, 5, 6].map((stepNumber) => (
                   <div key={stepNumber} className="flex items-center">
                     <div
@@ -102,7 +102,7 @@ export default function Register() {
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between mt-2 text-sm text-gray-500">
+              <div className="hidden sm:flex justify-between mt-2 text-sm text-gray-500">
                 <span>Basic Info</span>
                 <span>Personal</span>
                 <span>Professional</span>
@@ -118,7 +118,7 @@ export default function Register() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900">Basic Information</h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                         First Name
                       </label>
@@ -132,7 +132,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
                         Last Name
                       </label>
@@ -146,7 +146,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Email
                       </label>
@@ -160,7 +160,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                         Password
                       </label>
@@ -174,7 +174,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                         Confirm Password
                       </label>
@@ -188,7 +188,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
                         Gender
                       </label>
@@ -206,7 +206,7 @@ export default function Register() {
                         <option value="other">Other</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
                         Date of Birth
                       </label>
@@ -229,7 +229,7 @@ export default function Register() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900">Personal Details</h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="height" className="block text-sm font-medium text-gray-700">
                         Height (cm)
                       </label>
@@ -242,7 +242,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
                         Weight (kg)
                       </label>
@@ -255,7 +255,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="maritalStatus" className="block text-sm font-medium text-gray-700">
                         Marital Status
                       </label>
@@ -273,7 +273,7 @@ export default function Register() {
                         <option value="widowed">Widowed</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="religion" className="block text-sm font-medium text-gray-700">
                         Religion
                       </label>
@@ -295,7 +295,7 @@ export default function Register() {
                         <option value="other">Other</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="caste" className="block text-sm font-medium text-gray-700">
                         Caste
                       </label>
@@ -308,7 +308,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="motherTongue" className="block text-sm font-medium text-gray-700">
                         Mother Tongue
                       </label>
@@ -331,7 +331,7 @@ export default function Register() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900">Professional Details</h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="education" className="block text-sm font-medium text-gray-700">
                         Education
                       </label>
@@ -351,7 +351,7 @@ export default function Register() {
                         <option value="other">Other</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="occupation" className="block text-sm font-medium text-gray-700">
                         Occupation
                       </label>
@@ -365,7 +365,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="annualIncome" className="block text-sm font-medium text-gray-700">
                         Annual Income
                       </label>
@@ -378,7 +378,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="workLocation" className="block text-sm font-medium text-gray-700">
                         Work Location
                       </label>
@@ -400,7 +400,7 @@ export default function Register() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900">Family Details</h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="fatherName" className="block text-sm font-medium text-gray-700">
                         Father's Name
                       </label>
@@ -413,7 +413,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="fatherOccupation" className="block text-sm font-medium text-gray-700">
                         Father's Occupation
                       </label>
@@ -426,7 +426,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="motherName" className="block text-sm font-medium text-gray-700">
                         Mother's Name
                       </label>
@@ -439,7 +439,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="motherOccupation" className="block text-sm font-medium text-gray-700">
                         Mother's Occupation
                       </label>
@@ -452,7 +452,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="siblings" className="block text-sm font-medium text-gray-700">
                         Siblings
                       </label>
@@ -474,7 +474,7 @@ export default function Register() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900">Horoscope & Kundli Details</h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="timeOfBirth" className="block text-sm font-medium text-gray-700">
                         Time of Birth
                       </label>
@@ -488,7 +488,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="placeOfBirth" className="block text-sm font-medium text-gray-700">
                         Place of Birth
                       </label>
@@ -502,7 +502,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="rashi" className="block text-sm font-medium text-gray-700">
                         Rashi (Moon Sign)
                       </label>
@@ -529,7 +529,7 @@ export default function Register() {
                         <option value="pisces">Pisces</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="nakshatra" className="block text-sm font-medium text-gray-700">
                         Nakshatra
                       </label>
@@ -571,7 +571,7 @@ export default function Register() {
                         <option value="revati">Revati</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="gothra" className="block text-sm font-medium text-gray-700">
                         Gothra
                       </label>
@@ -585,7 +585,7 @@ export default function Register() {
                         required
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="manglikStatus" className="block text-sm font-medium text-gray-700">
                         Manglik Status
                       </label>
@@ -603,7 +603,7 @@ export default function Register() {
                         <option value="partial">Partial</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="horoscopeFile" className="block text-sm font-medium text-gray-700">
                         Upload Horoscope (PDF/JPG/PNG)
                       </label>
@@ -630,7 +630,7 @@ export default function Register() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900">Partner Preferences</h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="preferredAge" className="block text-sm font-medium text-gray-700">
                         Preferred Age Range
                       </label>
@@ -643,7 +643,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="preferredHeight" className="block text-sm font-medium text-gray-700">
                         Preferred Height
                       </label>
@@ -656,7 +656,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="preferredEducation" className="block text-sm font-medium text-gray-700">
                         Preferred Education
                       </label>
@@ -675,7 +675,7 @@ export default function Register() {
                         <option value="any">Any</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="preferredOccupation" className="block text-sm font-medium text-gray-700">
                         Preferred Occupation
                       </label>
@@ -688,7 +688,7 @@ export default function Register() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                       />
                     </div>
-                    <div>
+                    <div className="border rounded-lg bg-white shadow-sm p-3 sm:hover:shadow-md sm:hover:border-pink-500">
                       <label htmlFor="preferredLocation" className="block text-sm font-medium text-gray-700">
                         Preferred Location
                       </label>

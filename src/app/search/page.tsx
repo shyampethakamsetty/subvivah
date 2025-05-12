@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface Profile {
   id: string;
@@ -62,180 +63,42 @@ export default function Search() {
   }, [filters, page]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <div className="w-full md:w-64 bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Filters</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Age</label>
-                <select
-                  name="age"
-                  value={filters.age}
-                  onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                >
-                  <option value="">Any</option>
-                  <option value="18-25">18-25</option>
-                  <option value="26-30">26-30</option>
-                  <option value="31-35">31-35</option>
-                  <option value="36-40">36-40</option>
-                  <option value="41+">41+</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={filters.location}
-                  onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                  placeholder="Enter location"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Education</label>
-                <select
-                  name="education"
-                  value={filters.education}
-                  onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                >
-                  <option value="">Any</option>
-                  <option value="High School">High School</option>
-                  <option value="Bachelor's">Bachelor's</option>
-                  <option value="Master's">Master's</option>
-                  <option value="PhD">PhD</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Profession</label>
-                <select
-                  name="profession"
-                  value={filters.profession}
-                  onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                >
-                  <option value="">Any</option>
-                  <option value="Engineer">Engineer</option>
-                  <option value="Doctor">Doctor</option>
-                  <option value="Teacher">Teacher</option>
-                  <option value="Business">Business</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Religion</label>
-                <select
-                  name="religion"
-                  value={filters.religion}
-                  onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                >
-                  <option value="">Any</option>
-                  <option value="Hindu">Hindu</option>
-                  <option value="Muslim">Muslim</option>
-                  <option value="Christian">Christian</option>
-                  <option value="Sikh">Sikh</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Caste</label>
-                <select
-                  name="caste"
-                  value={filters.caste}
-                  onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                >
-                  <option value="">Any</option>
-                  <option value="General">General</option>
-                  <option value="OBC">OBC</option>
-                  <option value="SC">SC</option>
-                  <option value="ST">ST</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Search Results */}
-          <div className="flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loading ? (
-                <div className="col-span-full text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
-                </div>
-              ) : profiles.length > 0 ? (
-                profiles.map((profile) => (
-                  <div key={profile.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="relative h-64">
-                      {profile.photos && profile.photos[0] ? (
-                        <Image
-                          src={profile.photos[0].url}
-                          alt={`${profile.firstName} ${profile.lastName}`}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">No photo</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-lg font-semibold">
-                        {profile.firstName} {profile.lastName}
-                      </h3>
-                      <p className="text-gray-600">{profile.age} years</p>
-                      <p className="text-gray-600">{profile.profession}</p>
-                      <p className="text-gray-600">{profile.location}</p>
-                      <div className="mt-4 flex gap-2">
-                        <button className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors">
-                          View Profile
-                        </button>
-                        <button className="flex-1 bg-white text-red-500 border border-red-500 py-2 px-4 rounded-md hover:bg-red-50 transition-colors">
-                          Connect
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-8">
-                  <p className="text-gray-500">No profiles found matching your criteria</p>
-                </div>
-              )}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex justify-center">
-                <nav className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                    <button
-                      key={pageNum}
-                      onClick={() => setPage(pageNum)}
-                      className={`px-4 py-2 rounded-md ${
-                        page === pageNum
-                          ? 'bg-red-500 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            )}
+    <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Animated Floral SVG Background */}
+      <svg
+        className="absolute left-1/2 top-0 -translate-x-1/2 z-0 w-[120vw] h-[60vh] pointer-events-none select-none"
+        // ...rest of SVG
+      >
+        {/* ...SVG paths and circles... */}
+      </svg>
+      {/* Hero Content */}
+      <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24">
+        <div className="text-center">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+            Find Your Perfect Match
+          </h1>
+          <p className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}>
+            जहाँ रिश्ते दिल से बनते हैं
+          </p>
+          <p className="text-base sm:text-lg text-white mb-8">
+            Join thousands of successful matches on शुभ विवाह. Create your profile today and start your journey to find your life partner.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link
+              href="/register"
+              className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto"
+            >
+              Get Started
+            </Link>
+            <Link
+              href="/search"
+              className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto"
+            >
+              Browse Profiles
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 } 

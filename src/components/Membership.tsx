@@ -29,22 +29,22 @@ export default function Membership() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-900">Choose Your Membership</h2>
-        <p className="mt-4 text-xl text-gray-600">
+    <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="text-center mb-8 sm:mb-12">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Choose Your Membership</h2>
+        <p className="mt-2 sm:mt-4 text-base sm:text-xl text-gray-600">
           Upgrade to premium for enhanced features and better matches
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
         {/* Free Membership */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="px-6 py-8">
-            <h3 className="text-2xl font-bold text-gray-900">Free Membership</h3>
-            <p className="mt-4 text-gray-600">Basic features to get started</p>
-            <div className="mt-8">
-              <ul className="space-y-4">
+          <div className="px-4 py-6 sm:px-6 sm:py-8">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Free Membership</h3>
+            <p className="mt-2 sm:mt-4 text-gray-600">Basic features to get started</p>
+            <div className="mt-6 sm:mt-8">
+              <ul className="space-y-3 sm:space-y-4">
                 {features.free.map((feature, index) => (
                   <li key={index} className="flex items-start">
                     <svg className="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,18 +60,18 @@ export default function Membership() {
 
         {/* Premium Membership */}
         <div className="bg-gradient-to-br from-red-600 to-red-800 rounded-lg shadow-lg overflow-hidden">
-          <div className="px-6 py-8">
+          <div className="px-4 py-6 sm:px-6 sm:py-8">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-2xl font-bold text-white">Premium Membership</h3>
-                <p className="mt-4 text-red-100">Enhanced features for better matches</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">Premium Membership</h3>
+                <p className="mt-2 sm:mt-4 text-red-100">Enhanced features for better matches</p>
               </div>
-              <div className="bg-white text-red-600 px-4 py-2 rounded-full text-sm font-semibold">
+              <div className="bg-white text-red-600 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
                 Popular
               </div>
             </div>
-            <div className="mt-8">
-              <ul className="space-y-4">
+            <div className="mt-6 sm:mt-8">
+              <ul className="space-y-3 sm:space-y-4">
                 {features.premium.map((feature, index) => (
                   <li key={index} className="flex items-start">
                     <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@ export default function Membership() {
                 ))}
               </ul>
             </div>
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <button
                 onClick={() => setIsPremium(true)}
                 className="w-full bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition duration-300"
@@ -95,9 +95,9 @@ export default function Membership() {
       </div>
 
       {/* Safety Features */}
-      <div className="mt-16">
-        <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Safety Features</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="mt-12 sm:mt-16">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-6 sm:mb-8">Safety Features</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-4">
               <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
