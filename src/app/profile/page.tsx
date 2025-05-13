@@ -134,15 +134,18 @@ export default function ProfilePage() {
                 <dt className="text-sm font-medium text-gray-500">Interests</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   <div className="flex flex-wrap gap-2">
-                    {user.profile.interests?.map((interest, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                      >
-                        {interest}
-                      </span>
-                    ))}
-                    {(!user.profile.interests || user.profile.interests.length === 0) && 'No interests specified'}
+                    {user.profile.interests && Array.isArray(user.profile.interests) && user.profile.interests.length > 0 ? (
+                      user.profile.interests.map((interest, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                        >
+                          {interest}
+                        </span>
+                      ))
+                    ) : (
+                      <span>No interests specified</span>
+                    )}
                   </div>
                 </dd>
               </div>

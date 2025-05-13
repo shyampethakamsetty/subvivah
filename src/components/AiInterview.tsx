@@ -165,7 +165,7 @@ const AiInterview = () => {
 
       <div className="mb-4 h-64 overflow-y-auto border border-gray-300 rounded p-4 bg-gray-50">
         {messages.length === 0 ? (
-          <p className="text-gray-500 text-center">Click the microphone to begin speaking.</p>
+          <p className="text-gray-800 text-center">Click the microphone to begin speaking.</p>
         ) : (
           messages.map((msg, idx) => (
             <div

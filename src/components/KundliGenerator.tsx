@@ -163,7 +163,7 @@ export default function KundliGenerator() {
         {!generatedKundli ? (
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-gray-700 mb-1 sm:mb-2">Date of Birth</label>
+              <label className="block text-gray-800 mb-1 sm:mb-2">Date of Birth</label>
               <input
                 type="date"
                 value={formData.dateOfBirth}
@@ -174,7 +174,7 @@ export default function KundliGenerator() {
             </div>
             
             <div>
-              <label className="block text-gray-700 mb-1 sm:mb-2">Time of Birth</label>
+              <label className="block text-gray-800 mb-1 sm:mb-2">Time of Birth</label>
               <input
                 type="time"
                 value={formData.timeOfBirth}
@@ -185,7 +185,7 @@ export default function KundliGenerator() {
             </div>
             
             <div>
-              <label className="block text-gray-700 mb-1 sm:mb-2">Place of Birth</label>
+              <label className="block text-gray-800 mb-1 sm:mb-2">Place of Birth</label>
               <input
                 type="text"
                 value={formData.placeOfBirth}

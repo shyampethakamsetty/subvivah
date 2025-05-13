@@ -168,7 +168,7 @@ export default function DatingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Gender</label>
+                  <label className="block text-sm font-medium text-gray-800">Gender</label>
                   <select
                     value={preferences.gender}
                     onChange={(e) => setPreferences({ ...preferences, gender: e.target.value })}
@@ -182,7 +182,7 @@ export default function DatingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Location</label>
+                  <label className="block text-sm font-medium text-gray-800">Location</label>
                   <input
                     type="text"
                     value={preferences.location}
@@ -193,11 +193,14 @@ export default function DatingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Interests</label>
+                  <label className="block text-sm font-medium text-gray-800">Interests</label>
                   <input
                     type="text"
-                    value={preferences.interests.join(', ')}
-                    onChange={(e) => setPreferences({ ...preferences, interests: e.target.value.split(',').map(i => i.trim()) })}
+                    value={preferences.interests && Array.isArray(preferences.interests) ? preferences.interests.join(', ') : ''}
+                    onChange={(e) => {
+                      const interestsArray = e.target.value.split(',').map(i => i.trim()).filter(i => i);
+                      setPreferences({ ...preferences, interests: interestsArray });
+                    }}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     placeholder="Enter interests (comma separated)"
                   />
@@ -218,7 +221,7 @@ export default function DatingPage() {
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading profiles...</p>
+                <p className="mt-4 text-gray-800">Loading profiles...</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -242,17 +245,21 @@ export default function DatingPage() {
                       <h3 className="text-lg font-semibold text-gray-900">
                         {profile.firstName} {profile.lastName}, {profile.age}
                       </h3>
-                      <p className="text-gray-600 mt-1">{profile.location}</p>
-                      <p className="text-gray-500 mt-2 line-clamp-2">{profile.bio}</p>
+                      <p className="text-gray-700 mt-1">{profile.location}</p>
+                      <p className="text-gray-800 mt-2 line-clamp-2">{profile.bio}</p>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {profile.interests.slice(0, 3).map((interest, index) => (
+                        {profile.interests && Array.isArray(profile.interests) && profile.interests.length > 0 ? (
+                          profile.interests.slice(0, 3).map((interest, index) => (
                           <span
                             key={index}
                             className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
                           >
                             {interest}
                           </span>
-                        ))}
+                          ))
+                        ) : (
+                          <span className="text-gray-800 text-sm">No interests listed</span>
+                        )}
                       </div>
                       <div className="mt-4">
                         <Link

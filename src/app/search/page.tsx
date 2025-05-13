@@ -74,13 +74,13 @@ export default function Search() {
       {/* Hero Content */}
       <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24">
         <div className="text-center">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-black mb-4">
             Find Your Perfect Match
           </h1>
-          <p className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}>
+          <p className="text-lg sm:text-2xl font-semibold text-black mb-8" style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}>
             जहाँ रिश्ते दिल से बनते हैं
           </p>
-          <p className="text-base sm:text-lg text-white mb-8">
+          <p className="text-base sm:text-lg text-black mb-8">
             Join thousands of successful matches on शुभ विवाह. Create your profile today and start your journey to find your life partner.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -92,7 +92,7 @@ export default function Search() {
             </Link>
             <Link
               href="/search"
-              className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto"
+              className="bg-purple-600 text-white border-2 border-purple-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-purple-700 transition duration-300 shadow-lg w-full sm:w-auto"
             >
               Browse Profiles
             </Link>

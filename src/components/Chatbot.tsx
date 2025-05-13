@@ -68,7 +68,7 @@ export default function Chatbot() {
           
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500">
+              <div className="text-center text-gray-800">
                 <p>How can I help you today?</p>
               </div>
             ) : (

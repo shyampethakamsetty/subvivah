@@ -4,6 +4,11 @@ import { useState } from "react";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+  
   return (
     <nav className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,13 +49,13 @@ export default function Navbar() {
       </div>
       {mobileMenuOpen && (
         <div className="md:hidden px-2 pt-2 pb-3 space-y-1">
-          <Link href="/" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Home</Link>
-          <Link href="/search" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Search</Link>
-          <Link href="/dating" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Dating</Link>
-          <Link href="/matches" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Matches</Link>
-          <Link href="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Messages</Link>
-          <Link href="/kundli" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Kundli Generator</Link>
-          <Link href="/brahmand-chat" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">ब्रह्मांड AI chat</Link>
+          <Link href="/" onClick={closeMobileMenu} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Home</Link>
+          <Link href="/search" onClick={closeMobileMenu} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Search</Link>
+          <Link href="/dating" onClick={closeMobileMenu} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Dating</Link>
+          <Link href="/matches" onClick={closeMobileMenu} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Matches</Link>
+          <Link href="/messages" onClick={closeMobileMenu} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Messages</Link>
+          <Link href="/kundli" onClick={closeMobileMenu} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Kundli Generator</Link>
+          <Link href="/brahmand-chat" onClick={closeMobileMenu} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">ब्रह्मांड AI chat</Link>
         </div>
       )}
     </nav>

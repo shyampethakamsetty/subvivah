@@ -44,9 +44,17 @@ export default function Messages() {
     try {
       const response = await fetch('/api/messages?userId=current-user-id'); // Replace with actual user ID
       const data = await response.json();
+      
+      // Ensure that messages is always an array
+      if (Array.isArray(data)) {
       setMessages(data);
+      } else {
+        console.error('Expected array but received:', data);
+        setMessages([]);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
+      setMessages([]);
     }
   };
 
@@ -77,14 +85,15 @@ export default function Messages() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Messages</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-900">Messages</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Conversations List */}
         <div className="bg-white rounded-lg shadow-md p-4">
-          <h2 className="text-xl font-semibold mb-4">Conversations</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Conversations</h2>
           <div className="space-y-4">
-            {messages.map((message) => {
+            {Array.isArray(messages) && messages.length > 0 ? (
+              messages.map((message) => {
               const otherUser = message.senderId === 'current-user-id' ? message.receiver : message.sender;
               return (
                 <div
@@ -103,12 +112,15 @@ export default function Messages() {
                     />
                   </div>
                   <div>
-                    <h3 className="font-medium">{`${otherUser.firstName} ${otherUser.lastName}`}</h3>
-                    <p className="text-sm text-gray-500 truncate">{message.content}</p>
+                      <h3 className="font-medium text-gray-900">{`${otherUser.firstName} ${otherUser.lastName}`}</h3>
+                      <p className="text-sm text-gray-800 truncate">{message.content}</p>
                   </div>
                 </div>
               );
-            })}
+              })
+            ) : (
+              <div className="text-center py-4 text-gray-800">No conversations yet</div>
+            )}
           </div>
         </div>
 
@@ -117,7 +129,7 @@ export default function Messages() {
           {selectedUser ? (
             <>
               <div className="h-[500px] overflow-y-auto mb-4">
-                {messages
+                {Array.isArray(messages) && messages
                   .filter(
                     (m) =>
                       (m.senderId === 'current-user-id' && m.receiverId === selectedUser) ||
@@ -138,7 +150,7 @@ export default function Messages() {
                         }`}
                       >
                         <p>{message.content}</p>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-700">
                           {new Date(message.createdAt).toLocaleTimeString()}
                         </span>
                       </div>
@@ -163,7 +175,7 @@ export default function Messages() {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-[500px] text-gray-500">
+            <div className="flex items-center justify-center h-[500px] text-gray-800">
               Select a conversation to start chatting
             </div>
           )}
