@@ -109,7 +109,7 @@ export async function POST(request: Request) {
         data: {
           userId: shortlistedUserId,
           type: 'shortlist',
-          message: `You have been shortlisted by ${shortlist.user.firstName} ${shortlist.user.lastName}`
+          message: `You have been shortlisted by ${shortlist.shortlistedUser.firstName} ${shortlist.shortlistedUser.lastName}`
         }
       });
 

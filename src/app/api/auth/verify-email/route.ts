@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       data: {
         token: verificationToken,
         email,
-        expires: new Date(Date.now() + 3600000), // 1 hour
+        expiresAt: new Date(Date.now() + 3600000), // 1 hour
       },
     });
 
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
       where: { token },
     });
 
-    if (!verificationToken || verificationToken.expires < new Date()) {
+    if (!verificationToken || verificationToken.expiresAt < new Date()) {
       return NextResponse.json(
         { error: 'Invalid or expired token' },
         { status: 400 }
@@ -93,7 +93,7 @@ export async function GET(request: Request) {
     // Update user's email verification status
     await prisma.user.update({
       where: { email: decoded.email },
-      data: { emailVerified: true },
+      data: { isVerified: true },
     });
 
     await prisma.verificationToken.delete({

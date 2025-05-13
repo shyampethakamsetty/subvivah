@@ -32,6 +32,13 @@ export async function POST(request: Request) {
 
     const { email, name, picture, sub } = payload;
 
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
+
     // Find or create user
     let user = await prisma.user.findUnique({
       where: { email },
@@ -41,14 +48,16 @@ export async function POST(request: Request) {
       user = await prisma.user.create({
         data: {
           email,
-          name,
+          firstName: name?.split(' ')[0] || '',
+          lastName: name?.split(' ').slice(1).join(' ') || '',
+          gender: 'Not Specified', // Default value
+          dob: new Date(), // Default value
+          password: '', // Empty password for OAuth users
           profile: {
             create: {
-              firstName: name?.split(' ')[0] || '',
-              lastName: name?.split(' ').slice(1).join(' ') || '',
-              profilePhoto: picture,
-            },
-          },
+              // Profile fields are optional, so we don't need to set them
+            }
+          }
         },
       });
     }
@@ -65,7 +74,8 @@ export async function POST(request: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
     });
 

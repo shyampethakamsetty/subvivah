@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
+interface Message {
+  senderId: string;
+  receiverId: string;
+  isRead: boolean;
+  sender: any; // Replace 'any' with a more specific type if available
+  receiver: any; // Replace 'any' with a more specific type if available
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -89,7 +97,7 @@ export async function GET(request: Request) {
 
         // Group messages by conversation
         const conversationMap = new Map();
-        conversations.forEach(message => {
+        conversations.forEach((message: Message) => {
           const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
           if (!conversationMap.has(otherUserId)) {
             conversationMap.set(otherUserId, {

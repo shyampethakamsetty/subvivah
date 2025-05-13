@@ -47,19 +47,17 @@ export async function POST(request: Request) {
     const data = await request.json();
     const {
       userId,
-      ageRange,
-      heightRange,
+      ageFrom,
+      ageTo,
+      heightFrom,
+      heightTo,
       maritalStatus,
       religion,
       caste,
       education,
       occupation,
-      incomeRange,
       location,
-      languages,
-      dietaryHabits,
-      smokingHabits,
-      drinkingHabits
+      income
     } = data;
 
     if (!userId) {
@@ -73,35 +71,31 @@ export async function POST(request: Request) {
       const preferences = await prisma.preferences.upsert({
         where: { userId },
         update: {
-          ageRange,
-          heightRange,
+          ageFrom,
+          ageTo,
+          heightFrom,
+          heightTo,
           maritalStatus,
           religion,
           caste,
           education,
           occupation,
-          incomeRange,
           location,
-          languages,
-          dietaryHabits,
-          smokingHabits,
-          drinkingHabits
+          income
         },
         create: {
           userId,
-          ageRange,
-          heightRange,
+          ageFrom,
+          ageTo,
+          heightFrom,
+          heightTo,
           maritalStatus,
           religion,
           caste,
           education,
           occupation,
-          incomeRange,
           location,
-          languages,
-          dietaryHabits,
-          smokingHabits,
-          drinkingHabits
+          income
         }
       });
 
