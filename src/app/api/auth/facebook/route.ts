@@ -35,21 +35,43 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      user = await prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
           email,
-          name,
-          emailVerified: true, // Facebook verified emails are considered verified
+          password: '', // Required field, but we'll handle this differently for social auth
+          firstName: data.name?.split(' ')[0] || '',
+          lastName: data.name?.split(' ').slice(1).join(' ') || '',
+          gender: '', // Required field, will need to be updated later
+          dob: new Date(), // Required field, will need to be updated later
+          isVerified: true, // Facebook verified emails are considered verified
+          isActive: true,
           profile: {
             create: {
-              firstName: name?.split(' ')[0] || '',
-              lastName: name?.split(' ').slice(1).join(' ') || '',
-              profilePhoto: picture?.data?.url,
+              height: null,
+              weight: null,
+              maritalStatus: null,
+              religion: null,
+              caste: null,
+              motherTongue: null,
+              education: null,
+              occupation: null,
+              annualIncome: null,
+              workLocation: null,
+              fatherName: null,
+              fatherOccupation: null,
+              motherName: null,
+              motherOccupation: null,
+              siblings: null,
+              familyType: null,
+              familyStatus: null,
+              aboutMe: null,
+              hobbies: null,
             },
           },
         },
         include: { profile: true },
       });
+      user = newUser;
     }
 
     // Create JWT token
@@ -64,8 +86,9 @@ export async function POST(request: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
-        emailVerified: user.emailVerified,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailVerified: user.isVerified,
         profile: user.profile,
       },
     });

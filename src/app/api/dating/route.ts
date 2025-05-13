@@ -15,8 +15,8 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get user's dating preferences
-    const userPreferences = await prisma.datingPreference.findUnique({
+    // Get user's preferences
+    const userPreferences = await prisma.preferences.findUnique({
       where: { userId },
     });
 
@@ -29,18 +29,22 @@ export async function GET(request: Request) {
 
     // Build search criteria based on preferences
     const whereClause = {
-      age: {
-        gte: userPreferences.minAge,
-        lte: userPreferences.maxAge,
-      },
-      gender: userPreferences.gender,
-      location: userPreferences.location,
-      interests: {
-        hasSome: userPreferences.interests,
-      },
-      NOT: {
-        userId: userId, // Exclude current user
-      },
+      AND: [
+        {
+          user: {
+            dob: {
+              gte: new Date(new Date().setFullYear(new Date().getFullYear() - (userPreferences.ageTo || 100))),
+              lte: new Date(new Date().setFullYear(new Date().getFullYear() - (userPreferences.ageFrom || 18))),
+            },
+            gender: userPreferences.maritalStatus || undefined,
+          },
+        },
+        {
+          NOT: {
+            userId: userId,
+          },
+        },
+      ],
     };
 
     // Get potential matches
@@ -48,9 +52,13 @@ export async function GET(request: Request) {
       prisma.profile.findMany({
         where: whereClause,
         include: {
-          photos: {
-            where: { isProfilePhoto: true },
-            take: 1,
+          user: {
+            include: {
+              photos: {
+                where: { isProfile: true },
+                take: 1,
+              },
+            },
           },
         },
         skip: (page - 1) * limit,
@@ -86,16 +94,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const booking = await prisma.restaurantBooking.create({
-      data: {
-        userId,
-        restaurant,
-        date: new Date(date),
-        time,
-      },
-    });
-
-    return NextResponse.json(booking);
+    // Note: You'll need to create a RestaurantBooking model in your schema
+    // For now, we'll return an error
+    return NextResponse.json(
+      { error: 'Restaurant booking functionality not implemented yet' },
+      { status: 501 }
+    );
   } catch (error) {
     console.error('Error creating restaurant booking:', error);
     return NextResponse.json(
