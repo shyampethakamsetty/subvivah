@@ -10,22 +10,33 @@ const BrahamandChatPage = () => {
     script.src = "https://cdn.jsdelivr.net/npm/rasa-webchat@1.0.1/lib/index.js";
     script.async = true;
     script.onload = () => {
-      if (window.WebChat) {
-        window.WebChat.default.init({
-          selector: "#webchat",
-          initPayload: "/get_started",
-          customData: { "language": "en" },
-          socketUrl: "http://localhost:5005",
-          socketPath: "/socket.io/",
-          title: "Brahamand AI Chat",
-          subtitle: "Your AI Interview Assistant"
-        });
-      }
+      // Add a small delay to ensure WebChat is fully loaded
+      setTimeout(() => {
+        if (window.WebChat && typeof window.WebChat.default === 'object') {
+          try {
+            window.WebChat.default.init({
+              selector: "#webchat",
+              initPayload: "/get_started",
+              customData: { "language": "en" },
+              socketUrl: "http://localhost:5005",
+              socketPath: "/socket.io/",
+              title: "Brahamand AI Chat",
+              subtitle: "Your AI Interview Assistant"
+            });
+          } catch (error) {
+            console.error('Error initializing WebChat:', error);
+          }
+        } else {
+          console.error('WebChat not properly loaded');
+        }
+      }, 1000);
     };
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, []);
 

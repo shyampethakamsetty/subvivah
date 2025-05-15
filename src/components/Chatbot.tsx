@@ -7,34 +7,58 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([]);
   const [inputMessage, setInputMessage] = useState('');
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputMessage.trim()) {
       // Add user message
       setMessages([...messages, { text: inputMessage, isUser: true }]);
       
-      // Simulate bot response
-      setTimeout(() => {
-        const botResponse = getBotResponse(inputMessage);
-        setMessages(prev => [...prev, { text: botResponse, isUser: false }]);
-      }, 1000);
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'system',
+                content: `You are ब्रह्मांड AI, a friendly and helpful AI assistant for a matrimonial website. You should:
+                1. Be warm, empathetic, and culturally sensitive
+                2. Help users with profile creation, search filters, and account settings
+                3. Provide guidance on safety tips and best practices
+                4. Answer questions about the matrimonial process
+                5. Keep responses concise but informative
+                6. Use a mix of Hindi and English when appropriate
+                7. Always maintain a professional yet friendly tone`
+              },
+              ...messages.map(msg => ({
+                role: msg.isUser ? 'user' : 'assistant',
+                content: msg.text
+              })),
+              {
+                role: 'user',
+                content: inputMessage
+              }
+            ],
+            language: 'en'
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get response');
+        }
+
+        const data = await response.json();
+        setMessages(prev => [...prev, { text: data.response, isUser: false }]);
+      } catch (error) {
+        console.error('Error:', error);
+        setMessages(prev => [...prev, { 
+          text: 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment.', 
+          isUser: false 
+        }]);
+      }
       
       setInputMessage('');
-    }
-  };
-
-  const getBotResponse = (message: string) => {
-    const lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-      return 'Hello! How can I help you today?';
-    } else if (lowerMessage.includes('help')) {
-      return 'I can help you with:\n1. Profile creation\n2. Search filters\n3. Account settings\n4. Safety tips\nWhat would you like to know?';
-    } else if (lowerMessage.includes('profile')) {
-      return 'To create a profile:\n1. Click on Register\n2. Fill in your details\n3. Upload photos\n4. Set your preferences';
-    } else if (lowerMessage.includes('search')) {
-      return 'You can search profiles using:\n1. Age range\n2. Location\n3. Education\n4. Profession\n5. Religion and caste';
-    } else {
-      return 'I\'m here to help! You can ask me about profile creation, search filters, or account settings.';
     }
   };
 
