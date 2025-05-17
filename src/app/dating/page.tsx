@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import RestaurantDiscovery from '@/components/RestaurantDiscovery';
 
 interface DatingProfile {
   id: string;
@@ -293,57 +294,9 @@ export default function DatingPage() {
               </div>
             )}
 
-            {/* Restaurant Selection */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mt-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Select a Restaurant</h2>
-              <select
-                value={selectedRestaurant ? selectedRestaurant.id : ''}
-                onChange={(e) => {
-                  const restaurant = restaurants.find(r => r.id === e.target.value);
-                  if (restaurant) {
-                    setSelectedRestaurant(restaurant);
-                  }
-                }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              >
-                <option value="">Select a restaurant</option>
-                {restaurants.map((restaurant) => (
-                  <option key={restaurant.id} value={restaurant.id}>{restaurant.name}</option>
-                ))}
-              </select>
-
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 mt-4">Select Table Type</h2>
-              <select
-                value={tableType}
-                onChange={(e) => setTableType(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              >
-                <option value="">Select table type</option>
-                <option value="romantic">Romantic Candle Light</option>
-                <option value="others">Others</option>
-              </select>
-
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 mt-4">Select Date and Time</h2>
-              <input
-                type="date"
-                value={bookingDate}
-                onChange={(e) => setBookingDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-              <input
-                type="time"
-                value={bookingTime}
-                onChange={(e) => setBookingTime(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-
-              <button
-                onClick={bookTable}
-                disabled={!selectedRestaurant || !tableType || !bookingDate || !bookingTime}
-                className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 mt-4"
-              >
-                Book Table
-              </button>
+            {/* Restaurant Discovery Section */}
+            <div className="mt-12">
+              <RestaurantDiscovery />
             </div>
           </div>
         </div>
