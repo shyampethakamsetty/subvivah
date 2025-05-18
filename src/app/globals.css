@@ -31,7 +31,7 @@ body {
 /* Add styles for input fields */
 input, select, textarea {
   color: #0c0c0c !important;
-  background-color: #0a0909 !important;
+  background-color: #F8F8F8 !important;
 }
 
 input::placeholder, select::placeholder, textarea::placeholder {
