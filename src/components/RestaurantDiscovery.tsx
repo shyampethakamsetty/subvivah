@@ -9,6 +9,7 @@ interface Restaurant {
   name: string;
   description: string;
   images: string[];
+  videos: string[];
   cuisine: string;
   rating: number;
   priceRange: string;
@@ -63,7 +64,9 @@ interface RestaurantModalProps {
 
 const RestaurantModal = ({ restaurant, onClose }: RestaurantModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showVideos, setShowVideos] = useState(false);
   const imageCount = restaurant.images.length;
+  const videoCount = restaurant.videos.length;
 
   const paginate = (newDirection: number) => {
     setCurrentImageIndex((prev) => {
@@ -90,63 +93,160 @@ const RestaurantModal = ({ restaurant, onClose }: RestaurantModalProps) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-64 md:h-96 flex items-center justify-center overflow-hidden">
-          {/* Left Button */}
-          {imageCount > 1 && (
+          {/* Media Toggle Buttons */}
+          <div className="absolute top-4 left-4 z-20 flex gap-2">
             <button
-              onClick={() => paginate(-1)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow transition z-10"
-              aria-label="Previous image"
+              onClick={() => setShowVideos(false)}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                !showVideos ? 'bg-white text-gray-900' : 'bg-white/50 text-gray-600'
+              }`}
             >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              Photos
             </button>
-          )}
-
-          {/* Image carousel row */}
-          <motion.div
-            className="flex w-full h-full"
-            animate={{ x: `-${currentImageIndex * 100}%` }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            style={{ width: `${imageCount * 100}%` }}
-          >
-            {restaurant.images.map((img, idx) => (
-              <div key={idx} className="w-full h-full flex-shrink-0 relative">
-                <Image
-                  src={img}
-                  alt={restaurant.name}
-                  fill
-                  className="object-cover rounded-2xl"
-                />
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Right Button */}
-          {imageCount > 1 && (
-            <button
-              onClick={() => paginate(1)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow transition z-10"
-              aria-label="Next image"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Dots */}
-          <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-2 z-10">
-            {restaurant.images.map((_, index) => (
+            {videoCount > 0 && (
               <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                onClick={() => setShowVideos(true)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  showVideos ? 'bg-white text-gray-900' : 'bg-white/50 text-gray-600'
                 }`}
-                onClick={() => setCurrentImageIndex(index)}
-              />
-            ))}
+              >
+                Videos
+              </button>
+            )}
           </div>
+
+          {!showVideos ? (
+            <>
+              {/* Left Button */}
+              {imageCount > 1 && (
+                <button
+                  onClick={() => paginate(-1)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow transition z-10"
+                  aria-label="Previous image"
+                >
+                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
+
+              {/* Image carousel row */}
+              <motion.div
+                className="flex w-full h-full"
+                animate={{ x: `-${currentImageIndex * 100}%` }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                style={{ width: `${imageCount * 100}%` }}
+              >
+                {restaurant.images.map((img, idx) => (
+                  <div key={idx} className="w-full h-full flex-shrink-0 relative">
+                    <Image
+                      src={img}
+                      alt={restaurant.name}
+                      fill
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* Right Button */}
+              {imageCount > 1 && (
+                <button
+                  onClick={() => paginate(1)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow transition z-10"
+                  aria-label="Next image"
+                >
+                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+
+              {/* Dots */}
+              <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-2 z-10">
+                {restaurant.images.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                    }`}
+                    onClick={() => setCurrentImageIndex(index)}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Left Button for Videos */}
+              {videoCount > 1 && (
+                <button
+                  onClick={() => setCurrentImageIndex((prev) => (prev - 1 + videoCount) % videoCount)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow transition z-10"
+                  aria-label="Previous video"
+                >
+                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
+
+              {/* Video carousel row */}
+              <motion.div
+                className="flex w-full h-full"
+                animate={{ x: `-${currentImageIndex * 100}%` }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                style={{ width: `${videoCount * 100}%` }}
+              >
+                {restaurant.videos.map((video, idx) => (
+                  <div key={idx} className="w-full h-full flex-shrink-0 relative flex items-center justify-center aspect-video bg-black rounded-2xl overflow-hidden">
+                    <video
+                      src={video}
+                      controls
+                      preload="metadata"
+                      className="w-full h-full object-contain bg-black"
+                      playsInline
+                      controlsList="nodownload"
+                      onError={e => {
+                        if (e.currentTarget.parentElement) {
+                          e.currentTarget.parentElement.innerHTML = '<div style=\'color:white;text-align:center;padding:2rem;\'>Video failed to load</div>';
+                        }
+                      }}
+                    >
+                      <source src={video} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* Right Button for Videos */}
+              {videoCount > 1 && (
+                <button
+                  onClick={() => setCurrentImageIndex((prev) => (prev + 1) % videoCount)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 rounded-full shadow transition z-10"
+                  aria-label="Next video"
+                >
+                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+
+              {/* Dots for Videos */}
+              <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-2 z-10">
+                {restaurant.videos.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                    }`}
+                    onClick={() => setCurrentImageIndex(index)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
           <button
             onClick={onClose}
             className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white z-10"
@@ -207,6 +307,10 @@ export default function RestaurantDiscovery() {
           '/images/restaurants/symposium-pdr-2.jpg',
           '/images/restaurants/symposium-pdr-interior.jpg'
         ],
+        videos: [
+          '/videos/restaurants/symposium-pdr-1.mp4',
+          '/videos/restaurants/symposium-pdr-2.mp4'
+        ],
         cuisine: 'International',
         rating: 4.5,
         priceRange: '₹₹₹',
@@ -216,21 +320,41 @@ export default function RestaurantDiscovery() {
       id: '2',
       name: 'Cafe After Hours',
       description: 'A cozy cafe perfect for intimate conversations, serving specialty coffee and delicious desserts.',
-      images: ['/images/restaurants/cafe-1.jpg', '/images/restaurants/cafe-2.jpg'],
+      images: [
+        '/images/restaurants/cafe-after-hours-1.jpg',
+        '/images/restaurants/cafe-after-hours-2.jpg',
+        '/images/restaurants/cafe-after-hours-3.jpg',
+        '/images/restaurants/cafe-after-hours-4.jpg',
+        '/images/restaurants/cafe-after-hours-5.jpg'
+      ],
+      videos: [
+        '/videos/restaurants/cafe-after-hours-1.mp4',
+        '/videos/restaurants/cafe-after-hours-2.mp4'
+      ],
       cuisine: 'Cafe',
       rating: 4.3,
       priceRange: '₹₹',
-      location: 'Sector-12, Dwarka, Delhi'
+      location: 'City Centre Mall, B-35, Pocket 8, Block B, Sector 12 Dwarka, Dwarka, Delhi, 110075'
     },
     {
       id: '3',
       name: 'Panache',
       description: 'Elegant dining with a modern twist, offering contemporary Indian cuisine in a sophisticated setting.',
-      images: ['/images/restaurants/panache-1.jpg', '/images/restaurants/panache-2.jpg'],
+      images: [
+        '/images/restaurants/panache-1.jpg',
+        '/images/restaurants/panache-2.jpg',
+        '/images/restaurants/panache-3.jpg',
+        '/images/restaurants/panache-4.jpg',
+        '/images/restaurants/panache-5.jpg'
+      ],
+      videos: [
+        '/videos/restaurants/panache-1.mp4',
+        '/videos/restaurants/panache-2.mp4'
+      ],
       cuisine: 'Contemporary Indian',
       rating: 4.7,
       priceRange: '₹₹₹₹',
-      location: 'Sector 17, Dwarka, Delhi'
+      location: '17, Pocket A St, Pocket A, Sector 17 Dwarka, Kakrola, New Delhi, Delhi, 110078'
     }
   ]);
 
