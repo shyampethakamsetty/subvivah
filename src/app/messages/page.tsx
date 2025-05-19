@@ -1,57 +1,77 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
+import withAuth from '@/components/withAuth';
 
 interface Message {
   id: string;
-  content: string;
   senderId: string;
   receiverId: string;
+  content: string;
+  timestamp: string;
   isRead: boolean;
-  createdAt: string;
-  sender: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    profile: {
-      photo?: string;
-    };
-  };
-  receiver: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    profile: {
-      photo?: string;
-    };
-  };
 }
 
-export default function Messages() {
+interface Conversation {
+  id: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+  photo: string;
+}
+
+function MessagesPage() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch messages when component mounts
-    fetchMessages();
+    fetchConversations();
   }, []);
 
-  const fetchMessages = async () => {
+  useEffect(() => {
+    if (selectedConversation) {
+      fetchMessages(selectedConversation);
+    }
+  }, [selectedConversation]);
+
+  const fetchConversations = async () => {
     try {
-      const response = await fetch('/api/messages?userId=current-user-id'); // Replace with actual user ID
-      const data = await response.json();
-      setMessages(data);
+      setLoading(true);
+      const response = await fetch('/api/messages/conversations');
+      if (response.ok) {
+        const data = await response.json();
+        setConversations(data.conversations);
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMessages = async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/messages/${conversationId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.messages);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!selectedUser || !newMessage.trim()) return;
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedConversation) return;
 
     try {
       const response = await fetch('/api/messages', {
@@ -60,115 +80,146 @@ export default function Messages() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          senderId: 'current-user-id', // Replace with actual user ID
-          receiverId: selectedUser,
+          conversationId: selectedConversation,
           content: newMessage,
         }),
       });
 
       if (response.ok) {
         setNewMessage('');
-        fetchMessages();
+        fetchMessages(selectedConversation);
+        fetchConversations(); // Update conversation list with new message
       }
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Messages</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Conversations List */}
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <h2 className="text-xl font-semibold mb-4">Conversations</h2>
-          <div className="space-y-4">
-            {messages.map((message) => {
-              const otherUser = message.senderId === 'current-user-id' ? message.receiver : message.sender;
-              return (
-                <div
-                  key={message.id}
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${
-                    selectedUser === otherUser.id ? 'bg-red-50' : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedUser(otherUser.id)}
-                >
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden mr-3">
-                    <Image
-                      src={otherUser.profile?.photo || '/images/default-avatar.png'}
-                      alt={`${otherUser.firstName} ${otherUser.lastName}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">{`${otherUser.firstName} ${otherUser.lastName}`}</h3>
-                    <p className="text-sm text-gray-500 truncate">{message.content}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-gray-900">Messages</h1>
+          <p className="mt-4 text-lg text-gray-600">
+            Connect with your matches
+          </p>
         </div>
 
-        {/* Chat Area */}
-        <div className="md:col-span-2 bg-white rounded-lg shadow-md p-4">
-          {selectedUser ? (
-            <>
-              <div className="h-[500px] overflow-y-auto mb-4">
-                {messages
-                  .filter(
-                    (m) =>
-                      (m.senderId === 'current-user-id' && m.receiverId === selectedUser) ||
-                      (m.senderId === selectedUser && m.receiverId === 'current-user-id')
-                  )
-                  .map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${
-                        message.senderId === 'current-user-id' ? 'justify-end' : 'justify-start'
-                      } mb-4`}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 h-[600px]">
+            {/* Conversations List */}
+            <div className="border-r border-gray-200">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
+              </div>
+              <div className="overflow-y-auto h-[calc(600px-4rem)]">
+                {conversations.length === 0 ? (
+                  <div className="p-4 text-center text-gray-500">
+                    No conversations yet
+                  </div>
+                ) : (
+                  conversations.map((conversation) => (
+                    <button
+                      key={conversation.id}
+                      onClick={() => setSelectedConversation(conversation.id)}
+                      className={`w-full p-4 flex items-center space-x-3 hover:bg-gray-50 ${
+                        selectedConversation === conversation.id ? 'bg-purple-50' : ''
+                      }`}
                     >
+                      <div className="relative h-12 w-12">
+                        <Image
+                          src={conversation.photo}
+                          alt={`${conversation.firstName}'s profile`}
+                          fill
+                          className="rounded-full object-cover"
+                        />
+                        {conversation.unreadCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            {conversation.unreadCount}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {conversation.firstName} {conversation.lastName}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">
+                          {conversation.lastMessage}
+                        </p>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(conversation.lastMessageTime).toLocaleTimeString()}
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Messages Area */}
+            <div className="md:col-span-2 flex flex-col">
+              {selectedConversation ? (
+                <>
+                  <div className="flex-1 overflow-y-auto p-4">
+                    {messages.map((message) => (
                       <div
-                        className={`max-w-[70%] p-3 rounded-lg ${
-                          message.senderId === 'current-user-id'
-                            ? 'bg-red-100 text-red-900'
-                            : 'bg-gray-100 text-gray-900'
+                        key={message.id}
+                        className={`flex mb-4 ${
+                          message.senderId === 'current' ? 'justify-end' : 'justify-start'
                         }`}
                       >
-                        <p>{message.content}</p>
-                        <span className="text-xs text-gray-500">
-                          {new Date(message.createdAt).toLocaleTimeString()}
-                        </span>
+                        <div
+                          className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                            message.senderId === 'current'
+                              ? 'bg-purple-600 text-white'
+                              : 'bg-gray-100 text-gray-900'
+                          }`}
+                        >
+                          <p>{message.content}</p>
+                          <p className="text-xs mt-1 opacity-75">
+                            {new Date(message.timestamp).toLocaleTimeString()}
+                          </p>
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                  <form onSubmit={sendMessage} className="p-4 border-t border-gray-200">
+                    <div className="flex space-x-4">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your message..."
+                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                      />
+                      <button
+                        type="submit"
+                        className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                      >
+                        Send
+                      </button>
                     </div>
-                  ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your message..."
-                  className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                />
-                <button
-                  onClick={handleSendMessage}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                >
-                  Send
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-[500px] text-gray-500">
-              Select a conversation to start chatting
+                  </form>
+                </>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-gray-500">
+                  Select a conversation to start messaging
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
   );
-} 
+}
+
+export default withAuth(MessagesPage);

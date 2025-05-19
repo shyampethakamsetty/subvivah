@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import GoogleLoginButton from '@/components/GoogleLoginButton';
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -69,10 +70,37 @@ export default function Register() {
     setStep(prev => prev - 1);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
+    
+    try {
+      // Validate passwords match
+      if (formData.password !== formData.confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      // Registration successful
+      alert('Registration successful! Please check your email to verify your account.');
+      window.location.href = '/login'; // Redirect to login page
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert(error instanceof Error ? error.message : 'Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -113,6 +141,19 @@ export default function Register() {
             </div>
 
             <form onSubmit={handleSubmit}>
+              {/* Google Sign-up Button */}
+              <div className="mb-8">
+                <GoogleLoginButton />
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">Or continue with registration form</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Step 1: Basic Information */}
               {step === 1 && (
                 <div className="space-y-6">

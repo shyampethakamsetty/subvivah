@@ -135,23 +135,23 @@ const KundliPDF = ({ kundliData, generatedKundli }: KundliPDFProps) => (
       {/* Planetary Positions */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Planetary Positions</Text>
-        {Object.entries(generatedKundli.planetaryPositions).map(([planet, position]) => (
+        {generatedKundli.planetaryPositions && typeof generatedKundli.planetaryPositions === 'object' ? Object.entries(generatedKundli.planetaryPositions).map(([planet, position]) => (
           <View key={planet} style={styles.row}>
             <Text style={styles.label}>{planet.charAt(0).toUpperCase() + planet.slice(1)}:</Text>
             <Text style={styles.value}>{position}</Text>
           </View>
-        ))}
+        )) : null}
       </View>
 
       {/* Detailed Analysis */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Detailed Analysis</Text>
-        {Object.entries(generatedKundli.detailedAnalysis).map(([aspect, description]) => (
+        {generatedKundli.detailedAnalysis && typeof generatedKundli.detailedAnalysis === 'object' ? Object.entries(generatedKundli.detailedAnalysis).map(([aspect, description]) => (
           <View key={aspect} style={styles.section}>
             <Text style={styles.label}>{aspect.charAt(0).toUpperCase() + aspect.slice(1)}:</Text>
             <Text style={styles.prediction}>{description}</Text>
           </View>
-        ))}
+        )) : null}
       </View>
 
       {/* Compatibility */}
@@ -185,9 +185,9 @@ const KundliPDF = ({ kundliData, generatedKundli }: KundliPDFProps) => (
       {/* Remedies */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Remedies</Text>
-        {generatedKundli.detailedAnalysis.remedies.map((remedy, index) => (
+        {Array.isArray(generatedKundli.detailedAnalysis.remedies) ? generatedKundli.detailedAnalysis.remedies.map((remedy, index) => (
           <Text key={index} style={styles.prediction}>• {remedy}</Text>
-        ))}
+        )) : null}
       </View>
     </Page>
   </Document>

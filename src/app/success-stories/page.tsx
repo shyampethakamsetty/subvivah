@@ -180,7 +180,7 @@ export default function SuccessStories() {
 
         {/* Success Stories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {successStories.map((story) => (
+          {Array.isArray(successStories) ? successStories.map((story) => (
             <div
               key={story.id}
               className="bg-white rounded-lg shadow-lg overflow-hidden"
@@ -219,7 +219,7 @@ export default function SuccessStories() {
                 <p className="text-gray-600">{story.story}</p>
               </div>
             </div>
-          ))}
+          )) : null}
         </div>
 
         {/* Features Section */}
