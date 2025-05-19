@@ -180,7 +180,7 @@ export default function SuccessStories() {
 
         {/* Success Stories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {Array.isArray(successStories) ? successStories.map((story) => (
+          {successStories && successStories.length > 0 ? successStories.map((story) => (
             <div
               key={story.id}
               className="bg-white rounded-lg shadow-lg overflow-hidden"
@@ -219,7 +219,11 @@ export default function SuccessStories() {
                 <p className="text-gray-600">{story.story}</p>
               </div>
             </div>
-          )) : null}
+          )) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-600">No success stories available at the moment.</p>
+            </div>
+          )}
         </div>
 
         {/* Features Section */}
