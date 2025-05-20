@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import withAuth from '@/components/withAuth';
-
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Profile {
   id: string;
@@ -13,6 +13,11 @@ interface Profile {
   age: number;
   location: string;
   profession: string;
+  education: string;
+  religion: string;
+  caste: string;
+  motherTongue: string;
+  maritalStatus: string;
   photos: {
     url: string;
   }[];
@@ -25,8 +30,19 @@ function SearchPage() {
     education: '',
     profession: '',
     religion: '',
-    caste: ''
+    caste: '',
+    motherTongue: '',
+    maritalStatus: '',
+    height: '',
+    weight: '',
+    manglikStatus: '',
+    rashi: '',
+    nakshatra: '',
+    occupation: '',
+    annualIncome: '',
+    workLocation: ''
   });
+  const [showFilters, setShowFilters] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -66,39 +82,338 @@ function SearchPage() {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Animated Floral SVG Background */}
-      <svg
-        className="absolute left-1/2 top-0 -translate-x-1/2 z-0 w-[120vw] h-[60vh] pointer-events-none select-none"
-        // ...rest of SVG
-      >
-        {/* ...SVG paths and circles... */}
-      </svg>
-      {/* Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24">
-        <div className="text-center">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
-            Find Your Perfect Match
-          </h1>
-          <p className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}>
-            जहाँ रिश्ते दिल से बनते हैं
-          </p>
-          <p className="text-base sm:text-lg text-white mb-8">
-            Join thousands of successful matches on शुभ विवाह. Create your profile today and start your journey to find your life partner.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              href="/register"
-              className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto"
+      {/* Search Form */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto py-8">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Search by name, location, or profession..."
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
-              Get Started
-            </Link>
-            <Link
-              href="/search"
-              className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto"
-            >
-              Browse Profiles
-            </Link>
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
           </div>
+
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Basic Filters */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Age Range</label>
+                <input
+                  type="text"
+                  name="age"
+                  value={filters.age}
+                  onChange={handleFilterChange}
+                  placeholder="e.g., 25-35"
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={filters.location}
+                  onChange={handleFilterChange}
+                  placeholder="City, State"
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Education</label>
+                <select
+                  name="education"
+                  value={filters.education}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select Education</option>
+                  <option value="high_school">High School</option>
+                  <option value="bachelors">Bachelor's Degree</option>
+                  <option value="masters">Master's Degree</option>
+                  <option value="phd">PhD</option>
+                </select>
+              </div>
+
+              {/* Professional Details */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+                <input
+                  type="text"
+                  name="occupation"
+                  value={filters.occupation}
+                  onChange={handleFilterChange}
+                  placeholder="Enter occupation"
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
+                <select
+                  name="annualIncome"
+                  value={filters.annualIncome}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select Income Range</option>
+                  <option value="0-300000">Below 3 LPA</option>
+                  <option value="300000-500000">3-5 LPA</option>
+                  <option value="500000-800000">5-8 LPA</option>
+                  <option value="800000-1200000">8-12 LPA</option>
+                  <option value="1200000-1500000">12-15 LPA</option>
+                  <option value="1500000-2000000">15-20 LPA</option>
+                  <option value="2000000+">Above 20 LPA</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Work Location</label>
+                <input
+                  type="text"
+                  name="workLocation"
+                  value={filters.workLocation}
+                  onChange={handleFilterChange}
+                  placeholder="Enter work location"
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+
+              {/* Personal Details */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+                <select
+                  name="religion"
+                  value={filters.religion}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select Religion</option>
+                  <option value="hindu">Hindu</option>
+                  <option value="muslim">Muslim</option>
+                  <option value="christian">Christian</option>
+                  <option value="sikh">Sikh</option>
+                  <option value="jain">Jain</option>
+                  <option value="buddhist">Buddhist</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Caste</label>
+                <input
+                  type="text"
+                  name="caste"
+                  value={filters.caste}
+                  onChange={handleFilterChange}
+                  placeholder="Enter caste"
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mother Tongue</label>
+                <input
+                  type="text"
+                  name="motherTongue"
+                  value={filters.motherTongue}
+                  onChange={handleFilterChange}
+                  placeholder="Enter mother tongue"
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+
+              {/* Horoscope Details */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rashi</label>
+                <select
+                  name="rashi"
+                  value={filters.rashi}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select Rashi</option>
+                  <option value="aries">Aries</option>
+                  <option value="taurus">Taurus</option>
+                  <option value="gemini">Gemini</option>
+                  <option value="cancer">Cancer</option>
+                  <option value="leo">Leo</option>
+                  <option value="virgo">Virgo</option>
+                  <option value="libra">Libra</option>
+                  <option value="scorpio">Scorpio</option>
+                  <option value="sagittarius">Sagittarius</option>
+                  <option value="capricorn">Capricorn</option>
+                  <option value="aquarius">Aquarius</option>
+                  <option value="pisces">Pisces</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Manglik Status</label>
+                <select
+                  name="manglikStatus"
+                  value={filters.manglikStatus}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select Status</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="partial">Partial</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Height Range (cm)</label>
+                <input
+                  type="text"
+                  name="height"
+                  value={filters.height}
+                  onChange={handleFilterChange}
+                  placeholder="e.g., 160-180"
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Results Section */}
+        <div className="mt-8">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading profiles...</p>
+            </div>
+          ) : (
+            <>
+              <AnimatePresence>
+                {profiles.length === 0 && !loading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0,
+                      transition: {
+                        y: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 20
+                        },
+                        opacity: {
+                          duration: 0.8
+                        }
+                      }
+                    }}
+                    exit={{ opacity: 0, y: 50 }}
+                    className="flex flex-col items-center justify-center py-12"
+                  >
+                    <motion.div
+                      animate={{
+                        y: [0, -15, 0],
+                      }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      <Image
+                        src="/Beach wedding-amico.svg"
+                        alt="Beach Wedding Illustration"
+                        width={400}
+                        height={400}
+                        className="mb-4"
+                      />
+                    </motion.div>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="text-gray-600 text-lg text-center"
+                    >
+                      Apply filters to find your perfect match
+                    </motion.p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {profiles.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                  {profiles.map((profile) => (
+                    <div key={profile.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      <div className="relative h-48">
+                        {profile.photos && profile.photos[0] ? (
+                          <Image
+                            src={profile.photos[0].url}
+                            alt={`${profile.firstName} ${profile.lastName}`}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-400">No photo available</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {profile.firstName} {profile.lastName}
+                        </h3>
+                        <p className="text-gray-600">{profile.age} years</p>
+                        <p className="text-gray-600">{profile.location}</p>
+                        <p className="text-gray-600">{profile.profession}</p>
+                        <Link
+                          href={`/profile/${profile.id}`}
+                          className="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+                        >
+                          View Profile
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 border rounded-md disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 border rounded-md disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </section>

@@ -75,12 +75,17 @@ export default function Navbar() {
           <div className="flex items-center space-x-4">
             {!loading && (
               isAuthenticated ? (
-                <button
-                  onClick={handleLogout}
-                  className="bg-white text-purple-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-50"
-                >
-                  Logout
-                </button>
+                <>
+                  <Link href="/profile" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">
+                    Manage Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white text-purple-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-50"
+                  >
+                    Logout
+                  </button>
+                </>
               ) : (
                 <>
                   <Link href="/login" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">Login</Link>

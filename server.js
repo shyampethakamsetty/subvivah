@@ -19,6 +19,7 @@ const rekognition = new AWS.Rekognition();
 //   res.json({ message: 'Video uploaded and verified successfully!' });
 // });
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+app.listen(3001, () => {
+  console.log('Server running on port 3001');
+  
 }); 
