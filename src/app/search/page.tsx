@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import withAuth from '@/components/withAuth';
+
 
 interface Profile {
   id: string;
@@ -16,7 +18,7 @@ interface Profile {
   }[];
 }
 
-export default function Search() {
+function SearchPage() {
   const [filters, setFilters] = useState({
     age: '',
     location: '',
@@ -101,4 +103,6 @@ export default function Search() {
       </div>
     </section>
   );
-} 
+}
+
+export default withAuth(SearchPage); 

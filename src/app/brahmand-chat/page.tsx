@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import AiInterview from '@/components/AiInterview';
+import withAuth from '@/components/withAuth';
 
 const BrahamandChatPage = () => {
   // Add useEffect for webchat
@@ -76,4 +77,4 @@ const BrahamandChatPage = () => {
   );
 };
 
-export default BrahamandChatPage; 
+export default withAuth(BrahamandChatPage); 

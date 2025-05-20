@@ -2,24 +2,38 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import withAuth from '@/components/withAuth';
 
 interface User {
   id: string;
-  name: string;
   email: string;
-  emailVerified: boolean;
-  profile: {
-    firstName: string;
-    lastName: string;
-    profilePhoto: string;
-    bio: string;
-    location: string;
-    interests: string[];
+  firstName: string;
+  lastName: string;
+  isVerified: boolean;
+  profile?: {
+    height?: number;
+    weight?: number;
+    maritalStatus?: string;
+    religion?: string;
+    caste?: string;
+    motherTongue?: string;
+    education?: string;
+    occupation?: string;
+    annualIncome?: number;
+    workLocation?: string;
+    fatherName?: string;
+    fatherOccupation?: string;
+    motherName?: string;
+    motherOccupation?: string;
+    siblings?: number;
+    familyType?: string;
+    familyStatus?: string;
+    aboutMe?: string;
+    hobbies?: string[];
   };
 }
 
-export default function ProfilePage() {
+function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -31,19 +45,16 @@ export default function ProfilePage() {
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
-        } else {
-          router.push('/login');
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        router.push('/login');
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, [router]);
+  }, []);
 
   const handleVerifyEmail = async () => {
     try {
@@ -79,124 +90,114 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 sm:py-12">
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-4 sm:px-6 sm:py-5">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-              <h3 className="text-lg sm:text-xl leading-6 font-medium text-gray-900">Profile Information</h3>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+            {!user.isVerified && (
               <button
-                onClick={() => router.push('/profile/edit')}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto mt-2 sm:mt-0"
+                onClick={handleVerifyEmail}
+                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
               >
-                Edit Profile
+                Verify Email
               </button>
-            </div>
+            )}
           </div>
-          <div className="border-t border-gray-200 px-4 py-4 sm:px-6 sm:py-5">
-            <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:gap-y-8 sm:grid-cols-2">
-              <div className="sm:col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Full name</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {user.profile.firstName} {user.profile.lastName}
-                </dd>
-              </div>
-              <div className="sm:col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Email address</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  <div className="flex items-center">
-                    {user.email}
-                    {!user.emailVerified && (
-                      <button
-                        onClick={handleVerifyEmail}
-                        className="ml-2 text-sm text-purple-600 hover:text-purple-500"
-                      >
-                        Verify
-                      </button>
-                    )}
-                    {user.emailVerified && (
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Verified
-                      </span>
-                    )}
-                  </div>
-                </dd>
-              </div>
-              <div className="sm:col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Location</dt>
-                <dd className="mt-1 text-sm text-gray-900">{user.profile.location || 'Not specified'}</dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Bio</dt>
-                <dd className="mt-1 text-sm text-gray-900">{user.profile.bio || 'No bio provided'}</dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Interests</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  <div className="flex flex-wrap gap-2">
-                    {user.profile.interests?.map((interest, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                      >
-                        {interest}
-                      </span>
-                    ))}
-                    {(!user.profile.interests || user.profile.interests.length === 0) && 'No interests specified'}
-                  </div>
-                </dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Profile Photo</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  <div className="relative h-32 w-32 rounded-full overflow-hidden">
-                    {user.profile.profilePhoto ? (
-                      <Image
-                        src={user.profile.profilePhoto}
-                        alt="Profile"
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-400">No photo</span>
-                      </div>
-                    )}
-                  </div>
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </div>
 
-        <div className="mt-6 sm:mt-8 bg-white shadow rounded-lg">
-          <div className="px-4 py-4 sm:px-6 sm:py-5">
-            <h3 className="text-lg sm:text-xl leading-6 font-medium text-gray-900">Account Settings</h3>
-          </div>
-          <div className="border-t border-gray-200 px-4 py-4 sm:px-6 sm:py-5">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Change Password</h4>
-                <button
-                  onClick={() => router.push('/change-password')}
-                  className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto"
-                >
-                  Update Password
-                </button>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Delete Account</h4>
-                <button
-                  onClick={() => router.push('/delete-account')}
-                  className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 w-full sm:w-auto"
-                >
-                  Delete Account
-                </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <p className="mt-1 text-gray-900">{`${user.firstName} ${user.lastName}`}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <p className="mt-1 text-gray-900">{user.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email Verification</label>
+                  <p className="mt-1 text-gray-900">
+                    {user.isVerified ? 'Verified' : 'Not Verified'}
+                  </p>
+                </div>
               </div>
             </div>
+
+            {user.profile && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Details</h2>
+                <div className="space-y-4">
+                  {user.profile.height && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Height</label>
+                      <p className="mt-1 text-gray-900">{user.profile.height} cm</p>
+                    </div>
+                  )}
+                  {user.profile.weight && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Weight</label>
+                      <p className="mt-1 text-gray-900">{user.profile.weight} kg</p>
+                    </div>
+                  )}
+                  {user.profile.maritalStatus && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Marital Status</label>
+                      <p className="mt-1 text-gray-900">{user.profile.maritalStatus}</p>
+                    </div>
+                  )}
+                  {user.profile.religion && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Religion</label>
+                      <p className="mt-1 text-gray-900">{user.profile.religion}</p>
+                    </div>
+                  )}
+                  {user.profile.caste && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Caste</label>
+                      <p className="mt-1 text-gray-900">{user.profile.caste}</p>
+                    </div>
+                  )}
+                  {user.profile.motherTongue && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Mother Tongue</label>
+                      <p className="mt-1 text-gray-900">{user.profile.motherTongue}</p>
+                    </div>
+                  )}
+                  {user.profile.education && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Education</label>
+                      <p className="mt-1 text-gray-900">{user.profile.education}</p>
+                    </div>
+                  )}
+                  {user.profile.occupation && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Occupation</label>
+                      <p className="mt-1 text-gray-900">{user.profile.occupation}</p>
+                    </div>
+                  )}
+                  {user.profile.annualIncome && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Annual Income</label>
+                      <p className="mt-1 text-gray-900">₹{user.profile.annualIncome.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {user.profile.workLocation && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Work Location</label>
+                      <p className="mt-1 text-gray-900">{user.profile.workLocation}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}
+
+export default withAuth(ProfilePage); 

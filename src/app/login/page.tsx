@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -12,7 +14,32 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle regular login here
+    
+    try {
+      console.log('Attempting login...');
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      console.log('Login response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Login successful
+      alert('Login successful! Redirecting to your profile...');
+      console.log('Redirecting to profile...');
+      router.push('/profile');
+    } catch (error) {
+      console.error('Login error:', error);
+      alert(error instanceof Error ? error.message : 'Login failed. Please try again.');
+    }
   };
 
   return (

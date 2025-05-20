@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id                String         @id @default(cuid())
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
   email             String         @unique
   password          String
   firstName         String
@@ -40,8 +40,8 @@ model User {
 }
 
 model Profile {
-  id               String   @id @default(cuid())
-  userId           String   @unique
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String   @unique @db.ObjectId
   height           String?
   weight           String?
   maritalStatus    String?
@@ -68,8 +68,8 @@ model Profile {
 }
 
 model Membership {
-  id            String   @id @default(cuid())
-  userId        String   @unique
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @unique @db.ObjectId
   plan          String
   duration      Int
   paymentStatus String
@@ -83,10 +83,10 @@ model Membership {
 }
 
 model Message {
-  id         String   @id @default(cuid())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   content    String
-  senderId   String
-  receiverId String
+  senderId   String   @db.ObjectId
+  receiverId String   @db.ObjectId
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -95,9 +95,9 @@ model Message {
 }
 
 model Interest {
-  id         String   @id @default(cuid())
-  senderId   String
-  receiverId String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String   @db.ObjectId
+  receiverId String   @db.ObjectId
   status     String   @default("pending")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -108,8 +108,8 @@ model Interest {
 }
 
 model Photo {
-  id         String   @id @default(cuid())
-  userId     String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
   url        String
   isProfile  Boolean  @default(false)
   isVerified Boolean  @default(false)
@@ -119,8 +119,8 @@ model Photo {
 }
 
 model Horoscope {
-  id           String   @id @default(cuid())
-  userId       String   @unique
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @unique @db.ObjectId
   dateOfBirth  DateTime
   timeOfBirth  String?
   placeOfBirth String?
@@ -134,8 +134,8 @@ model Horoscope {
 }
 
 model Preferences {
-  id            String   @id @default(cuid())
-  userId        String   @unique
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @unique @db.ObjectId
   ageFrom       Int?
   ageTo         Int?
   heightFrom    String?
@@ -153,9 +153,9 @@ model Preferences {
 }
 
 model Shortlist {
-  id                String   @id @default(cuid())
-  userId            String
-  shortlistedUserId String
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String   @db.ObjectId
+  shortlistedUserId String   @db.ObjectId
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   shortlistedUser   User     @relation("ShortlistedUsers", fields: [shortlistedUserId], references: [id])
@@ -165,9 +165,9 @@ model Shortlist {
 }
 
 model BlockedUser {
-  id            String   @id @default(cuid())
-  userId        String
-  blockedUserId String
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  blockedUserId String   @db.ObjectId
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   blockedUser   User     @relation("BlockedUsers", fields: [blockedUserId], references: [id])
@@ -177,8 +177,8 @@ model BlockedUser {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
   type      String
   message   String
   isRead    Boolean  @default(false)
@@ -188,8 +188,8 @@ model Notification {
 }
 
 model Verification {
-  id           String    @id @default(cuid())
-  userId       String    @unique
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String    @unique @db.ObjectId
   documentType String
   documentUrl  String
   selfieUrl    String
@@ -202,7 +202,7 @@ model Verification {
 }
 
 model VerificationToken {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   token     String   @unique
   email     String
   expiresAt DateTime
@@ -210,9 +210,9 @@ model VerificationToken {
 }
 
 model ProfileView {
-  id            String   @id @default(cuid())
-  viewerId      String
-  viewedUserId  String
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  viewerId      String   @db.ObjectId
+  viewedUserId  String   @db.ObjectId
   viewer        User     @relation("ProfileViewer", fields: [viewerId], references: [id])
   viewedUser    User     @relation("ProfileViewed", fields: [viewedUserId], references: [id])
   viewedAt      DateTime @default(now())

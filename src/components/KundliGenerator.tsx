@@ -232,12 +232,12 @@ export default function KundliGenerator() {
             <div>
               <h3 className="text-xl font-semibold text-purple-800 mb-4">Planetary Positions</h3>
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(generatedKundli.planetaryPositions).map(([planet, position]) => (
+                {generatedKundli.planetaryPositions && typeof generatedKundli.planetaryPositions === 'object' ? Object.entries(generatedKundli.planetaryPositions).map(([planet, position]) => (
                   <div key={planet} className="bg-white p-4 rounded-lg shadow-sm">
                     <p className="text-gray-600 capitalize">{planet}</p>
                     <p className="font-semibold">{position}</p>
                   </div>
-                ))}
+                )) : null}
               </div>
             </div>
 
@@ -245,12 +245,12 @@ export default function KundliGenerator() {
             <div>
               <h3 className="text-xl font-semibold text-purple-800 mb-4">Detailed Analysis</h3>
               <div className="space-y-4">
-                {Object.entries(generatedKundli.detailedAnalysis).map(([aspect, description]) => (
+                {generatedKundli.detailedAnalysis && typeof generatedKundli.detailedAnalysis === 'object' ? Object.entries(generatedKundli.detailedAnalysis).map(([aspect, description]) => (
                   <div key={aspect} className="bg-white p-4 rounded-lg shadow-sm">
                     <h4 className="font-semibold text-purple-700 capitalize">{aspect}</h4>
                     <p className="text-gray-600 mt-2">{description}</p>
                   </div>
-                ))}
+                )) : null}
               </div>
             </div>
 
@@ -260,11 +260,11 @@ export default function KundliGenerator() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-600">Best Matches</p>
-                  <p className="font-semibold">{generatedKundli.compatibility.bestMatches.join(', ')}</p>
+                  <p className="font-semibold">{Array.isArray(generatedKundli.compatibility.bestMatches) ? generatedKundli.compatibility.bestMatches.join(', ') : ''}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Avoid Matches</p>
-                  <p className="font-semibold">{generatedKundli.compatibility.avoidMatches.join(', ')}</p>
+                  <p className="font-semibold">{Array.isArray(generatedKundli.compatibility.avoidMatches) ? generatedKundli.compatibility.avoidMatches.join(', ') : ''}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-gray-600">Compatibility Score</p>
@@ -283,12 +283,12 @@ export default function KundliGenerator() {
             <div>
               <h3 className="text-xl font-semibold text-purple-800 mb-4">Auspicious Timings</h3>
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(generatedKundli.auspiciousTimings).map(([event, timing]) => (
+                {generatedKundli.auspiciousTimings && typeof generatedKundli.auspiciousTimings === 'object' ? Object.entries(generatedKundli.auspiciousTimings).map(([event, timing]) => (
                   <div key={event} className="bg-white p-4 rounded-lg shadow-sm">
                     <p className="text-gray-600 capitalize">{event}</p>
                     <p className="font-semibold">{timing}</p>
                   </div>
-                ))}
+                )) : null}
               </div>
             </div>
 
