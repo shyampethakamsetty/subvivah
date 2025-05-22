@@ -8,8 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface Profile {
   id: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   age: number;
   location: string;
   profession: string;
@@ -21,6 +21,10 @@ interface Profile {
   photos: {
     url: string;
   }[];
+  user?: {
+    firstName: string;
+    lastName: string;
+  };
 }
 
 function SearchPage() {
@@ -76,10 +80,6 @@ function SearchPage() {
     }
   };
 
-  useEffect(() => {
-    fetchProfiles();
-  }, [filters, page]);
-
   return (
     <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 overflow-hidden">
       {/* Search Form */}
@@ -103,188 +103,216 @@ function SearchPage() {
           </div>
 
           {showFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Basic Filters */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Age Range</label>
-                <input
-                  type="text"
-                  name="age"
-                  value={filters.age}
-                  onChange={handleFilterChange}
-                  placeholder="e.g., 25-35"
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-              </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Basic Filters */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Age Range</label>
+                  <input
+                    type="text"
+                    name="age"
+                    value={filters.age}
+                    onChange={handleFilterChange}
+                    placeholder="e.g., 25-35"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={filters.location}
-                  onChange={handleFilterChange}
-                  placeholder="City, State"
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={filters.location}
+                    onChange={handleFilterChange}
+                    placeholder="City, State"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Education</label>
-                <select
-                  name="education"
-                  value={filters.education}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border rounded-md"
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Education</label>
+                  <select
+                    name="education"
+                    value={filters.education}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="">Select Education</option>
+                    <option value="B.Tech">B.Tech</option>
+                    <option value="MBBS">MBBS</option>
+                    <option value="B.Com">B.Com</option>
+                    <option value="BBA">BBA</option>
+                    <option value="MBA">MBA</option>
+                    <option value="MCA">MCA</option>
+                    <option value="B.Sc">B.Sc</option>
+                    <option value="M.Sc">M.Sc</option>
+                    <option value="Ph.D">Ph.D</option>
+                    <option value="CA">CA</option>
+                    <option value="LLB">LLB</option>
+                    <option value="B.Arch">B.Arch</option>
+                    <option value="BDS">BDS</option>
+                    <option value="B.Pharm">B.Pharm</option>
+                    <option value="M.Tech">M.Tech</option>
+                  </select>
+                </div>
+
+                {/* Professional Details */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+                  <input
+                    type="text"
+                    name="occupation"
+                    value={filters.occupation}
+                    onChange={handleFilterChange}
+                    placeholder="Enter occupation"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
+                  <select
+                    name="annualIncome"
+                    value={filters.annualIncome}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="">Select Income Range</option>
+                    <option value="0-300000">Below 3 LPA</option>
+                    <option value="300000-500000">3-5 LPA</option>
+                    <option value="500000-800000">5-8 LPA</option>
+                    <option value="800000-1200000">8-12 LPA</option>
+                    <option value="1200000-1500000">12-15 LPA</option>
+                    <option value="1500000-2000000">15-20 LPA</option>
+                    <option value="2000000+">Above 20 LPA</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Work Location</label>
+                  <input
+                    type="text"
+                    name="workLocation"
+                    value={filters.workLocation}
+                    onChange={handleFilterChange}
+                    placeholder="Enter work location"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+
+                {/* Personal Details */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+                  <select
+                    name="religion"
+                    value={filters.religion}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="">Select Religion</option>
+                    <option value="hindu">Hindu</option>
+                    <option value="muslim">Muslim</option>
+                    <option value="christian">Christian</option>
+                    <option value="sikh">Sikh</option>
+                    <option value="jain">Jain</option>
+                    <option value="buddhist">Buddhist</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Caste</label>
+                  <input
+                    type="text"
+                    name="caste"
+                    value={filters.caste}
+                    onChange={handleFilterChange}
+                    placeholder="Enter caste"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Mother Tongue</label>
+                  <input
+                    type="text"
+                    name="motherTongue"
+                    value={filters.motherTongue}
+                    onChange={handleFilterChange}
+                    placeholder="Enter mother tongue"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+
+                {/* Horoscope Details */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Rashi</label>
+                  <select
+                    name="rashi"
+                    value={filters.rashi}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="">Select Rashi</option>
+                    <option value="aries">Aries</option>
+                    <option value="taurus">Taurus</option>
+                    <option value="gemini">Gemini</option>
+                    <option value="cancer">Cancer</option>
+                    <option value="leo">Leo</option>
+                    <option value="virgo">Virgo</option>
+                    <option value="libra">Libra</option>
+                    <option value="scorpio">Scorpio</option>
+                    <option value="sagittarius">Sagittarius</option>
+                    <option value="capricorn">Capricorn</option>
+                    <option value="aquarius">Aquarius</option>
+                    <option value="pisces">Pisces</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Manglik Status</label>
+                  <select
+                    name="manglikStatus"
+                    value={filters.manglikStatus}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="partial">Partial</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Height Range (cm)</label>
+                  <input
+                    type="text"
+                    name="height"
+                    value={filters.height}
+                    onChange={handleFilterChange}
+                    placeholder="e.g., 160-180"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={fetchProfiles}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
                 >
-                  <option value="">Select Education</option>
-                  <option value="high_school">High School</option>
-                  <option value="bachelors">Bachelor's Degree</option>
-                  <option value="masters">Master's Degree</option>
-                  <option value="phd">PhD</option>
-                </select>
+                  {loading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Applying Filters...
+                    </>
+                  ) : (
+                    'Apply Filters'
+                  )}
+                </button>
               </div>
-
-              {/* Professional Details */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
-                <input
-                  type="text"
-                  name="occupation"
-                  value={filters.occupation}
-                  onChange={handleFilterChange}
-                  placeholder="Enter occupation"
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
-                <select
-                  name="annualIncome"
-                  value={filters.annualIncome}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="">Select Income Range</option>
-                  <option value="0-300000">Below 3 LPA</option>
-                  <option value="300000-500000">3-5 LPA</option>
-                  <option value="500000-800000">5-8 LPA</option>
-                  <option value="800000-1200000">8-12 LPA</option>
-                  <option value="1200000-1500000">12-15 LPA</option>
-                  <option value="1500000-2000000">15-20 LPA</option>
-                  <option value="2000000+">Above 20 LPA</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Work Location</label>
-                <input
-                  type="text"
-                  name="workLocation"
-                  value={filters.workLocation}
-                  onChange={handleFilterChange}
-                  placeholder="Enter work location"
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-              </div>
-
-              {/* Personal Details */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Religion</label>
-                <select
-                  name="religion"
-                  value={filters.religion}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="">Select Religion</option>
-                  <option value="hindu">Hindu</option>
-                  <option value="muslim">Muslim</option>
-                  <option value="christian">Christian</option>
-                  <option value="sikh">Sikh</option>
-                  <option value="jain">Jain</option>
-                  <option value="buddhist">Buddhist</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Caste</label>
-                <input
-                  type="text"
-                  name="caste"
-                  value={filters.caste}
-                  onChange={handleFilterChange}
-                  placeholder="Enter caste"
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mother Tongue</label>
-                <input
-                  type="text"
-                  name="motherTongue"
-                  value={filters.motherTongue}
-                  onChange={handleFilterChange}
-                  placeholder="Enter mother tongue"
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-              </div>
-
-              {/* Horoscope Details */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Rashi</label>
-                <select
-                  name="rashi"
-                  value={filters.rashi}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="">Select Rashi</option>
-                  <option value="aries">Aries</option>
-                  <option value="taurus">Taurus</option>
-                  <option value="gemini">Gemini</option>
-                  <option value="cancer">Cancer</option>
-                  <option value="leo">Leo</option>
-                  <option value="virgo">Virgo</option>
-                  <option value="libra">Libra</option>
-                  <option value="scorpio">Scorpio</option>
-                  <option value="sagittarius">Sagittarius</option>
-                  <option value="capricorn">Capricorn</option>
-                  <option value="aquarius">Aquarius</option>
-                  <option value="pisces">Pisces</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Manglik Status</label>
-                <select
-                  name="manglikStatus"
-                  value={filters.manglikStatus}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="">Select Status</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                  <option value="partial">Partial</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Height Range (cm)</label>
-                <input
-                  type="text"
-                  name="height"
-                  value={filters.height}
-                  onChange={handleFilterChange}
-                  placeholder="e.g., 160-180"
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-              </div>
-            </div>
+            </>
           )}
         </div>
 
@@ -342,7 +370,7 @@ function SearchPage() {
                       transition={{ delay: 0.5 }}
                       className="text-gray-600 text-lg text-center"
                     >
-                      Apply filters to find your perfect match
+                      {showFilters ? 'Apply filters to find your perfect match' : 'Click "Show Filters" to start your search'}
                     </motion.p>
                   </motion.div>
                 )}
@@ -361,7 +389,7 @@ function SearchPage() {
                         {profile.photos && profile.photos[0] ? (
                           <Image
                             src={profile.photos[0].url}
-                            alt={`${profile.firstName} ${profile.lastName}`}
+                            alt={`${profile.user?.firstName || ''} ${profile.user?.lastName || ''}`}
                             fill
                             className="object-cover"
                           />
@@ -373,7 +401,7 @@ function SearchPage() {
                       </div>
                       <div className="p-4">
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {profile.firstName} {profile.lastName}
+                          {profile.user?.firstName || ''} {profile.user?.lastName || ''}
                         </h3>
                         <p className="text-gray-600">{profile.age} years</p>
                         <p className="text-gray-600">{profile.location}</p>
