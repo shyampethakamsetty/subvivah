@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb+srv://subvivah:subvivah123@cluster0.lzdyu.mongodb.net/subvivah?retryWrites=true&w=majority";
+const uri = "mongodb+srv://subvivah:matrimony%40123@cluster0.2wmxzb7.mongodb.net/subvivah?retryWrites=true&w=majority";
 
 const options = {
     serverSelectionTimeoutMS: 10000,
