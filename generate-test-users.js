@@ -1,4 +1,5 @@
 const prisma = require('./lib/prisma').default;
+const bcrypt = require('bcryptjs');
 
 // Arrays of common Indian names and details
 const firstNames = [
@@ -58,11 +59,14 @@ async function generateUsers(count) {
             const lastName = getRandomElement(lastNames);
             const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@subvivah.com`;
             
+            // Hash password
+            const hashedPassword = await bcrypt.hash('test123', 10);
+            
             // Create user
             const user = await prisma.user.create({
                 data: {
                     email: email,
-                    password: 'test123', // You might want to hash this in production
+                    password: hashedPassword,
                     firstName: firstName,
                     lastName: lastName,
                     gender: gender,

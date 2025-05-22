@@ -6,19 +6,32 @@ const globalForPrisma = globalThis as unknown as {
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: ['query', 'error', 'warn'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
 });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-// Handle database connection
-prisma.$connect()
-  .then(() => {
-    console.log('Successfully connected to MongoDB via Prisma');
-  })
-  .catch((err: Error) => {
-    console.error('Failed to connect to database:', err);
-    console.error('Error name:', err.name);
-    console.error('Error message:', err.message);
-    console.error('Error stack:', err.stack);
-    process.exit(1); // Exit the process if we can't connect to the database
-  }); 
+// Handle database connection with retry logic
+const connectWithRetry = async (retries = 3, delay = 1000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await prisma.$connect();
+      console.log('Successfully connected to MongoDB via Prisma');
+      return;
+    } catch (err) {
+      console.error(`Failed to connect to database (attempt ${i + 1}/${retries}):`, err);
+      if (i === retries - 1) {
+        console.error('Max retries reached. Exiting process...');
+        process.exit(1);
+      }
+      console.log(`Retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+};
+
+connectWithRetry(); 

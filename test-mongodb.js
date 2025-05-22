@@ -1,10 +1,16 @@
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb+srv://subvivah:matrimony%40123@cluster0.2wmxzb7.mongodb.net/subvivah?retryWrites=true&w=majority";
+const uri = "mongodb+srv://subvivah:matrimony%40123@cluster0.2wmxzb7.mongodb.net/subvivah?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true";
 
 const options = {
     serverSelectionTimeoutMS: 10000,
     socketTimeoutMS: 45000,
+    ssl: true,
+    tls: true,
+    minPoolSize: 1,
+    maxPoolSize: 10,
+    retryWrites: true,
+    retryReads: true
 };
 
 async function testConnection() {

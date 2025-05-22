@@ -1,14 +1,75 @@
-const prisma = require('./lib/prisma').default;
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
+
+const prisma = new PrismaClient({
+  log: ['query', 'error', 'warn', 'info'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
+
+async function testLogin(email, password) {
+    try {
+        // Find user by email
+        const user = await prisma.user.findUnique({
+            where: { email },
+            include: { profile: true }
+        });
+
+        if (!user) {
+            console.log('Login failed: User not found');
+            return null;
+        }
+
+        // Compare password
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        
+        if (!isValidPassword) {
+            console.log('Login failed: Invalid password');
+            return null;
+        }
+
+        // Update last login
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLogin: new Date() }
+        });
+
+        console.log('Login successful!');
+        return user;
+    } catch (error) {
+        console.error('Login error:', error);
+        return null;
+    }
+}
 
 async function testPrisma() {
     try {
         console.log('Testing Prisma MongoDB connection...');
+        console.log('Connection URL:', process.env.DATABASE_URL);
 
-        // Create a test user
+        // First, test the connection
+        await prisma.$connect();
+        console.log('Successfully connected to MongoDB');
+
+        // Try a simple query first
+        const count = await prisma.user.count();
+        console.log('Current user count:', count);
+
+        // Create a test user with unique email using timestamp
+        const timestamp = new Date().getTime();
+        const testEmail = `test${timestamp}@subvivah.com`;
+        const testPassword = 'test123';
+        
+        // Hash the password before storing
+        const hashedPassword = await bcrypt.hash(testPassword, 10);
+        
         const user = await prisma.user.create({
             data: {
-                email: 'test@subvivah.com',
-                password: 'test123',
+                email: testEmail,
+                password: hashedPassword,
                 firstName: 'Test',
                 lastName: 'User',
                 gender: 'male',
@@ -33,15 +94,29 @@ async function testPrisma() {
         });
         console.log('Created user profile:', profile);
 
-        // Query user with profile
-        const userWithProfile = await prisma.user.findUnique({
-            where: { id: user.id },
-            include: { profile: true },
-        });
-        console.log('Retrieved user with profile:', userWithProfile);
+        // Test login with correct credentials
+        console.log('\nTesting login with correct credentials:');
+        const loginResult = await testLogin(testEmail, testPassword);
+        console.log('Login result:', loginResult ? 'Success' : 'Failed');
+
+        // Test login with incorrect password
+        console.log('\nTesting login with incorrect password:');
+        const wrongLoginResult = await testLogin(testEmail, 'wrongpassword');
+        console.log('Login result:', wrongLoginResult ? 'Success' : 'Failed');
+
+        // Test login with non-existent email
+        console.log('\nTesting login with non-existent email:');
+        const nonExistentLoginResult = await testLogin('nonexistent@subvivah.com', testPassword);
+        console.log('Login result:', nonExistentLoginResult ? 'Success' : 'Failed');
 
     } catch (error) {
         console.error('Error during Prisma test:', error);
+        if (error.code) {
+            console.error('Error code:', error.code);
+        }
+        if (error.meta) {
+            console.error('Error metadata:', error.meta);
+        }
     } finally {
         await prisma.$disconnect();
     }
