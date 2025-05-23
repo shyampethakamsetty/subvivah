@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import KundliForm from '@/components/KundliForm';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface KundliData {
   personalInfo: {
@@ -52,6 +54,7 @@ export default function KundliPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [gender, setGender] = useState('male');
+  const kundliRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -91,6 +94,22 @@ export default function KundliPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!kundliRef.current) return;
+    const element = kundliRef.current;
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'a4',
+    });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('kundli.pdf');
   };
 
   return (
@@ -297,102 +316,112 @@ export default function KundliPage() {
         </div>
 
         {kundliData && (
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-purple-900 mb-6">
-              Kundli Analysis for {kundliData.personalInfo.fullName}
-            </h2>
+          <>
+            <div ref={kundliRef} className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-semibold text-purple-900 mb-6">
+                Kundli Analysis for {kundliData.personalInfo.fullName}
+              </h2>
 
-            {/* Personal Information */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Personal Information</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">Date of Birth</p>
-                  <p className="font-medium text-gray-800">{kundliData.personalInfo.dateOfBirth}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Time of Birth</p>
-                  <p className="font-medium text-gray-800">{kundliData.personalInfo.timeOfBirth}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Place of Birth</p>
-                  <p className="font-medium text-gray-800">{kundliData.personalInfo.placeOfBirth}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Gender</p>
-                  <p className="font-medium text-gray-800">{kundliData.personalInfo.gender}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Ascendant Information */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Ascendant (Lagna)</h3>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-lg text-gray-800">
-                  <span className="font-medium">Sign:</span> {kundliData.ascendant.sign}
-                </p>
-                <p className="text-lg text-gray-800">
-                  <span className="font-medium">Degree:</span> {kundliData.ascendant.degree.toFixed(2)}°
-                </p>
-              </div>
-            </div>
-
-            {/* Sun Position */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Sun Position</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-purple-900 mb-2">Tropical (Western)</h4>
-                  <p className="text-gray-800">Sign: {kundliData.sunPosition.tropical.sign}</p>
-                  <p className="text-gray-800">Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-purple-900 mb-2">Sidereal (Vedic)</h4>
-                  <p className="text-gray-800">Sign: {kundliData.sunPosition.sidereal.sign}</p>
-                  <p className="text-gray-800">Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
-                  {kundliData.sunPosition.sidereal.nakshatra && (
-                    <div className="mt-2">
-                      <p className="text-gray-800">Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
-                      <p className="text-gray-800">Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
-                      <p className="text-gray-800">Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Houses */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Houses (Bhavas)</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {kundliData.houses.map((house) => (
-                  <div key={house.house} className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-purple-900 mb-2">
-                      {house.name}
-                    </h4>
-                    <p className="text-gray-800">Sign: {house.sign}</p>
-                    <p className="text-gray-800">Degree: {house.degree.toFixed(2)}°</p>
+              {/* Personal Information */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Personal Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-600">Date of Birth</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.dateOfBirth}</p>
                   </div>
-                ))}
+                  <div>
+                    <p className="text-gray-600">Time of Birth</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.timeOfBirth}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Place of Birth</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.placeOfBirth}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Gender</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.gender}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ascendant Information */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Ascendant (Lagna)</h3>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <p className="text-lg text-gray-800">
+                    <span className="font-medium">Sign:</span> {kundliData.ascendant.sign}
+                  </p>
+                  <p className="text-lg text-gray-800">
+                    <span className="font-medium">Degree:</span> {kundliData.ascendant.degree.toFixed(2)}°
+                  </p>
+                </div>
+              </div>
+
+              {/* Sun Position */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Sun Position</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-purple-900 mb-2">Tropical (Western)</h4>
+                    <p className="text-gray-800">Sign: {kundliData.sunPosition.tropical.sign}</p>
+                    <p className="text-gray-800">Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-purple-900 mb-2">Sidereal (Vedic)</h4>
+                    <p className="text-gray-800">Sign: {kundliData.sunPosition.sidereal.sign}</p>
+                    <p className="text-gray-800">Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
+                    {kundliData.sunPosition.sidereal.nakshatra && (
+                      <div className="mt-2">
+                        <p className="text-gray-800">Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
+                        <p className="text-gray-800">Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
+                        <p className="text-gray-800">Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Houses */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Houses (Bhavas)</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {kundliData.houses.map((house) => (
+                    <div key={house.house} className="bg-purple-50 p-4 rounded-lg">
+                      <h4 className="font-medium text-purple-900 mb-2">
+                        {house.name}
+                      </h4>
+                      <p className="text-gray-800">Sign: {house.sign}</p>
+                      <p className="text-gray-800">Degree: {house.degree.toFixed(2)}°</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ayanamsa */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Ayanamsa</h3>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <p className="text-lg text-gray-800">
+                    <span className="font-medium">Value:</span> {kundliData.ayanamsa.toFixed(2)}°
+                  </p>
+                </div>
+              </div>
+
+              {/* Disclaimer */}
+              <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
+                <p className="text-sm text-yellow-800">{kundliData.disclaimer}</p>
               </div>
             </div>
-
-            {/* Ayanamsa */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Ayanamsa</h3>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-lg text-gray-800">
-                  <span className="font-medium">Value:</span> {kundliData.ayanamsa.toFixed(2)}°
-                </p>
-              </div>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={handleDownloadPDF}
+                className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                Download PDF
+              </button>
             </div>
-
-            {/* Disclaimer */}
-            <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
-              <p className="text-sm text-yellow-800">{kundliData.disclaimer}</p>
-            </div>
-          </div>
+          </>
         )}
       </div>
     </div>
