@@ -308,19 +308,19 @@ export default function KundliPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-600">Date of Birth</p>
-                  <p className="font-medium">{kundliData.personalInfo.dateOfBirth}</p>
+                  <p className="font-medium text-gray-800">{kundliData.personalInfo.dateOfBirth}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Time of Birth</p>
-                  <p className="font-medium">{kundliData.personalInfo.timeOfBirth}</p>
+                  <p className="font-medium text-gray-800">{kundliData.personalInfo.timeOfBirth}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Place of Birth</p>
-                  <p className="font-medium">{kundliData.personalInfo.placeOfBirth}</p>
+                  <p className="font-medium text-gray-800">{kundliData.personalInfo.placeOfBirth}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Gender</p>
-                  <p className="font-medium">{kundliData.personalInfo.gender}</p>
+                  <p className="font-medium text-gray-800">{kundliData.personalInfo.gender}</p>
                 </div>
               </div>
             </div>
@@ -329,10 +329,10 @@ export default function KundliPage() {
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-purple-800 mb-4">Ascendant (Lagna)</h3>
               <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-lg">
+                <p className="text-lg text-gray-800">
                   <span className="font-medium">Sign:</span> {kundliData.ascendant.sign}
                 </p>
-                <p className="text-lg">
+                <p className="text-lg text-gray-800">
                   <span className="font-medium">Degree:</span> {kundliData.ascendant.degree.toFixed(2)}°
                 </p>
               </div>
@@ -344,18 +344,18 @@ export default function KundliPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <h4 className="font-medium text-purple-900 mb-2">Tropical (Western)</h4>
-                  <p>Sign: {kundliData.sunPosition.tropical.sign}</p>
-                  <p>Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
+                  <p className="text-gray-800">Sign: {kundliData.sunPosition.tropical.sign}</p>
+                  <p className="text-gray-800">Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <h4 className="font-medium text-purple-900 mb-2">Sidereal (Vedic)</h4>
-                  <p>Sign: {kundliData.sunPosition.sidereal.sign}</p>
-                  <p>Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
+                  <p className="text-gray-800">Sign: {kundliData.sunPosition.sidereal.sign}</p>
+                  <p className="text-gray-800">Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
                   {kundliData.sunPosition.sidereal.nakshatra && (
                     <div className="mt-2">
-                      <p>Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
-                      <p>Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
-                      <p>Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
+                      <p className="text-gray-800">Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
+                      <p className="text-gray-800">Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
+                      <p className="text-gray-800">Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
                     </div>
                   )}
                 </div>
@@ -371,8 +371,8 @@ export default function KundliPage() {
                     <h4 className="font-medium text-purple-900 mb-2">
                       {house.name}
                     </h4>
-                    <p>Sign: {house.sign}</p>
-                    <p>Degree: {house.degree.toFixed(2)}°</p>
+                    <p className="text-gray-800">Sign: {house.sign}</p>
+                    <p className="text-gray-800">Degree: {house.degree.toFixed(2)}°</p>
                   </div>
                 ))}
               </div>
@@ -382,7 +382,7 @@ export default function KundliPage() {
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-purple-800 mb-4">Ayanamsa</h3>
               <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-lg">
+                <p className="text-lg text-gray-800">
                   <span className="font-medium">Value:</span> {kundliData.ayanamsa.toFixed(2)}°
                 </p>
               </div>
