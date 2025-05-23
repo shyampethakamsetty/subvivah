@@ -61,8 +61,12 @@ export default function KundliPage() {
     const formData = new FormData(e.currentTarget);
     const data = {
       fullName: formData.get('fullName'),
-      dob: formData.get('dob'),
-      tob: formData.get('tob'),
+      day: formData.get('day'),
+      month: formData.get('month'),
+      year: formData.get('year'),
+      hrs: formData.get('hrs'),
+      min: formData.get('min'),
+      sec: formData.get('sec'),
       pob: formData.get('pob'),
       gender: formData.get('gender')
     };
@@ -138,42 +142,42 @@ export default function KundliPage() {
             </div>
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="day" className="block text-sm font-medium text-gray-700">
                   Day
                 </label>
 
                 <input
                   type="text"
-                  name="fullName"
+                  name="day"
+                  id="day"
                   placeholder='Enter Your Day'
-                  id="fullName"
                   required
                   className="mt-1 h-10 block w-full placeholder-gray-50 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
                 />
               </div>
               <div className="flex-1">
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="month" className="block text-sm font-medium text-gray-700">
                   Month
                 </label>
 
                 <input
                   type="text"
-                  name="fullName"
-                  id="fullName"
+                  name="month"
+                  id="month"
                   placeholder='Enter Your Month'
                   required
                   className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
                 />
               </div>
               <div className="flex-1">
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="year" className="block text-sm font-medium text-gray-700">
                   Year
                 </label>
 
                 <input
                   type="text"
-                  name="fullName"
-                  id="fullName"
+                  name="year"
+                  id="year"
                   placeholder='Enter Your Year'
                   required
                   className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
@@ -183,42 +187,42 @@ export default function KundliPage() {
 
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="hrs" className="block text-sm font-medium text-gray-700">
                   Hrs
                 </label>
 
                 <input
                   type="text"
-                  name="fullName"
-                  id="fullName"
+                  name="hrs"
+                  id="hrs"
                   placeholder='Enter Your Hrs'
                   required
                   className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
                 />
               </div>
               <div className="flex-1">
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="min" className="block text-sm font-medium text-gray-700">
                   Min
                 </label>
 
                 <input
                   type="text"
-                  name="fullName"
-                  id="fullName"
+                  name="min"
+                  id="min"
                   placeholder='Enter Your Min'
                   required
                   className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
                 />
               </div>
               <div className="flex-1">
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="sec" className="block text-sm font-medium text-gray-700">
                   Sec
                 </label>
 
                 <input
                   type="text"
-                  name="fullName"
-                  id="fullName"
+                  name="sec"
+                  id="sec"
                   placeholder='Enter Your Sec'
                   required
                   className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
