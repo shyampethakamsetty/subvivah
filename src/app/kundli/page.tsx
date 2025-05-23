@@ -51,6 +51,7 @@ export default function KundliPage() {
   const [kundliData, setKundliData] = useState<KundliData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gender, setGender] = useState('male');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,78 +93,186 @@ export default function KundliPage() {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center text-purple-900 mb-8">
-          Vedic Astrology Kundli
+          Get Your Kundli by Date of Birth
         </h1>
-        
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 mb-8">
+
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 mb-8 bg-gray-100">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                id="fullName"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  id="fullName"
+                  placeholder='Enter Your Full Name'
+                  required
+                  className="mt-1 h-10 block placeholder-gray-200 w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Gender
+                </label>
+                <div className='flex gap-2'>
+                  <div
+                    className={`border border-gray-300 rounded-md p-2 w-1/3 cursor-pointer text-center 
+                    ${gender === 'male' ? 'bg-purple-600 text-white' : 'bg-white text-black'}`}
+                    onClick={() => setGender('male')}
+                  >
+                    <p>MALE</p>
+                  </div>
+                  <div
+                    className={`border border-gray-300 rounded-md p-2 w-1/3 cursor-pointer text-center 
+                     ${gender === 'female' ? 'bg-purple-600 text-white' : 'bg-white text-black'}`}
+                    onClick={() => setGender('female')}
+                  >
+                    <p>FEMALE</p>
+                  </div>
+                </div>
+                <input type="hidden" name="gender" value={gender} />
+
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Day
+                </label>
+
+                <input
+                  type="text"
+                  name="fullName"
+                  placeholder='Enter Your Day'
+                  id="fullName"
+                  required
+                  className="mt-1 h-10 block w-full placeholder-gray-50 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Month
+                </label>
+
+                <input
+                  type="text"
+                  name="fullName"
+                  id="fullName"
+                  placeholder='Enter Your Month'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Year
+                </label>
+
+                <input
+                  type="text"
+                  name="fullName"
+                  id="fullName"
+                  placeholder='Enter Your Year'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="dob" className="block text-sm font-medium text-gray-700">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dob"
-                id="dob"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Hrs
+                </label>
 
-            <div>
-              <label htmlFor="tob" className="block text-sm font-medium text-gray-700">
-                Time of Birth
-              </label>
-              <input
-                type="time"
-                name="tob"
-                id="tob"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-            </div>
+                <input
+                  type="text"
+                  name="fullName"
+                  id="fullName"
+                  placeholder='Enter Your Hrs'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Min
+                </label>
 
+                <input
+                  type="text"
+                  name="fullName"
+                  id="fullName"
+                  placeholder='Enter Your Min'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Sec
+                </label>
+
+                <input
+                  type="text"
+                  name="fullName"
+                  id="fullName"
+                  placeholder='Enter Your Sec'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+            </div>
             <div>
               <label htmlFor="pob" className="block text-sm font-medium text-gray-700">
-                Place of Birth
+                Place of Birth (State, India)
               </label>
-              <input
-                type="text"
+              <select
                 name="pob"
                 id="pob"
                 required
-                placeholder="City, Country"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-                Gender
-              </label>
-              <select
-                name="gender"
-                id="gender"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                defaultValue=""
               >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
+                <option value="" disabled>Select State, India</option>
+                <option value="Andhra Pradesh, India">Andhra Pradesh, India</option>
+                <option value="Arunachal Pradesh, India">Arunachal Pradesh, India</option>
+                <option value="Assam, India">Assam, India</option>
+                <option value="Bihar, India">Bihar, India</option>
+                <option value="Chhattisgarh, India">Chhattisgarh, India</option>
+                <option value="Goa, India">Goa, India</option>
+                <option value="Gujarat, India">Gujarat, India</option>
+                <option value="Haryana, India">Haryana, India</option>
+                <option value="Himachal Pradesh, India">Himachal Pradesh, India</option>
+                <option value="Jharkhand, India">Jharkhand, India</option>
+                <option value="Karnataka, India">Karnataka, India</option>
+                <option value="Kerala, India">Kerala, India</option>
+                <option value="Madhya Pradesh, India">Madhya Pradesh, India</option>
+                <option value="Maharashtra, India">Maharashtra, India</option>
+                <option value="Manipur, India">Manipur, India</option>
+                <option value="Meghalaya, India">Meghalaya, India</option>
+                <option value="Mizoram, India">Mizoram, India</option>
+                <option value="Nagaland, India">Nagaland, India</option>
+                <option value="Odisha, India">Odisha, India</option>
+                <option value="Punjab, India">Punjab, India</option>
+                <option value="Rajasthan, India">Rajasthan, India</option>
+                <option value="Sikkim, India">Sikkim, India</option>
+                <option value="Tamil Nadu, India">Tamil Nadu, India</option>
+                <option value="Telangana, India">Telangana, India</option>
+                <option value="Tripura, India">Tripura, India</option>
+                <option value="Uttar Pradesh, India">Uttar Pradesh, India</option>
+                <option value="Uttarakhand, India">Uttarakhand, India</option>
+                <option value="West Bengal, India">West Bengal, India</option>
+                <option value="Delhi, India">Delhi, India</option>
+                <option value="Puducherry, India">Puducherry, India</option>
+                <option value="Chandigarh, India">Chandigarh, India</option>
+                <option value="Andaman and Nicobar Islands, India">Andaman and Nicobar Islands, India</option>
+                <option value="Dadra and Nagar Haveli and Daman and Diu, India">Dadra and Nagar Haveli and Daman and Diu, India</option>
+                <option value="Jammu and Kashmir, India">Jammu and Kashmir, India</option>
+                <option value="Ladakh, India">Ladakh, India</option>
+                <option value="Lakshadweep, India">Lakshadweep, India</option>
               </select>
             </div>
 

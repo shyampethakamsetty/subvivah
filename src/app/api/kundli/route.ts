@@ -208,7 +208,27 @@ function calculateNakshatra(longitude: number) {
 
 export async function POST(req: Request) {
   try {
-    const { fullName, dob, tob, pob, gender } = await req.json();
+    const body = await req.json();
+    // Support both old and new form structures
+    let fullName, dob, tob, pob, gender;
+    if (
+      'month' in body && 'year' in body && 'day' in body &&
+      'hrs' in body && 'min' in body && 'sec' in body
+    ) {
+      // New form structure
+      fullName = body.fullName;
+      dob = `${body.year}-${String(body.month).padStart(2, '0')}-${String(body.day).padStart(2, '0')}`;
+      tob = `${String(body.hrs).padStart(2, '0')}:${String(body.min).padStart(2, '0')}:${String(body.sec).padStart(2, '0')}`;
+      pob = body.pob;
+      gender = body.gender;
+    } else {
+      // Old form structure
+      fullName = body.fullName;
+      dob = body.dob;
+      tob = body.tob;
+      pob = body.pob;
+      gender = body.gender;
+    }
 
     // Validate required fields
     if (!fullName || !dob || !tob || !pob) {
