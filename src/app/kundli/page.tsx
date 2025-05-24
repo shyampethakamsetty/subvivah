@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import KundliForm from '@/components/KundliForm';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -63,9 +63,18 @@ function PlaceAutocomplete({ value, onChange }: PlaceAutocompleteProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    onChange(query);
+  // Debounce function
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  const fetchSuggestions = async (query: string) => {
     if (query.length < 2) {
       setSuggestions([]);
       setShowDropdown(false);
@@ -87,6 +96,14 @@ function PlaceAutocomplete({ value, onChange }: PlaceAutocompleteProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const debouncedFetchSuggestions = useCallback(debounce(fetchSuggestions, 500), []); // 500ms debounce delay
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    onChange(query);
+    debouncedFetchSuggestions(query);
   };
 
   const handleSelect = (place: NominatimSuggestion) => {
