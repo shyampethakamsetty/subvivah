@@ -49,11 +49,90 @@ interface KundliData {
   disclaimer: string;
 }
 
+// PlaceAutocomplete component for place suggestions
+interface PlaceAutocompleteProps {
+  value: string;
+  onChange: (val: string) => void;
+}
+interface NominatimSuggestion {
+  display_name: string;
+  [key: string]: any;
+}
+function PlaceAutocomplete({ value, onChange }: PlaceAutocompleteProps) {
+  const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    onChange(query);
+    if (query.length < 2) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`
+      );
+      const data: NominatimSuggestion[] = await res.json();
+      setSuggestions(data);
+      setShowDropdown(true);
+      console.log('Suggestions:', data);
+      console.log('Show Dropdown:', true);
+    } catch (err) {
+      setSuggestions([]);
+      setShowDropdown(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelect = (place: NominatimSuggestion) => {
+    onChange(place.display_name);
+    setSuggestions([]);
+    setShowDropdown(false);
+  };
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <input
+        type="text"
+        name="pob"
+        value={value}
+        onChange={handleInput}
+        autoComplete="off"
+        required
+        placeholder="Enter Place of Birth"
+        className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 px-3 py-2"
+      />
+      {loading && (
+        <div className="absolute z-10 bg-white border w-full p-2 text-gray-500">Searching...</div>
+      )}
+      {showDropdown && suggestions.length > 0 && (
+        <ul className="absolute z-10 bg-white border w-full max-h-96 overflow-y-auto">
+          {suggestions.map((s, idx) => (
+            <li
+              key={idx}
+              className="p-2 hover:bg-purple-100 cursor-pointer text-gray-800"
+              onClick={() => handleSelect(s)}
+            >
+              {s.display_name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function KundliPage() {
   const [kundliData, setKundliData] = useState<KundliData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [gender, setGender] = useState('male');
+  const [place, setPlace] = useState('');
   const kundliRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -250,53 +329,10 @@ export default function KundliPage() {
             </div>
             <div>
               <label htmlFor="pob" className="block text-sm font-medium text-gray-700">
-                Place of Birth (State, India)
+                Place of Birth
               </label>
-              <select
-                name="pob"
-                id="pob"
-                required
-                className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
-                defaultValue=""
-              >
-                <option value="" disabled>Select State, India</option>
-                <option value="Andhra Pradesh, India">Andhra Pradesh, India</option>
-                <option value="Arunachal Pradesh, India">Arunachal Pradesh, India</option>
-                <option value="Assam, India">Assam, India</option>
-                <option value="Bihar, India">Bihar, India</option>
-                <option value="Chhattisgarh, India">Chhattisgarh, India</option>
-                <option value="Goa, India">Goa, India</option>
-                <option value="Gujarat, India">Gujarat, India</option>
-                <option value="Haryana, India">Haryana, India</option>
-                <option value="Himachal Pradesh, India">Himachal Pradesh, India</option>
-                <option value="Jharkhand, India">Jharkhand, India</option>
-                <option value="Karnataka, India">Karnataka, India</option>
-                <option value="Kerala, India">Kerala, India</option>
-                <option value="Madhya Pradesh, India">Madhya Pradesh, India</option>
-                <option value="Maharashtra, India">Maharashtra, India</option>
-                <option value="Manipur, India">Manipur, India</option>
-                <option value="Meghalaya, India">Meghalaya, India</option>
-                <option value="Mizoram, India">Mizoram, India</option>
-                <option value="Nagaland, India">Nagaland, India</option>
-                <option value="Odisha, India">Odisha, India</option>
-                <option value="Punjab, India">Punjab, India</option>
-                <option value="Rajasthan, India">Rajasthan, India</option>
-                <option value="Sikkim, India">Sikkim, India</option>
-                <option value="Tamil Nadu, India">Tamil Nadu, India</option>
-                <option value="Telangana, India">Telangana, India</option>
-                <option value="Tripura, India">Tripura, India</option>
-                <option value="Uttar Pradesh, India">Uttar Pradesh, India</option>
-                <option value="Uttarakhand, India">Uttarakhand, India</option>
-                <option value="West Bengal, India">West Bengal, India</option>
-                <option value="Delhi, India">Delhi, India</option>
-                <option value="Puducherry, India">Puducherry, India</option>
-                <option value="Chandigarh, India">Chandigarh, India</option>
-                <option value="Andaman and Nicobar Islands, India">Andaman and Nicobar Islands, India</option>
-                <option value="Dadra and Nagar Haveli and Daman and Diu, India">Dadra and Nagar Haveli and Daman and Diu, India</option>
-                <option value="Jammu and Kashmir, India">Jammu and Kashmir, India</option>
-                <option value="Ladakh, India">Ladakh, India</option>
-                <option value="Lakshadweep, India">Lakshadweep, India</option>
-              </select>
+              <PlaceAutocomplete value={place} onChange={setPlace} />
+              <input type="hidden" name="pob" value={place} />
             </div>
 
             <button
