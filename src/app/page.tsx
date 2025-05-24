@@ -1,12 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import Chatbot from "@/components/Chatbot";
+import DailySuggestionBubble from "@/components/DailySuggestionBubble";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Chatbot */}
       <Chatbot />
+
+      {/* Daily Suggestion Bubble */}
+      <DailySuggestionBubble />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8">

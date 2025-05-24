@@ -64,7 +64,7 @@ function MatchesPage() {
           <div className="text-center py-12">
             <p className="text-gray-600">No matches found yet. Try updating your preferences!</p>
             <Link
-              href="/profile"
+              href="/preferences"
               className="mt-4 inline-block bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700"
             >
               Update Preferences
