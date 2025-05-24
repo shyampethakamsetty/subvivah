@@ -21,8 +21,6 @@ model User {
   lastLogin         DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
-  blockedBy         BlockedUser[]  @relation("BlockedUsers")
-  blockedUsers      BlockedUser[]
   horoscope         Horoscope?
   receivedInterests Interest[]     @relation("ReceivedInterests")
   sentInterests     Interest[]     @relation("SentInterests")
@@ -37,6 +35,10 @@ model User {
   shortlist         Shortlist[]
   viewedProfiles    ProfileView[]  @relation("ProfileViewer")
   profileViews      ProfileView[]  @relation("ProfileViewed")
+  blockedByUsers    UserBlock[]    @relation("BlockedByUsers")
+  blockedUsers      UserBlock[]    @relation("BlockedUsers")
+  reportedMessages  MessageReport[]
+  role              String         @default("USER")
 }
 
 model Profile {
@@ -83,15 +85,20 @@ model Membership {
 }
 
 model Message {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  content    String
-  senderId   String   @db.ObjectId
-  receiverId String   @db.ObjectId
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  id        String   @id @default(cuid()) @map("_id")
+  content   String   // Encrypted content
+  iv        String   // Initialization vector for encryption
+  senderId  String
+  receiverId String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  reports   MessageReport[]
+
+  @@index([senderId])
+  @@index([receiverId])
 }
 
 model Interest {
@@ -164,18 +171,6 @@ model Shortlist {
   @@unique([userId, shortlistedUserId])
 }
 
-model BlockedUser {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String   @db.ObjectId
-  blockedUserId String   @db.ObjectId
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  blockedUser   User     @relation("BlockedUsers", fields: [blockedUserId], references: [id])
-  user          User     @relation(fields: [userId], references: [id])
-
-  @@unique([userId, blockedUserId])
-}
-
 model Notification {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
@@ -220,4 +215,31 @@ model ProfileView {
   updatedAt     DateTime @updatedAt
 
   @@unique([viewerId, viewedUserId])
+}
+
+model UserBlock {
+  id            String   @id @default(cuid()) @map("_id")
+  blockedById   String
+  blockedUserId String
+  reason        String?
+  createdAt     DateTime @default(now())
+  blockedBy     User     @relation("BlockedUsers", fields: [blockedById], references: [id])
+  blockedUser   User     @relation("BlockedByUsers", fields: [blockedUserId], references: [id])
+
+  @@unique([blockedById, blockedUserId])
+  @@index([blockedById])
+  @@index([blockedUserId])
+}
+
+model MessageReport {
+  id          String   @id @default(cuid()) @map("_id")
+  messageId   String
+  reporterId  String
+  reason      String
+  createdAt   DateTime @default(now())
+  message     Message  @relation(fields: [messageId], references: [id])
+  reporter    User     @relation(fields: [reporterId], references: [id])
+
+  @@index([messageId])
+  @@index([reporterId])
 }
