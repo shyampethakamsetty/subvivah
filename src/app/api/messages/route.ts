@@ -1,45 +1,60 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { MessageSecurityService } from '@/lib/services/messageSecurityService';
+import { Prisma } from '@prisma/client';
 
-interface Message {
-  senderId: string;
-  receiverId: string;
-  isRead: boolean;
-  sender: any; // Replace 'any' with a more specific type if available
-  receiver: any; // Replace 'any' with a more specific type if available
+interface UserPhoto {
+  id: string;
+  url: string;
+  isProfile: boolean;
 }
+
+interface UserWithPhotos {
+  firstName: string;
+  lastName: string;
+  photos: UserPhoto[];
+}
+
+type MessageWithRelations = Prisma.MessageGetPayload<{
+  include: {
+    sender: {
+      select: {
+        firstName: true;
+        lastName: true;
+        photos: {
+          where: { isProfile: true };
+          take: 1;
+        };
+      };
+    };
+    receiver: {
+      select: {
+        firstName: true;
+        lastName: true;
+        photos: {
+          where: { isProfile: true };
+          take: 1;
+        };
+      };
+    };
+  };
+}>;
 
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
     const otherUserId = searchParams.get('otherUserId');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
-    const userId = session.user.id;
+
+    if (!userId) {
+      return new NextResponse(
+        JSON.stringify({ error: 'User ID is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     try {
-      // Check if user is blocked
-      if (otherUserId) {
-        const canInteract = await MessageSecurityService.canInteract(userId, otherUserId);
-        if (!canInteract) {
-          return new NextResponse(
-            JSON.stringify({ error: 'Cannot interact with this user' }),
-            { status: 403, headers: { 'Content-Type': 'application/json' } }
-          );
-        }
-      }
-
       let messages;
       if (otherUserId) {
         // Get messages between two specific users
@@ -76,31 +91,6 @@ export async function GET(request: Request) {
           skip: (page - 1) * limit,
           take: limit
         });
-
-        // Decrypt messages
-        messages = await Promise.all(messages.map(async (message) => {
-          if (message.content && message.iv) {
-            message.content = await MessageSecurityService.decryptMessage(message.content, message.iv);
-          }
-          return message;
-        }));
-
-        const totalCount = await prisma.message.count({
-          where: {
-            OR: [
-              { senderId: userId, receiverId: otherUserId },
-              { senderId: otherUserId, receiverId: userId }
-            ]
-          }
-        });
-
-        return new NextResponse(
-          JSON.stringify({
-            messages,
-            hasMore: (page * limit) < totalCount
-          }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } }
-        );
       } else {
         // Get all conversations for the user
         const conversations = await prisma.message.findMany({
@@ -137,19 +127,9 @@ export async function GET(request: Request) {
 
         // Group messages by conversation
         const conversationMap = new Map();
-        for (const message of conversations) {
+        conversations.forEach((message) => {
           const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
-          
-          // Skip blocked users
-          const canInteract = await MessageSecurityService.canInteract(userId, otherUserId);
-          if (!canInteract) continue;
-
           if (!conversationMap.has(otherUserId)) {
-            // Decrypt last message
-            if (message.content && message.iv) {
-              message.content = await MessageSecurityService.decryptMessage(message.content, message.iv);
-            }
-
             conversationMap.set(otherUserId, {
               user: message.senderId === userId ? message.receiver : message.sender,
               lastMessage: message,
@@ -159,13 +139,13 @@ export async function GET(request: Request) {
           if (!message.isRead && message.receiverId === userId) {
             conversationMap.get(otherUserId).unreadCount++;
           }
-        }
+        });
 
         messages = Array.from(conversationMap.values());
       }
 
       return new NextResponse(
-        JSON.stringify({ conversations: messages }),
+        JSON.stringify(messages),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } catch (error) {
@@ -186,62 +166,63 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
     const data = await request.json();
-    const { receiverId, content } = data;
-    const senderId = session.user.id;
+    const { senderId, receiverId, content } = data;
 
-    if (!receiverId || !content) {
+    if (!senderId || !receiverId || !content) {
       return new NextResponse(
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
+    // Validate content length
+    if (content.length > 1000) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Message content too long. Maximum 1000 characters allowed.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate content type (no HTML or scripts)
+    if (/<[^>]*>/.test(content)) {
+      return new NextResponse(
+        JSON.stringify({ error: 'HTML content is not allowed in messages' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     try {
-      // Check if user is blocked
-      const canInteract = await MessageSecurityService.canInteract(senderId, receiverId);
-      if (!canInteract) {
+      // Check if users can message each other
+      const interest = await prisma.interest.findUnique({
+        where: {
+          senderId_receiverId: {
+            senderId,
+            receiverId
+          }
+        }
+      });
+
+      if (!interest || interest.status !== 'accepted') {
         return new NextResponse(
           JSON.stringify({ error: 'Cannot send message to this user' }),
           { status: 403, headers: { 'Content-Type': 'application/json' } }
         );
       }
 
-      // Check rate limit
-      const withinLimit = await MessageSecurityService.checkRateLimit(senderId, 'message');
-      if (!withinLimit) {
-        return new NextResponse(
-          JSON.stringify({ error: 'Message limit exceeded. Please try again later.' }),
-          { status: 429, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Check for spam
-      const isSpam = await MessageSecurityService.isSpam(senderId, content);
-      if (isSpam) {
-        return new NextResponse(
-          JSON.stringify({ error: 'Message detected as spam' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Encrypt message
-      const { encryptedText, iv } = await MessageSecurityService.encryptMessage(content);
-
       const message = await prisma.message.create({
         data: {
           senderId,
           receiverId,
-          content: encryptedText,
-          iv
+          content,
+          isRead: false,
+          iv: '', // Add empty IV for now - this should be properly generated in production
+          sender: {
+            connect: { id: senderId }
+          },
+          receiver: {
+            connect: { id: receiverId }
+          }
         },
         include: {
           sender: {
@@ -265,7 +246,7 @@ export async function POST(request: Request) {
             }
           }
         }
-      });
+      }) as MessageWithRelations;
 
       // Create notification for receiver
       await prisma.notification.create({
@@ -275,9 +256,6 @@ export async function POST(request: Request) {
           message: `New message from ${message.sender.firstName} ${message.sender.lastName}`
         }
       });
-
-      // Decrypt message for response
-      message.content = content;
 
       return new NextResponse(
         JSON.stringify(message),
@@ -301,14 +279,6 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
     const data = await request.json();
     const { messageIds } = data;
 
@@ -324,8 +294,7 @@ export async function PUT(request: Request) {
         where: {
           id: {
             in: messageIds
-          },
-          receiverId: session.user.id // Only mark messages as read if user is the receiver
+          }
         },
         data: {
           isRead: true
@@ -339,7 +308,7 @@ export async function PUT(request: Request) {
     } catch (error) {
       console.error('Database error:', error);
       return new NextResponse(
-        JSON.stringify({ error: 'Failed to update messages' }),
+        JSON.stringify({ error: 'Failed to mark messages as read' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
