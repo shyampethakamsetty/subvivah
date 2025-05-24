@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import KundliForm from '@/components/KundliForm';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface KundliData {
   personalInfo: {
@@ -47,10 +49,108 @@ interface KundliData {
   disclaimer: string;
 }
 
+// PlaceAutocomplete component for place suggestions
+interface PlaceAutocompleteProps {
+  value: string;
+  onChange: (val: string) => void;
+}
+interface NominatimSuggestion {
+  display_name: string;
+  [key: string]: any;
+}
+function PlaceAutocomplete({ value, onChange }: PlaceAutocompleteProps) {
+  const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Debounce function
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  const fetchSuggestions = async (query: string) => {
+    if (query.length < 2) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`
+      );
+      const data: NominatimSuggestion[] = await res.json();
+      setSuggestions(data);
+      setShowDropdown(true);
+      console.log('Suggestions:', data);
+      console.log('Show Dropdown:', true);
+    } catch (err) {
+      setSuggestions([]);
+      setShowDropdown(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const debouncedFetchSuggestions = useCallback(debounce(fetchSuggestions, 500), []); // 500ms debounce delay
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    onChange(query);
+    debouncedFetchSuggestions(query);
+  };
+
+  const handleSelect = (place: NominatimSuggestion) => {
+    onChange(place.display_name);
+    setSuggestions([]);
+    setShowDropdown(false);
+  };
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <input
+        type="text"
+        name="pob"
+        value={value}
+        onChange={handleInput}
+        autoComplete="off"
+        required
+        placeholder="Enter Place of Birth"
+        className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 px-3 py-2"
+      />
+      {loading && (
+        <div className="absolute z-10 bg-white border w-full p-2 text-gray-500">Searching...</div>
+      )}
+      {showDropdown && suggestions.length > 0 && (
+        <ul className="absolute z-10 bg-white border w-full max-h-96 overflow-y-auto">
+          {suggestions.map((s, idx) => (
+            <li
+              key={idx}
+              className="p-2 hover:bg-purple-100 cursor-pointer text-gray-800"
+              onClick={() => handleSelect(s)}
+            >
+              {s.display_name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function KundliPage() {
   const [kundliData, setKundliData] = useState<KundliData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gender, setGender] = useState('male');
+  const [place, setPlace] = useState('');
+  const kundliRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,8 +160,12 @@ export default function KundliPage() {
     const formData = new FormData(e.currentTarget);
     const data = {
       fullName: formData.get('fullName'),
-      dob: formData.get('dob'),
-      tob: formData.get('tob'),
+      day: formData.get('day'),
+      month: formData.get('month'),
+      year: formData.get('year'),
+      hrs: formData.get('hrs'),
+      min: formData.get('min'),
+      sec: formData.get('sec'),
       pob: formData.get('pob'),
       gender: formData.get('gender')
     };
@@ -88,83 +192,164 @@ export default function KundliPage() {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!kundliRef.current) return;
+    const element = kundliRef.current;
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'a4',
+    });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('kundli.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center text-purple-900 mb-8">
-          Vedic Astrology Kundli
+          Get Your Kundli by Date of Birth
         </h1>
-        
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 mb-8">
+
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 mb-8 bg-gray-100">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                id="fullName"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  id="fullName"
+                  placeholder='Enter Your Full Name'
+                  required
+                  className="mt-1 h-10 block placeholder-gray-200 w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                  Gender
+                </label>
+                <div className='flex gap-2'>
+                  <div
+                    className={`border border-gray-300 rounded-md p-2 w-1/3 cursor-pointer text-center 
+                    ${gender === 'male' ? 'bg-purple-600 text-white' : 'bg-white text-black'}`}
+                    onClick={() => setGender('male')}
+                  >
+                    <p>MALE</p>
+                  </div>
+                  <div
+                    className={`border border-gray-300 rounded-md p-2 w-1/3 cursor-pointer text-center 
+                     ${gender === 'female' ? 'bg-purple-600 text-white' : 'bg-white text-black'}`}
+                    onClick={() => setGender('female')}
+                  >
+                    <p>FEMALE</p>
+                  </div>
+                </div>
+                <input type="hidden" name="gender" value={gender} />
+
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="day" className="block text-sm font-medium text-gray-700">
+                  Day
+                </label>
+
+                <input
+                  type="text"
+                  name="day"
+                  id="day"
+                  placeholder='Enter Your Day'
+                  required
+                  className="mt-1 h-10 block w-full placeholder-gray-50 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="month" className="block text-sm font-medium text-gray-700">
+                  Month
+                </label>
+
+                <input
+                  type="text"
+                  name="month"
+                  id="month"
+                  placeholder='Enter Your Month'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="year" className="block text-sm font-medium text-gray-700">
+                  Year
+                </label>
+
+                <input
+                  type="text"
+                  name="year"
+                  id="year"
+                  placeholder='Enter Your Year'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="dob" className="block text-sm font-medium text-gray-700">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dob"
-                id="dob"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="hrs" className="block text-sm font-medium text-gray-700">
+                  Hrs
+                </label>
 
-            <div>
-              <label htmlFor="tob" className="block text-sm font-medium text-gray-700">
-                Time of Birth
-              </label>
-              <input
-                type="time"
-                name="tob"
-                id="tob"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-            </div>
+                <input
+                  type="text"
+                  name="hrs"
+                  id="hrs"
+                  placeholder='Enter Your Hrs'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="min" className="block text-sm font-medium text-gray-700">
+                  Min
+                </label>
 
+                <input
+                  type="text"
+                  name="min"
+                  id="min"
+                  placeholder='Enter Your Min'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="sec" className="block text-sm font-medium text-gray-700">
+                  Sec
+                </label>
+
+                <input
+                  type="text"
+                  name="sec"
+                  id="sec"
+                  placeholder='Enter Your Sec'
+                  required
+                  className="mt-1 h-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 placeholder-[#f9fafb] px-3 py-2"
+                />
+              </div>
+            </div>
             <div>
               <label htmlFor="pob" className="block text-sm font-medium text-gray-700">
                 Place of Birth
               </label>
-              <input
-                type="text"
-                name="pob"
-                id="pob"
-                required
-                placeholder="City, Country"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-                Gender
-              </label>
-              <select
-                name="gender"
-                id="gender"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
+              <PlaceAutocomplete value={place} onChange={setPlace} />
+              <input type="hidden" name="pob" value={place} />
             </div>
 
             <button
@@ -184,102 +369,112 @@ export default function KundliPage() {
         </div>
 
         {kundliData && (
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-purple-900 mb-6">
-              Kundli Analysis for {kundliData.personalInfo.fullName}
-            </h2>
+          <>
+            <div ref={kundliRef} className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-semibold text-purple-900 mb-6">
+                Kundli Analysis for {kundliData.personalInfo.fullName}
+              </h2>
 
-            {/* Personal Information */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Personal Information</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">Date of Birth</p>
-                  <p className="font-medium">{kundliData.personalInfo.dateOfBirth}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Time of Birth</p>
-                  <p className="font-medium">{kundliData.personalInfo.timeOfBirth}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Place of Birth</p>
-                  <p className="font-medium">{kundliData.personalInfo.placeOfBirth}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Gender</p>
-                  <p className="font-medium">{kundliData.personalInfo.gender}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Ascendant Information */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Ascendant (Lagna)</h3>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-lg">
-                  <span className="font-medium">Sign:</span> {kundliData.ascendant.sign}
-                </p>
-                <p className="text-lg">
-                  <span className="font-medium">Degree:</span> {kundliData.ascendant.degree.toFixed(2)}°
-                </p>
-              </div>
-            </div>
-
-            {/* Sun Position */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Sun Position</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-purple-900 mb-2">Tropical (Western)</h4>
-                  <p>Sign: {kundliData.sunPosition.tropical.sign}</p>
-                  <p>Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-purple-900 mb-2">Sidereal (Vedic)</h4>
-                  <p>Sign: {kundliData.sunPosition.sidereal.sign}</p>
-                  <p>Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
-                  {kundliData.sunPosition.sidereal.nakshatra && (
-                    <div className="mt-2">
-                      <p>Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
-                      <p>Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
-                      <p>Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Houses */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Houses (Bhavas)</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {kundliData.houses.map((house) => (
-                  <div key={house.house} className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-purple-900 mb-2">
-                      {house.name}
-                    </h4>
-                    <p>Sign: {house.sign}</p>
-                    <p>Degree: {house.degree.toFixed(2)}°</p>
+              {/* Personal Information */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Personal Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-600">Date of Birth</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.dateOfBirth}</p>
                   </div>
-                ))}
+                  <div>
+                    <p className="text-gray-600">Time of Birth</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.timeOfBirth}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Place of Birth</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.placeOfBirth}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Gender</p>
+                    <p className="font-medium text-gray-800">{kundliData.personalInfo.gender}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ascendant Information */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Ascendant (Lagna)</h3>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <p className="text-lg text-gray-800">
+                    <span className="font-medium">Sign:</span> {kundliData.ascendant.sign}
+                  </p>
+                  <p className="text-lg text-gray-800">
+                    <span className="font-medium">Degree:</span> {kundliData.ascendant.degree.toFixed(2)}°
+                  </p>
+                </div>
+              </div>
+
+              {/* Sun Position */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Sun Position</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-purple-900 mb-2">Tropical (Western)</h4>
+                    <p className="text-gray-800">Sign: {kundliData.sunPosition.tropical.sign}</p>
+                    <p className="text-gray-800">Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-purple-900 mb-2">Sidereal (Vedic)</h4>
+                    <p className="text-gray-800">Sign: {kundliData.sunPosition.sidereal.sign}</p>
+                    <p className="text-gray-800">Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
+                    {kundliData.sunPosition.sidereal.nakshatra && (
+                      <div className="mt-2">
+                        <p className="text-gray-800">Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
+                        <p className="text-gray-800">Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
+                        <p className="text-gray-800">Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Houses */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Houses (Bhavas)</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {kundliData.houses.map((house) => (
+                    <div key={house.house} className="bg-purple-50 p-4 rounded-lg">
+                      <h4 className="font-medium text-purple-900 mb-2">
+                        {house.name}
+                      </h4>
+                      <p className="text-gray-800">Sign: {house.sign}</p>
+                      <p className="text-gray-800">Degree: {house.degree.toFixed(2)}°</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ayanamsa */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-purple-800 mb-4">Ayanamsa</h3>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <p className="text-lg text-gray-800">
+                    <span className="font-medium">Value:</span> {kundliData.ayanamsa.toFixed(2)}°
+                  </p>
+                </div>
+              </div>
+
+              {/* Disclaimer */}
+              <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
+                <p className="text-sm text-yellow-800">{kundliData.disclaimer}</p>
               </div>
             </div>
-
-            {/* Ayanamsa */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Ayanamsa</h3>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-lg">
-                  <span className="font-medium">Value:</span> {kundliData.ayanamsa.toFixed(2)}°
-                </p>
-              </div>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={handleDownloadPDF}
+                className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                Download PDF
+              </button>
             </div>
-
-            {/* Disclaimer */}
-            <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
-              <p className="text-sm text-yellow-800">{kundliData.disclaimer}</p>
-            </div>
-          </div>
+          </>
         )}
       </div>
     </div>

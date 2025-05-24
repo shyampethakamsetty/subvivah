@@ -206,32 +206,53 @@ function calculateNakshatra(longitude: number) {
   return null;
 }
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': 'http://localhost:3000',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
+
 export async function POST(req: Request) {
   try {
-    const { fullName, dob, tob, pob, gender } = await req.json();
+    const body = await req.json();
+    const { fullName, day, month, year, hrs, min, sec, pob, gender } = body;
 
     // Validate required fields
-    if (!fullName || !dob || !tob || !pob) {
+    if (!fullName || !day || !month || !year || !hrs || !min || !sec || !pob || !gender) {
       return NextResponse.json({ 
         error: 'Missing required fields',
         requiredFields: {
           fullName: 'Full name of the person',
-          dob: 'Date of birth (YYYY-MM-DD)',
-          tob: 'Time of birth (HH:MM)',
-          pob: 'Place of birth'
+          day: 'Day of birth is required',
+          month: 'Month of birth is required',
+          year: 'Year of birth is required',
+          hrs: 'Hour of birth is required',
+          min: 'Minute of birth is required',
+          sec: 'Second of birth is required',
+          pob: 'Place of birth is required',
+          gender: 'Gender is required'
         }
       }, { status: 400 });
     }
+
+    // Construct dob and tob
+    const dob = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const tob = `${String(hrs).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 
     // Get coordinates for the place of birth
     const coordinates = await getCoordinates(pob);
     
     // Parse date and time
-    const [year, month, day] = dob.split('-').map(Number);
+    const [dobYear, dobMonth, dobDay] = dob.split('-').map(Number);
     const [hour, minute] = tob.split(':').map(Number);
     
     // Create date object - ensure UTC
-    const dateObj = new Date(Date.UTC(year, month-1, day, hour, minute, 0));
+    const dateObj = new Date(Date.UTC(dobYear, dobMonth-1, dobDay, hour, minute, 0));
     
     // Calculate Julian Day
     const jd = calculateJulianDay(dateObj);
@@ -290,12 +311,16 @@ export async function POST(req: Request) {
       disclaimer: "This is a basic kundli calculation. For detailed analysis, please consult with a professional astrologer."
     };
     
-    return NextResponse.json(kundliData);
+    const response = NextResponse.json(kundliData);
+    response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    return response;
   } catch (error: any) {
     console.error('API error:', error);
-    return NextResponse.json({ 
+    const errorResponse = NextResponse.json({ 
       error: 'Error generating kundli', 
       details: error.message
     }, { status: 500 });
+    errorResponse.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    return errorResponse;
   }
 } 
