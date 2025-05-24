@@ -37,6 +37,8 @@ model User {
   shortlist         Shortlist[]
   viewedProfiles    ProfileView[]  @relation("ProfileViewer")
   profileViews      ProfileView[]  @relation("ProfileViewed")
+  spotlightMatch    SpotlightMatch?
+  matchedInSpotlight SpotlightMatch[] @relation("MatchedUser")
 }
 
 model Profile {
@@ -220,4 +222,18 @@ model ProfileView {
   updatedAt     DateTime @updatedAt
 
   @@unique([viewerId, viewedUserId])
+}
+
+model SpotlightMatch {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @unique @db.ObjectId
+  matchedUserId   String   @db.ObjectId
+  matchScore      Int
+  matchingCriteria String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id])
+  matchedUser     User     @relation("MatchedUser", fields: [matchedUserId], references: [id])
+
+  @@unique([userId, matchedUserId])
 }

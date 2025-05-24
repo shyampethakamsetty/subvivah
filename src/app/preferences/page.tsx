@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import withAuth from '@/components/withAuth';
 
 interface Preferences {
   ageFrom: number | null;
@@ -17,7 +18,7 @@ interface Preferences {
   income: string | null;
 }
 
-export default function PreferencesPage() {
+function PreferencesPage() {
   const router = useRouter();
   const [preferences, setPreferences] = useState<Preferences>({
     ageFrom: null,
@@ -34,20 +35,40 @@ export default function PreferencesPage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPreferences();
+    fetchUserAndPreferences();
   }, []);
 
-  const fetchPreferences = async () => {
+  const fetchUserAndPreferences = async () => {
     try {
-      const response = await fetch('/api/preferences?userId=current');
-      if (response.ok) {
-        const data = await response.json();
+      setLoading(true);
+      // First get the current user
+      const userResponse = await fetch('/api/auth/me');
+      if (!userResponse.ok) {
+        router.push('/login');
+        return;
+      }
+      const userData = await userResponse.json();
+      setUserId(userData.user.id);
+
+      // Then fetch preferences
+      const preferencesResponse = await fetch(`/api/preferences?userId=${userData.user.id}`);
+      if (preferencesResponse.ok) {
+        const data = await preferencesResponse.json();
         setPreferences(data);
+      } else if (preferencesResponse.status === 404) {
+        // If preferences don't exist, that's okay - we'll create them
+        console.log('No preferences found - will create new ones');
+      } else {
+        throw new Error('Failed to fetch preferences');
       }
     } catch (error) {
-      console.error('Error fetching preferences:', error);
+      console.error('Error fetching data:', error);
+      setError('Failed to load preferences. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -55,10 +76,17 @@ export default function PreferencesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
     
     // Validate age range
     if (preferences.ageFrom && preferences.ageTo && preferences.ageFrom > preferences.ageTo) {
-      alert('Age "From" must be less than Age "To"');
+      setError('Age "From" must be less than Age "To"');
+      return;
+    }
+
+    if (!userId) {
+      setError('User not authenticated');
       return;
     }
 
@@ -70,16 +98,26 @@ export default function PreferencesPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: 'current',
+          userId,
           ...preferences,
         }),
       });
 
-      if (response.ok) {
-        router.push('/dating');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save preferences');
       }
+
+      setSuccess('Preferences saved successfully!');
+      
+      // Wait for 2 seconds to show the success message before redirecting
+      setTimeout(() => {
+        router.push('/matches');
+      }, 2000);
     } catch (error) {
       console.error('Error saving preferences:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save preferences');
     } finally {
       setSaving(false);
     }
@@ -98,6 +136,18 @@ export default function PreferencesPage() {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Partner Preferences</h1>
+          
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-sm text-green-600">{success}</p>
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Age Range */}
@@ -267,15 +317,15 @@ export default function PreferencesPage() {
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => router.push('/dating')}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                onClick={() => router.push('/matches')}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50"
+                className="px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save Preferences'}
               </button>
@@ -285,4 +335,6 @@ export default function PreferencesPage() {
       </div>
     </div>
   );
-} 
+}
+
+export default withAuth(PreferencesPage); 
