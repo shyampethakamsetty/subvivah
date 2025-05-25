@@ -246,7 +246,7 @@ export async function POST(request: Request) {
             }
           }
         }
-      }) as MessageWithRelations;
+      });
 
       // Create notification for receiver
       await prisma.notification.create({

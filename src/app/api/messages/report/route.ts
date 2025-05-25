@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { MessageSecurityService } from '@/lib/services/messageSecurityService';
 
 export async function POST(request: Request) {
   try {
@@ -43,8 +42,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Report message
-    await MessageSecurityService.reportMessage(messageId, reporterId, reason);
+    // Create report
+    await prisma.messageReport.create({
+      data: {
+        messageId,
+        reporterId,
+        reason
+      }
+    });
 
     return new NextResponse(
       JSON.stringify({ success: true }),
