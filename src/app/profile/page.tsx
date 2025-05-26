@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import withAuth from '@/components/withAuth';
 import Image from 'next/image';
+import PhotoUpload from '@/components/PhotoUpload';
+import { Camera, X } from 'lucide-react';
 
 interface User {
   id: string;
@@ -31,7 +33,7 @@ interface User {
     familyStatus?: string;
     aboutMe?: string;
     hobbies?: string[];
-    photos?: { url: string }[];
+    photos?: { url: string; caption?: string }[];
   };
 }
 
@@ -61,6 +63,12 @@ function ProfilePage() {
     hobbies: '',
   });
   const router = useRouter();
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [caption, setCaption] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -178,6 +186,78 @@ function ProfilePage() {
     }
   };
 
+  const handlePhotoUpload = async () => {
+    try {
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        cache: 'no-store'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Parse hobbies from JSON string if it exists
+        if (data.user.profile?.hobbies) {
+          try {
+            data.user.profile.hobbies = JSON.parse(data.user.profile.hobbies);
+          } catch (e) {
+            data.user.profile.hobbies = [];
+          }
+        }
+        setUser(data.user);
+      } else {
+        console.error('Failed to refresh user data');
+      }
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadFile(file);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!uploadFile) return;
+    setUploading(true);
+    setUploadStatus('uploading');
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      formData.append('caption', caption);
+      formData.append('isProfile', 'true');
+      const response = await fetch('/api/photos/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (response.ok) {
+        setUploadStatus('success');
+        // Refresh user data to get the new photo
+        const userResponse = await fetch('/api/auth/me');
+        if (userResponse.ok) {
+          const data = await userResponse.json();
+          setUser(data.user);
+        }
+        setIsUploadModalOpen(false);
+        setUploadFile(null);
+        setCaption('');
+      } else {
+        setUploadStatus('error');
+      }
+    } catch (error) {
+      setUploadStatus('error');
+      console.error('Error uploading photo:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -190,51 +270,81 @@ function ProfilePage() {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-[#f7f8fa] py-10 flex">
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 flex flex-col items-center pt-8">
-        <div className="bg-white rounded-xl shadow p-6 w-56 flex flex-col gap-4">
-          <button
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-purple-50 transition"
-            onClick={() => setIsEditing(true)}
-          >
-            <span className="material-icons text-lg">edit</span>
-            Edit Profile
-          </button>
-        </div>
-      </aside>
+  const profilePhoto = user.profile?.photos?.find(photo => photo.isProfile) || user.profile?.photos?.[0];
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center">
-        <div className="w-full max-w-3xl">
-          {/* Profile Card */}
-          <div className="relative flex flex-col items-center mb-8 mt-4">
-            <div className="w-full bg-gradient-to-r from-pink-100 via-pink-50 to-purple-50 rounded-2xl shadow p-8 pt-16 flex flex-col items-center">
-              {/* Profile Image Overlap */}
-              <div className="absolute -top-16 left-1/2 -translate-x-1/2">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                  {user.profile?.photos?.[0] ? (
+  return (
+    <div className="min-h-screen bg-[#f7f8fa] py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Profile Header */}
+        <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-8 mb-8">
+          <div className="flex flex-col md:flex-row items-start gap-8">
+            {/* Profile Image Section */}
+            <div className="flex-shrink-0 relative">
+              <div className="relative group">
+                <div
+                  className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105"
+                  onClick={() => {
+                    if (user.profile?.photos && user.profile.photos.length > 0) {
+                      setIsPhotoModalOpen(true);
+                    }
+                  }}
+                >
+                  {profilePhoto ? (
                     <Image
-                      src={user.profile.photos[0].url}
+                      src={profilePhoto.url}
                       alt={`${user.firstName}'s profile`}
-                      width={128}
-                      height={128}
+                      width={160}
+                      height={160}
                       className="object-cover w-full h-full"
+                      priority
+                      unoptimized
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-gray-400">
+                    <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                      <span className="text-4xl md:text-5xl font-bold text-gray-400">
                         {user.firstName[0]}{user.lastName[0]}
                       </span>
                     </div>
                   )}
                 </div>
+                {/* Camera Icon */}
+                <div className="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-md cursor-pointer hover:bg-gray-50 transition-colors">
+                  <label htmlFor="photo-upload" className="cursor-pointer">
+                    <Camera className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
+                  </label>
+                  <input
+                    type="file"
+                    id="photo-upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('isProfile', 'true');
+                        handlePhotoUpload();
+                      }
+                    }}
+                  />
+                </div>
               </div>
-              <div className="mt-8 flex flex-col items-center">
-                <h2 className="text-2xl font-bold text-gray-900">{user.firstName} {user.lastName}</h2>
-                <p className="text-gray-500 mb-2">{user.email}</p>
-                <div className="flex flex-wrap gap-2 mb-2 justify-center">
+            </div>
+
+            {/* Profile Info Section */}
+            <div className="flex-1">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{user.firstName} {user.lastName}</h2>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors w-fit"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
+                <p className="text-gray-500">{user.email}</p>
+                <div className="flex flex-wrap gap-2">
                   {user.profile?.maritalStatus && (
                     <span className="bg-[#f3e8ff] text-[#7c3aed] px-3 py-1 rounded-full text-xs font-semibold">{user.profile.maritalStatus}</span>
                   )}
@@ -245,38 +355,81 @@ function ProfilePage() {
                     <span className="bg-[#e0f2fe] text-[#2563eb] px-3 py-1 rounded-full text-xs font-semibold">{user.profile.education}</span>
                   )}
                 </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Info Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* About Me */}
-            <div className="bg-white rounded-xl shadow p-6 flex-1 mb-4 border border-gray-100">
-              <div className="flex items-center gap-2 mb-2">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-4">
                 <span className="material-icons text-purple-500">person</span>
                 <span className="font-semibold text-gray-800">About Me</span>
               </div>
-              <p className="text-gray-700 text-sm">{user.profile?.aboutMe || 'No about me info yet.'}</p>
+            <p className="text-gray-700 text-sm leading-relaxed">{user.profile?.aboutMe || 'No about me info yet.'}</p>
             </div>
+
             {/* Photo Gallery */}
-            <div className="bg-white rounded-xl shadow p-6 flex-1 mb-4 border border-gray-100">
-              <div className="flex items-center gap-2 mb-2">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
                 <span className="material-icons text-purple-500">photo_camera</span>
                 <span className="font-semibold text-gray-800">Photo Gallery</span>
               </div>
-              <div className="flex gap-2 mt-2">
-                <button className="px-4 py-1 rounded-lg border border-purple-300 text-purple-700 hover:bg-purple-50 text-xs font-medium bg-white">View All Photos</button>
-                <button className="px-4 py-1 rounded-lg border border-purple-300 text-purple-700 hover:bg-purple-50 text-xs font-medium bg-white">Upload Photos</button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors flex items-center gap-1.5"
+                >
+                  <Camera className="w-4 h-4" />
+                  Add Photo
+                </button>
+                <button 
+                  onClick={() => router.push('/profile/photos')}
+                  className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-100 transition-colors"
+                >
+                  View All
+                </button>
               </div>
             </div>
+            <div className="grid grid-cols-3 gap-3">
+              {user.profile?.photos?.slice(0, 3).map((photo, index) => (
+                <div key={index} className="aspect-square rounded-lg overflow-hidden relative group">
+                  <Image
+                    src={photo.url}
+                    alt={`Photo ${index + 1}`}
+                    width={150}
+                    height={150}
+                    className="w-full h-full object-cover"
+                  />
+                  {photo.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                      <p className="text-white text-xs truncate">{photo.caption}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {(!user.profile?.photos || user.profile.photos.length < 3) && (
+                <div 
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
+                >
+                  <Camera className="w-6 h-6 text-gray-400 mb-1" />
+                  <span className="text-gray-500 text-sm">Add Photo</span>
+                </div>
+              )}
+            </div>
+          </div>
+
             {/* Interests & Hobbies */}
-            <div className="bg-white rounded-xl shadow p-6 flex-1 mb-4 col-span-1 md:col-span-2 border border-gray-100">
-              <div className="flex items-center gap-2 mb-2">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow lg:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
                 <span className="material-icons text-purple-500">favorite</span>
                 <span className="font-semibold text-gray-800">Interests & Hobbies</span>
               </div>
-              <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2">
                 {user.profile?.hobbies && Array.isArray(user.profile.hobbies) && user.profile.hobbies.length > 0 ? (
                   user.profile.hobbies.map((hobby, idx) => (
                     <span key={idx} className={
@@ -288,7 +441,7 @@ function ProfilePage() {
                     }>{hobby}</span>
                   ))
                 ) : (
-                  <span className="text-gray-400 text-xs">No hobbies added yet.</span>
+                <span className="text-gray-400 text-sm">No hobbies added yet.</span>
                 )}
               </div>
             </div>
@@ -510,7 +663,112 @@ function ProfilePage() {
             </div>
           </div>
         )}
-      </main>
+
+      {/* Profile Photo Modal */}
+      {isPhotoModalOpen && user.profile?.photos && user.profile.photos.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+          onClick={() => setIsPhotoModalOpen(false)}
+        >
+          <div
+            className="relative max-w-2xl w-full flex items-center justify-center"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-80 z-10"
+              onClick={() => setIsPhotoModalOpen(false)}
+            >
+              <span className="material-icons">close</span>
+            </button>
+            <Image
+              src={profilePhoto.url}
+              alt="Full Profile Photo"
+              width={600}
+              height={600}
+              className="rounded-2xl object-contain max-h-[80vh] max-w-full"
+              unoptimized
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Upload Modal */}
+      {isUploadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Upload Photo</h2>
+              <button
+                onClick={() => setIsUploadModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                {uploadFile ? (
+                  <div className="space-y-2">
+                    <div className="relative w-[200px] h-[200px] mx-auto">
+                      <Image
+                        src={URL.createObjectURL(uploadFile)}
+                        alt="Preview"
+                        fill
+                        className="rounded-lg object-cover"
+                        sizes="200px"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-600">{uploadFile.name}</p>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer">
+                    <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-600">Click to select a photo</p>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Caption
+                </label>
+                <textarea
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  rows={3}
+                  placeholder="Add a caption to your photo..."
+                />
+              </div>
+
+              {uploadStatus === 'uploading' && (
+                <div className="text-center text-purple-600 my-2">Uploading...</div>
+              )}
+              {uploadStatus === 'success' && (
+                <div className="text-center text-green-600 my-2">Upload successful!</div>
+              )}
+              {uploadStatus === 'error' && (
+                <div className="text-center text-red-600 my-2">Upload failed. Please try again.</div>
+              )}
+
+              <button
+                onClick={handleUpload}
+                disabled={!uploadFile || uploading}
+                className="w-full py-2 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {uploading ? 'Uploading...' : 'Upload Photo'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

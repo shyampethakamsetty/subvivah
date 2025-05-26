@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import withAuth from '@/components/withAuth';
 import { Sparkles, Heart, MessageCircle } from 'lucide-react';
 
@@ -26,6 +26,7 @@ interface MatchedProfile {
     photos: {
       url: string;
       isProfile: boolean;
+      caption?: string;
     }[];
   };
 }
@@ -33,6 +34,12 @@ interface MatchedProfile {
 interface SpotlightMatch {
   matchScore: number;
   matchingCriteria: string[];
+}
+
+interface MatchCriteria {
+  name: string;
+  score: number;
+  matched: boolean;
 }
 
 interface AIAnalysis {
@@ -55,6 +62,7 @@ interface AIAnalysis {
 
 function MatchedProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<MatchedProfile | null>(null);
   const [spotlightMatch, setSpotlightMatch] = useState<SpotlightMatch | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +76,12 @@ function MatchedProfilePage() {
         setLoading(true);
         setError(null);
 
+        const matchedUserId = searchParams.get('userId');
+        if (!matchedUserId) {
+          setError('No user ID provided');
+          return;
+        }
+
         // Get current user
         const userResponse = await fetch('/api/auth/me');
         if (!userResponse.ok) {
@@ -76,37 +90,26 @@ function MatchedProfilePage() {
         }
         const userData = await userResponse.json();
 
-        // Get spotlight match
-        const spotlightResponse = await fetch(`/api/spotlight?userId=${userData.user.id}`);
-        if (!spotlightResponse.ok) {
-          const errorData = await spotlightResponse.json();
-          if (errorData.error === 'No suitable matches found') {
-            setError('No matches found based on your preferences. Try updating your preferences to find more matches.');
-          } else if (errorData.error === 'No potential matches found') {
-            setError('No potential matches found. Please check back later.');
-          } else if (errorData.error === 'User profile not found') {
-            setError('Your profile is not complete. Please complete your profile first.');
-            router.push('/profile');
-          } else if (errorData.error === 'User preferences not found') {
-            setError('Please set your preferences first.');
-            router.push('/preferences');
-          } else {
-            setError(errorData.details || errorData.error || 'Failed to fetch matched profile');
-          }
+        // Get matched profile
+        const profileResponse = await fetch(`/api/profiles/${matchedUserId}`);
+        if (!profileResponse.ok) {
+          const errorData = await profileResponse.json();
+          setError(errorData.details || errorData.error || 'Failed to fetch profile');
           return;
         }
 
-        const data = await spotlightResponse.json();
-        if (!data.matchedProfile) {
-          setError('No matches found based on your preferences. Try updating your preferences to find more matches.');
-          return;
-        }
+        const profileData = await profileResponse.json();
+        setProfile(profileData);
 
-        setProfile(data.matchedProfile);
+        // Get match details
+        const matchResponse = await fetch(`/api/matches/details?userId=${userData.user.id}&matchedUserId=${matchedUserId}`);
+        if (matchResponse.ok) {
+          const matchData = await matchResponse.json();
         setSpotlightMatch({
-          matchScore: data.matchScore,
-          matchingCriteria: data.matchingCriteria
+            matchScore: matchData.score,
+            matchingCriteria: matchData.criteria.map((c: MatchCriteria) => c.name)
         });
+        }
 
         // Fetch AI analysis
         setAnalyzing(true);
@@ -118,7 +121,7 @@ function MatchedProfilePage() {
             },
             body: JSON.stringify({
               userId: userData.user.id,
-              matchedUserId: data.matchedProfile.userId
+              matchedUserId: matchedUserId
             })
           });
 
@@ -133,14 +136,14 @@ function MatchedProfilePage() {
         }
       } catch (error) {
         console.error('Error:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch matched profile');
+        setError(error instanceof Error ? error.message : 'Failed to fetch profile');
       } finally {
         setLoading(false);
       }
     };
 
     fetchMatchedProfile();
-  }, [router]);
+  }, [router, searchParams]);
 
   if (loading) {
     return (
@@ -211,6 +214,34 @@ function MatchedProfilePage() {
             </div>
           </div>
 
+          {/* Photo Gallery Section */}
+          {profile.user.photos && profile.user.photos.length > 1 && (
+            <div className="px-8 py-6 border-t border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Photo Gallery</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {profile.user.photos.map((photo, idx) => (
+                  <div key={idx} className="rounded-lg overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 shadow group flex flex-col">
+                    <div className="relative w-full aspect-square">
+                      <Image
+                        src={photo.url}
+                        alt={`Photo ${idx + 1}`}
+                        fill
+                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
+                        sizes="300px"
+                      />
+                    </div>
+                    {/* Caption if available */}
+                    {photo.caption && (
+                      <div className="p-2 text-center bg-gradient-to-t from-white/90 to-white/60">
+                        <p className="text-xs text-gray-700 truncate">{photo.caption}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Profile Content */}
           <div className="p-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -221,7 +252,7 @@ function MatchedProfilePage() {
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-2">Matching Criteria</h2>
               <div className="flex flex-wrap gap-2">
-                {spotlightMatch?.matchingCriteria.map((criteria, index) => (
+                {spotlightMatch?.matchingCriteria.map((criteria: string, index: number) => (
                   <span
                     key={index}
                     className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"

@@ -18,13 +18,13 @@ interface MatchedProfile {
   workLocation: string | null;
   aboutMe: string | null;
   user: {
-  firstName: string;
-  lastName: string;
+    firstName: string;
+    lastName: string;
     dob: string;
-  photos: {
-    url: string;
+    photos: {
+      url: string;
       isProfile: boolean;
-  }[];
+    }[];
   };
 }
 
@@ -49,7 +49,7 @@ interface Preferences {
   income: string | null;
 }
 
-export default function MatchesPage() {
+const MatchesPage = () => {
   const router = useRouter();
   const [matches, setMatches] = useState<Match[]>([]);
   const [preferences, setPreferences] = useState<Preferences | null>(null);
@@ -94,13 +94,19 @@ export default function MatchesPage() {
           return;
         }
 
-        // Sort matches by score and mark the best match
+        // Sort matches by score, filter for 30% or higher, and mark the best match
         const sortedMatches = data.matches
+          .filter((match: any) => match.matchScore >= 30)
           .sort((a: any, b: any) => b.matchScore - a.matchScore)
           .map((match: any, index: number) => ({
             ...match,
             isBestMatch: index === 0
           }));
+
+        if (sortedMatches.length === 0) {
+          setError('No matches found with 30% or higher match score. Try updating your preferences to find more matches.');
+          return;
+        }
 
         setMatches(sortedMatches);
       } catch (error) {
@@ -220,31 +226,23 @@ export default function MatchesPage() {
               )}
               {preferences.location && (
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Work Location:</span>
+                  <span className="text-sm font-medium text-gray-500">Location:</span>
                   <p className="text-gray-900">{preferences.location}</p>
                 </div>
               )}
               {preferences.income && (
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Income Range:</span>
-                  <p className="text-gray-900">{preferences.income} LPA</p>
+                  <span className="text-sm font-medium text-gray-500">Income:</span>
+                  <p className="text-gray-900">{preferences.income}</p>
                 </div>
               )}
-            </div>
-            <div className="mt-4 text-right">
-              <Link
-                href="/preferences"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200"
-              >
-                Edit Preferences
-              </Link>
             </div>
           </div>
         )}
 
         {/* Matches Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {matches.map((match) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {matches.map((match) => (
             <div
               key={match.profile.userId}
               className={`bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl ${
@@ -299,35 +297,31 @@ export default function MatchesPage() {
                 {/* Matching Criteria */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {match.matchingCriteria.map((criteria, index) => (
-                      <span
-                        key={index}
+                    <span
+                      key={index}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
-                      >
+                    >
                       {criteria}
-                      </span>
-                    ))}
-                  </div>
+                    </span>
+                  ))}
+                </div>
 
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => router.push('/matches/matched-profile')}
+                    onClick={() => router.push(`/matches/matched-profile?userId=${match.profile.userId}`)}
                     className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
-                    >
-                      View Profile
-                  </button>
-                  <button
-                    onClick={() => {/* Implement interest functionality */}}
-                    className="flex-1 border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors"
                   >
-                    Show Interest
+                    View Profile
                   </button>
-                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default MatchesPage; 
