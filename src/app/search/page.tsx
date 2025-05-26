@@ -386,7 +386,7 @@ function SearchPage() {
                   {profiles.map((profile) => (
                     <div key={profile.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
                       <div className="relative h-48">
-                        {profile.photos && profile.photos[0] ? (
+                        {profile.photos?.[0] ? (
                           <Image
                             src={profile.photos[0].url}
                             alt={`${profile.user?.firstName || ''} ${profile.user?.lastName || ''}`}
@@ -394,8 +394,15 @@ function SearchPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-gray-400">No photo available</span>
+                          <div className="h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="w-20 h-20 rounded-full bg-white/80 flex items-center justify-center mx-auto mb-3">
+                                <span className="text-2xl font-bold text-purple-600">
+                                  {profile.user?.firstName?.[0] || ''}{profile.user?.lastName?.[0] || ''}
+                                </span>
+                              </div>
+                              <p className="text-gray-600 text-sm">No photo available</p>
+                            </div>
                           </div>
                         )}
                       </div>

@@ -268,7 +268,7 @@ function DatingPage() {
                   {Array.isArray(profiles) && profiles.map((profile) => (
                     <div key={profile.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
                       <div className="relative h-64">
-                        {profile.photos[0] ? (
+                        {profile.photos?.[0] ? (
                           <Image
                             src={profile.photos[0].url}
                             alt={`${profile.firstName}'s profile`}
@@ -276,8 +276,15 @@ function DatingPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="h-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-gray-400">No photo</span>
+                          <div className="h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="w-24 h-24 rounded-full bg-white/80 flex items-center justify-center mx-auto mb-3">
+                                <span className="text-3xl font-bold text-purple-600">
+                                  {profile.firstName[0]}{profile.lastName[0]}
+                                </span>
+                              </div>
+                              <p className="text-gray-600 text-sm">No photo available</p>
+                            </div>
                           </div>
                         )}
                       </div>

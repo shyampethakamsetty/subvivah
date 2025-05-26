@@ -187,7 +187,7 @@ function MatchedProfilePage() {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Profile Header */}
           <div className="relative h-96">
-            {profile.user.photos[0] ? (
+            {profile.user.photos?.[0] ? (
               <Image
                 src={profile.user.photos[0].url}
                 alt={`${profile.user.firstName}'s profile`}
@@ -195,8 +195,15 @@ function MatchedProfilePage() {
                 className="object-cover"
               />
             ) : (
-              <div className="h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No photo</span>
+              <div className="h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-32 h-32 rounded-full bg-white/80 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-4xl font-bold text-purple-600">
+                      {profile.user.firstName[0]}{profile.user.lastName[0]}
+                    </span>
+                  </div>
+                  <p className="text-gray-600">No photo available</p>
+                </div>
               </div>
             )}
             <div className="absolute top-4 right-4 bg-purple-600 text-white px-4 py-2 rounded-full">

@@ -184,7 +184,7 @@ const DailySuggestionBubble = () => {
   }
 
   const age = new Date().getFullYear() - new Date(matchedProfile.user.dob).getFullYear();
-  const profileImage = matchedProfile.user.photos[0]?.url || 'https://randomuser.me/api/portraits/lego/1.jpg';
+  const profileImage = matchedProfile.user.photos?.[0]?.url || 'https://randomuser.me/api/portraits/lego/1.jpg';
   const caption = getCompatibilityCaption(matchScore, matchingCriteria);
 
   return (
@@ -242,9 +242,9 @@ const DailySuggestionBubble = () => {
             {/* Close button */}
             <button
               onClick={togglePopup}
-              className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-lg text-gray-500 hover:text-gray-700 transition-all duration-300 hover:scale-110 hover:rotate-90 hover:bg-pink-50 z-10"
+              className="absolute -top-2 -right-2 bg-white rounded-full p-1.5 shadow-lg text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-110 hover:rotate-90 hover:bg-pink-50 z-10 border border-gray-200"
             >
-              <X size={16} />
+              <X size={18} strokeWidth={2.5} />
             </button>
 
             <div className="space-y-4 relative z-10">
