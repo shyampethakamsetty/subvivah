@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import withAuth from '@/components/withAuth';
+import UserSearch from '@/components/UserSearch';
 
 interface Match {
   id: string;
@@ -58,6 +59,10 @@ function MatchesPage() {
           <p className="mt-4 text-lg text-gray-600">
             Discover people who match your preferences
           </p>
+        </div>
+
+        <div className="mb-8 max-w-md mx-auto">
+          <UserSearch />
         </div>
 
         {matches.length === 0 ? (

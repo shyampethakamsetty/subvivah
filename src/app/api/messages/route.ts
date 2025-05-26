@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { verify } from 'jsonwebtoken';
 
 interface Message {
   senderId: string;
@@ -9,217 +10,144 @@ interface Message {
   receiver: any; // Replace 'any' with a more specific type if available
 }
 
+// Get messages between two users
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const otherUserId = searchParams.get('otherUserId');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-
-    if (!userId) {
-      return new NextResponse(
-        JSON.stringify({ error: 'User ID is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+    // Get the token from the cookie
+    const cookie = request.headers.get('cookie') || '';
+    const match = cookie.match(/token=([^;]+)/);
+    const token = match ? match[1] : null;
+    
+    if (!token) {
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    // Verify token and get user ID
+    let userId: string;
     try {
-      let messages;
-      if (otherUserId) {
-        // Get messages between two specific users
-        messages = await prisma.message.findMany({
-          where: {
-            OR: [
-              { senderId: userId, receiverId: otherUserId },
-              { senderId: otherUserId, receiverId: userId }
-            ]
-          },
-          include: {
-            sender: {
-              select: {
-                firstName: true,
-                lastName: true,
-                photos: {
-                  where: { isProfile: true },
-                  take: 1
-                }
-              }
-            },
-            receiver: {
-              select: {
-                firstName: true,
-                lastName: true,
-                photos: {
-                  where: { isProfile: true },
-                  take: 1
-                }
-              }
-            }
-          },
-          orderBy: { createdAt: 'desc' },
-          skip: (page - 1) * limit,
-          take: limit
-        });
-      } else {
-        // Get all conversations for the user
-        const conversations = await prisma.message.findMany({
-          where: {
-            OR: [
-              { senderId: userId },
-              { receiverId: userId }
-            ]
-          },
-          include: {
-            sender: {
-              select: {
-                firstName: true,
-                lastName: true,
-                photos: {
-                  where: { isProfile: true },
-                  take: 1
-                }
-              }
-            },
-            receiver: {
-              select: {
-                firstName: true,
-                lastName: true,
-                photos: {
-                  where: { isProfile: true },
-                  take: 1
-                }
-              }
-            }
-          },
-          orderBy: { createdAt: 'desc' }
-        });
-
-        // Group messages by conversation
-        const conversationMap = new Map();
-        conversations.forEach((message: Message) => {
-          const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
-          if (!conversationMap.has(otherUserId)) {
-            conversationMap.set(otherUserId, {
-              user: message.senderId === userId ? message.receiver : message.sender,
-              lastMessage: message,
-              unreadCount: 0
-            });
-          }
-          if (!message.isRead && message.receiverId === userId) {
-            conversationMap.get(otherUserId).unreadCount++;
-          }
-        });
-
-        messages = Array.from(conversationMap.values());
-      }
-
-      return new NextResponse(
-        JSON.stringify(messages),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } catch (error) {
-      console.error('Database error:', error);
-      return new NextResponse(
-        JSON.stringify({ error: 'Failed to fetch messages' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      const decoded = verify(token, process.env.JWT_SECRET || 'your-secret-key') as { userId: string };
+      userId = decoded.userId;
+    } catch {
+      return new NextResponse('Invalid token', { status: 401 });
     }
+
+    // Get the other user's ID from query params
+    const { searchParams } = new URL(request.url);
+    const otherUserId = searchParams.get('userId');
+
+    if (!otherUserId) {
+      return new NextResponse('User ID is required', { status: 400 });
+    }
+
+    // Fetch messages between the two users
+    const messages = await prisma.message.findMany({
+      where: {
+        OR: [
+          {
+            AND: [
+              { senderId: userId },
+              { receiverId: otherUserId },
+            ],
+          },
+          {
+            AND: [
+              { senderId: otherUserId },
+              { receiverId: userId },
+            ],
+          },
+        ],
+      },
+      include: {
+        sender: {
+          select: {
+            firstName: true,
+            lastName: true,
+            photos: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    // Mark unread messages as read
+    await prisma.message.updateMany({
+      where: {
+        senderId: otherUserId,
+        receiverId: userId,
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+      },
+    });
+
+    return NextResponse.json({ messages });
   } catch (error) {
-    console.error('API error:', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('Error fetching messages:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
 
+// Send a new message
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
-    const { senderId, receiverId, content } = data;
-
-    if (!senderId || !receiverId || !content) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+    // Get the token from the cookie
+    const cookie = request.headers.get('cookie') || '';
+    const match = cookie.match(/token=([^;]+)/);
+    const token = match ? match[1] : null;
+    
+    if (!token) {
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    // Verify token and get user ID
+    let userId: string;
     try {
-      // Check if users can message each other
-      const interest = await prisma.interest.findUnique({
-        where: {
-          senderId_receiverId: {
-            senderId,
-            receiverId
-          }
-        }
-      });
-
-      if (!interest || interest.status !== 'accepted') {
-        return new NextResponse(
-          JSON.stringify({ error: 'Cannot send message to this user' }),
-          { status: 403, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-
-      const message = await prisma.message.create({
-        data: {
-          senderId,
-          receiverId,
-          content
-        },
-        include: {
-          sender: {
-            select: {
-              firstName: true,
-              lastName: true,
-              photos: {
-                where: { isProfile: true },
-                take: 1
-              }
-            }
-          },
-          receiver: {
-            select: {
-              firstName: true,
-              lastName: true,
-              photos: {
-                where: { isProfile: true },
-                take: 1
-              }
-            }
-          }
-        }
-      });
-
-      // Create notification for receiver
-      await prisma.notification.create({
-        data: {
-          userId: receiverId,
-          type: 'message',
-          message: `New message from ${message.sender.firstName} ${message.sender.lastName}`
-        }
-      });
-
-      return new NextResponse(
-        JSON.stringify(message),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } catch (error) {
-      console.error('Database error:', error);
-      return new NextResponse(
-        JSON.stringify({ error: 'Failed to send message' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      const decoded = verify(token, process.env.JWT_SECRET || 'your-secret-key') as { userId: string };
+      userId = decoded.userId;
+    } catch {
+      return new NextResponse('Invalid token', { status: 401 });
     }
+
+    const { receiverId, content } = await request.json();
+
+    if (!receiverId || !content) {
+      return new NextResponse('Receiver ID and content are required', { status: 400 });
+    }
+
+    // Create the message
+    const message = await prisma.message.create({
+      data: {
+        content,
+        senderId: userId,
+        receiverId,
+        isRead: false,
+      },
+      include: {
+        sender: {
+          select: {
+            firstName: true,
+            lastName: true,
+            photos: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ message });
   } catch (error) {
-    console.error('API error:', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('Error sending message:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
 

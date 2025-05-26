@@ -49,3 +49,8 @@ input::placeholder, select::placeholder, textarea::placeholder {
     color: #060606 !important;
   }
 }
+
+/* Hide footer in messages page */
+.no-footer footer {
+  display: none !important;
+}
