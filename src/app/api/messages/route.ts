@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { verify } from 'jsonwebtoken';
+import crypto from 'crypto';
 
 interface Message {
   senderId: string;
@@ -128,6 +129,7 @@ export async function POST(request: Request) {
         senderId: userId,
         receiverId,
         isRead: false,
+        iv: crypto.randomBytes(16).toString('hex'), // Generate a random IV
       },
       include: {
         sender: {

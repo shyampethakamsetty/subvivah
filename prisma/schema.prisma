@@ -88,6 +88,7 @@ model Message {
   senderId   String   @db.ObjectId
   receiverId String   @db.ObjectId
   isRead     Boolean  @default(false)
+  iv         String   // Initialization vector for encryption
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])

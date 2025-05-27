@@ -25,6 +25,11 @@ function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleUserSelect = (userId: string) => {
+    // Navigate to the selected user's profile
+    window.location.href = `/profile/${userId}`;
+  };
+
   useEffect(() => {
     const fetchMatches = async () => {
       try {
@@ -62,7 +67,7 @@ function MatchesPage() {
         </div>
 
         <div className="mb-8 max-w-md mx-auto">
-          <UserSearch />
+          <UserSearch onUserSelect={handleUserSelect} />
         </div>
 
         {matches.length === 0 ? (
