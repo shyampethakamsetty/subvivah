@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json({ messages });
+    return NextResponse.json({ messages, currentUserId: userId });
   } catch (error) {
     console.error('Error fetching messages:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

@@ -32,9 +32,7 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Login successful
-      alert('Login successful! Redirecting to your profile...');
-      console.log('Redirecting to profile...');
+      // Login successful - redirect without notification
       router.push('/profile');
     } catch (error) {
       console.error('Login error:', error);

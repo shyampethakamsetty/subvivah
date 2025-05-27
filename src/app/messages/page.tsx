@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Edit, Trash2, Check, CheckCheck, Clock } from 'lucide-react';
 import withAuth from '@/components/withAuth';
 import UserSearch from '@/components/UserSearch';
 
@@ -38,6 +38,9 @@ function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState('');
+  const [editingMessage, setEditingMessage] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
     fetchConversations();
@@ -61,6 +64,7 @@ function MessagesPage() {
       if (response.ok) {
         const data = await response.json();
         setConversations(data.conversations);
+        setCurrentUserId(data.currentUserId);
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -75,6 +79,7 @@ function MessagesPage() {
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages);
+        setCurrentUserId(data.currentUserId);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -132,6 +137,42 @@ function MessagesPage() {
 
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName[0]}${lastName[0]}`.toUpperCase();
+  };
+
+  const handleEditMessage = async (messageId: string, newContent: string) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: newContent }),
+      });
+
+      if (response.ok) {
+        setEditingMessage(null);
+        setEditContent('');
+        fetchMessages(selectedConversation!);
+      }
+    } catch (error) {
+      console.error('Error editing message:', error);
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchMessages(selectedConversation!);
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
   };
 
   if (loading) {
@@ -229,27 +270,90 @@ function MessagesPage() {
 
                   <div className="overflow-y-auto p-4 space-y-4 flex-1" style={{ height: 'calc(700px - 8rem)', paddingTop: '1rem' }}>
                     {messages.map((message) => {
-                      const isCurrentUser = message.senderId === 'current';
+                      const isCurrentUser = message.senderId === currentUserId;
                       return (
                         <div
                           key={message.id}
-                          className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                          className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                         >
-                          <div className="flex flex-col max-w-[70%]">
+                          <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'} max-w-[70%] group relative`}>
                             {!isCurrentUser && (
                               <span className="text-xs text-gray-500 mb-1 whitespace-nowrap">
                                 {message.sender.firstName} {message.sender.lastName}
                               </span>
                             )}
-                            <div
-                              className={`rounded-lg px-4 py-2 ${
-                                isCurrentUser
-                                  ? 'bg-purple-600 text-white rounded-br-none'
-                                  : 'bg-gray-100 text-gray-900 rounded-bl-none'
-                              }`}
-                            >
-                              {message.content}
-                            </div>
+                            {editingMessage === message.id ? (
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="text"
+                                  value={editContent}
+                                  onChange={(e) => setEditContent(e.target.value)}
+                                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                                <button
+                                  onClick={() => handleEditMessage(message.id, editContent)}
+                                  className="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingMessage(null);
+                                    setEditContent('');
+                                  }}
+                                  className="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div
+                                  className={`rounded-lg px-4 py-2 ${
+                                    isCurrentUser
+                                      ? 'bg-purple-600 text-white rounded-br-none'
+                                      : 'bg-gray-100 text-gray-900 rounded-bl-none'
+                                  }`}
+                                >
+                                  {message.content}
+                                </div>
+                                <div className={`flex items-center space-x-1 mt-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
+                                  <span className="text-xs text-gray-500">
+                                    {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                  {isCurrentUser && (
+                                    <>
+                                      <span className="text-xs text-gray-500">
+                                        {message.isRead ? (
+                                          <CheckCheck className="h-3 w-3 text-blue-500" />
+                                        ) : (
+                                          <Check className="h-3 w-3" />
+                                        )}
+                                      </span>
+                                      <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                          onClick={() => {
+                                            setEditingMessage(message.id);
+                                            setEditContent(message.content);
+                                          }}
+                                          className="p-1 hover:bg-gray-100 rounded-full"
+                                          title="Edit message"
+                                        >
+                                          <Edit className="h-3 w-3 text-gray-500" />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteMessage(message.id)}
+                                          className="p-1 hover:bg-gray-100 rounded-full"
+                                          title="Delete message"
+                                        >
+                                          <Trash2 className="h-3 w-3 text-red-500" />
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       );
