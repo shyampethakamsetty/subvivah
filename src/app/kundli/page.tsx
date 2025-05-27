@@ -3,7 +3,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import KundliForm from '@/components/KundliForm';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 interface KundliData {
   personalInfo: {
@@ -47,6 +46,7 @@ interface KundliData {
   }>;
   ayanamsa: number;
   disclaimer: string;
+  analysisText?: string;
 }
 
 // PlaceAutocomplete component for place suggestions
@@ -151,6 +151,38 @@ export default function KundliPage() {
   const [gender, setGender] = useState('male');
   const [place, setPlace] = useState('');
   const kundliRef = useRef<HTMLDivElement>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+
+  // List of 22 Indian languages and their codes
+  const indianLanguages = [
+    { code: 'as', name: 'Assamese' },
+    { code: 'bn', name: 'Bengali' },
+    { code: 'brx', name: 'Bodo' },
+    { code: 'doi', name: 'Dogri' },
+    { code: 'gu', name: 'Gujarati' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'kn', name: 'Kannada' },
+    { code: 'ks', name: 'Kashmiri' },
+    { code: 'gom', name: 'Konkani' },
+    { code: 'mai', name: 'Maithili' },
+    { code: 'ml', name: 'Malayalam' },
+    { code: 'mni', name: 'Manipuri' },
+    { code: 'mr', name: 'Marathi' },
+    { code: 'ne', name: 'Nepali' },
+    { code: 'or', name: 'Odia' },
+    { code: 'pa', name: 'Punjabi' },
+    { code: 'sa', name: 'Sanskrit' },
+    { code: 'sat', name: 'Santali' },
+    { code: 'sd', name: 'Sindhi' },
+    { code: 'ta', name: 'Tamil' },
+    { code: 'te', name: 'Telugu' },
+    { code: 'ur', name: 'Urdu' },
+  ];
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLanguage(e.target.value);
+    // In a real app, you'd also load translations here if using client-side i18n
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -167,7 +199,8 @@ export default function KundliPage() {
       min: formData.get('min'),
       sec: formData.get('sec'),
       pob: formData.get('pob'),
-      gender: formData.get('gender')
+      gender: formData.get('gender'),
+      language: selectedLanguage,
     };
 
     try {
@@ -193,23 +226,59 @@ export default function KundliPage() {
   };
 
   const handleDownloadPDF = async () => {
-    if (!kundliRef.current) return;
-    const element = kundliRef.current;
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: 'a4',
-    });
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('kundli.pdf');
+    if (!kundliData) return;
+
+    try {
+      const response = await fetch('/api/generate-kundli-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ kundliData }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kundli.pdf';
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please try again.');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white relative">
+      {/* Language Selector positioned at bottom right */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <label htmlFor="language" className="sr-only">Language</label>
+        <select
+          id="language"
+          value={selectedLanguage}
+          onChange={handleLanguageChange}
+          className="rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm"
+        >
+          <option value="en">English</option>
+          {indianLanguages.map((lang) => (
+            <option key={lang.code} value={lang.code}>{lang.name}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center text-purple-900 mb-8">
           Get Your Kundli by Date of Birth
@@ -375,7 +444,7 @@ export default function KundliPage() {
                 Kundli Analysis for {kundliData.personalInfo.fullName}
               </h2>
 
-              {/* Personal Information */}
+              {/* Personal Information is always shown */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-purple-800 mb-4">Personal Information</h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -398,73 +467,86 @@ export default function KundliPage() {
                 </div>
               </div>
 
-              {/* Ascendant Information */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-purple-800 mb-4">Ascendant (Lagna)</h3>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <p className="text-lg text-gray-800">
-                    <span className="font-medium">Sign:</span> {kundliData.ascendant.sign}
-                  </p>
-                  <p className="text-lg text-gray-800">
-                    <span className="font-medium">Degree:</span> {kundliData.ascendant.degree.toFixed(2)}°
-                  </p>
-                </div>
-              </div>
-
-              {/* Sun Position */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-purple-800 mb-4">Sun Position</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-purple-900 mb-2">Tropical (Western)</h4>
-                    <p className="text-gray-800">Sign: {kundliData.sunPosition.tropical.sign}</p>
-                    <p className="text-gray-800">Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-purple-900 mb-2">Sidereal (Vedic)</h4>
-                    <p className="text-gray-800">Sign: {kundliData.sunPosition.sidereal.sign}</p>
-                    <p className="text-gray-800">Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
-                    {kundliData.sunPosition.sidereal.nakshatra && (
-                      <div className="mt-2">
-                        <p className="text-gray-800">Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
-                        <p className="text-gray-800">Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
-                        <p className="text-gray-800">Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Houses */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-purple-800 mb-4">Houses (Bhavas)</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {kundliData.houses.map((house) => (
-                    <div key={house.house} className="bg-purple-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-purple-900 mb-2">
-                        {house.name}
-                      </h4>
-                      <p className="text-gray-800">Sign: {house.sign}</p>
-                      <p className="text-gray-800">Degree: {house.degree.toFixed(2)}°</p>
+              {/* Show basic kundli details ONLY if no analysisText is present */}
+              {!kundliData.analysisText && (
+                <>
+                  {/* Ascendant Information */}
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-purple-800 mb-4">Ascendant (Lagna)</h3>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <p className="text-lg text-gray-800">
+                        <span className="font-medium">Sign:</span> {kundliData.ascendant.sign}
+                      </p>
+                      <p className="text-lg text-gray-800">
+                        <span className="font-medium">Degree:</span> {kundliData.ascendant.degree.toFixed(2)}°
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
 
-              {/* Ayanamsa */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-purple-800 mb-4">Ayanamsa</h3>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <p className="text-lg text-gray-800">
-                    <span className="font-medium">Value:</span> {kundliData.ayanamsa.toFixed(2)}°
-                  </p>
-                </div>
-              </div>
+                  {/* Sun Position */}
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-purple-800 mb-4">Sun Position</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-purple-900 mb-2">Tropical (Western)</h4>
+                        <p className="text-gray-800">Sign: {kundliData.sunPosition.tropical.sign}</p>
+                        <p className="text-gray-800">Degree: {kundliData.sunPosition.tropical.degree.toFixed(2)}°</p>
+                      </div>
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-purple-900 mb-2">Sidereal (Vedic)</h4>
+                        <p className="text-gray-800">Sign: {kundliData.sunPosition.sidereal.sign}</p>
+                        <p className="text-gray-800">Degree: {kundliData.sunPosition.sidereal.degree.toFixed(2)}°</p>
+                        {kundliData.sunPosition.sidereal.nakshatra && (
+                          <div className="mt-2">
+                            <p className="text-gray-800">Nakshatra: {kundliData.sunPosition.sidereal.nakshatra.name}</p>
+                            <p className="text-gray-800">Pada: {kundliData.sunPosition.sidereal.nakshatra.pada}</p>
+                            <p className="text-gray-800">Ruler: {kundliData.sunPosition.sidereal.nakshatra.ruler}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Disclaimer */}
-              <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
-                <p className="text-sm text-yellow-800">{kundliData.disclaimer}</p>
-              </div>
+                  {/* Houses */}
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-purple-800 mb-4">Houses (Bhavas)</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {kundliData.houses.map((house) => (
+                        <div key={house.house} className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-medium text-purple-900 mb-2">
+                            {house.name}
+                          </h4>
+                          <p className="text-gray-800">Sign: {house.sign}</p>
+                          <p className="text-gray-800">Degree: {house.degree.toFixed(2)}°</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Ayanamsa */}
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-purple-800 mb-4">Ayanamsa</h3>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <p className="text-lg text-gray-800">
+                        <span className="font-medium">Value:</span> {kundliData.ayanamsa.toFixed(2)}°
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
+                    <p className="text-sm text-yellow-800">{kundliData.disclaimer}</p>
+                  </div>
+                </>
+              )}
+
+              {/* Show detailed analysis text if present */}
+              {kundliData.analysisText && (
+                <div className="mt-8">
+                  <h3 className="text-xl font-semibold text-purple-800 mb-4">Detailed Analysis</h3>
+                  <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: kundliData.analysisText }} />
+                </div>
+              )}
             </div>
             <div className="flex justify-center mt-4">
               <button
