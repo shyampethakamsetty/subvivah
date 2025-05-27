@@ -234,7 +234,12 @@ export default function KundliPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ kundliData }),
+        body: JSON.stringify({ 
+          kundliData: {
+            ...kundliData,
+            language: selectedLanguage
+          }
+        }),
       });
 
       if (!response.ok) {

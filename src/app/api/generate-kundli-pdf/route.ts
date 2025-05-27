@@ -2,6 +2,78 @@ import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import Handlebars from 'handlebars';
 
+// Translations for different languages
+const translations = {
+  en: {
+    title: 'Kundli Report',
+    personalInfo: 'Personal Information',
+    name: 'Name',
+    dateOfBirth: 'Date of Birth',
+    timeOfBirth: 'Time of Birth',
+    placeOfBirth: 'Place of Birth',
+    gender: 'Gender',
+    ascendant: 'Ascendant (Lagna)',
+    sign: 'Sign',
+    degree: 'Degree',
+    understanding: 'Understanding Your Ascendant',
+    health: 'Health',
+    temperament: 'Temperament & Personality',
+    physical: 'Physical Appearance',
+    nakshatra: 'Understanding Your Nakshatra',
+    nakshatraDetails: 'Your Nakshatra Details',
+    pada: 'Pada',
+    prediction: 'Prediction',
+    educationIncome: 'Education & Income',
+    familyLife: 'Family Life',
+    sunPosition: 'Sun Position',
+    tropicalSign: 'Tropical Sign',
+    tropicalDegree: 'Tropical Degree',
+    siderealSign: 'Sidereal Sign',
+    siderealDegree: 'Sidereal Degree',
+    houses: 'Houses',
+    additionalInfo: 'Additional Information',
+    ayanamsa: 'Ayanamsa',
+    disclaimer: 'Disclaimer'
+  },
+  hi: {
+    title: 'कुंडली रिपोर्ट',
+    personalInfo: 'व्यक्तिगत जानकारी',
+    name: 'नाम',
+    dateOfBirth: 'जन्म तिथि',
+    timeOfBirth: 'जन्म समय',
+    placeOfBirth: 'जन्म स्थान',
+    gender: 'लिंग',
+    ascendant: 'लग्न',
+    sign: 'राशि',
+    degree: 'अंश',
+    understanding: 'आपके लग्न को समझना',
+    health: 'स्वास्थ्य',
+    temperament: 'स्वभाव और व्यक्तित्व',
+    physical: 'शारीरिक दिखावट',
+    nakshatra: 'आपके नक्षत्र को समझना',
+    nakshatraDetails: 'आपके नक्षत्र का विवरण',
+    pada: 'पद',
+    prediction: 'भविष्यवाणी',
+    educationIncome: 'शिक्षा और आय',
+    familyLife: 'पारिवारिक जीवन',
+    sunPosition: 'सूर्य की स्थिति',
+    tropicalSign: 'ट्रॉपिकल राशि',
+    tropicalDegree: 'ट्रॉपिकल अंश',
+    siderealSign: 'सिडेरियल राशि',
+    siderealDegree: 'सिडेरियल अंश',
+    houses: 'भाव',
+    additionalInfo: 'अतिरिक्त जानकारी',
+    ayanamsa: 'अयनांश',
+    disclaimer: 'अस्वीकरण'
+  }
+  // Add more languages here
+};
+
+// Function to get translations
+function getTranslations(language: string) {
+  return translations[language as keyof typeof translations] || translations.en;
+}
+
 // Template for the PDF
 const template = Handlebars.compile(`
     <!DOCTYPE html>
@@ -112,7 +184,7 @@ const template = Handlebars.compile(`
           margin-bottom: 15px;
           line-height: 1.6;
           color: #2c3e50;
-          text-align: left;
+          text-align: left; /* Align left as seen in image */
         }
         .page-break {
           page-break-before: always;
@@ -129,47 +201,47 @@ const template = Handlebars.compile(`
     </head>
     <body>
       <div class="header">
-        <h1>Kundli Report</h1>
+        <h1>{{translations.title}}</h1>
       </div>
 
       <div class="section">
-        <div class="section-title">Personal Information</div>
+        <div class="section-title">{{translations.personalInfo}}</div>
         <div class="info-item">
-          <span class="label">Name:</span>
+          <span class="label">{{translations.name}}:</span>
           <span class="value">{{kundliData.personalInfo.fullName}}</span>
         </div>
         <div class="info-item">
-          <span class="label">Date of Birth:</span>
+          <span class="label">{{translations.dateOfBirth}}:</span>
           <span class="value">{{kundliData.personalInfo.dateOfBirth}}</span>
         </div>
         <div class="info-item">
-          <span class="label">Time of Birth:</span>
+          <span class="label">{{translations.timeOfBirth}}:</span>
           <span class="value">{{kundliData.personalInfo.timeOfBirth}}</span>
         </div>
         <div class="info-item">
-          <span class="label">Place of Birth:</span>
+          <span class="label">{{translations.placeOfBirth}}:</span>
           <span class="value">{{kundliData.personalInfo.placeOfBirth}}</span>
         </div>
         <div class="info-item">
-          <span class="label">Gender:</span>
+          <span class="label">{{translations.gender}}:</span>
           <span class="value">{{kundliData.personalInfo.gender}}</span>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">Ascendant (Lagna)</div>
+        <div class="section-title">{{translations.ascendant}}</div>
         <div class="info-item">
-          <span class="label">Sign:</span>
+          <span class="label">{{translations.sign}}:</span>
           <span class="value">{{kundliData.ascendant.sign}}</span>
         </div>
         <div class="info-item">
-          <span class="label">Degree:</span>
+          <span class="label">{{translations.degree}}:</span>
           <span class="value">{{kundliData.ascendant.degree}}°</span>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">Understanding Your Ascendant</div>
+        <div class="section-title">{{translations.understanding}}</div>
         <p>The ascendant house is considered very important in Vedic astrology. During the birth of a person, the sign
         which rises in the sky is called the persons ascendant. And, the sign which comes in this house is called the
         ascendant sign. The ascendant helps in calculating minutest event in a person's life through astrology. Whereas,
@@ -192,27 +264,27 @@ const template = Handlebars.compile(`
       <div class="page-break"></div>
 
       <div class="section">
-        <div class="section-title">Understanding Your Nakshatra</div>
+        <div class="section-title">{{translations.nakshatra}}</div>
         <p>Nakshatra is the term for lunar mansion in Hindu astrology. A nakshatra is one of 27 (sometimes also 28)
         sectors along the ecliptic. Each nakshatra is further subdivided into quarters (or padas). These play a role in
         popular Hindu astrology, where each pada is associated with a syllable, conventionally chosen as the first
         syllable of the given name of a child born when the moon was in the corresponding pada.</p>
         
         <div class="subsection">
-          <h3>Your Nakshatra Details</h3>
+          <h3>{{translations.nakshatraDetails}}</h3>
           <div class="info-item">
-            <span class="label">Nakshatra:</span>
+            <span class="label">{{translations.nakshatra}}:</span>
             <span class="value">{{kundliData.sunPosition.sidereal.nakshatra.name}}</span>
           </div>
           <div class="info-item">
-            <span class="label">Pada:</span>
+            <span class="label">{{translations.pada}}:</span>
             <span class="value">{{kundliData.sunPosition.sidereal.nakshatra.pada}}</span>
           </div>
           
           <h4>{{kundliData.sunPosition.sidereal.nakshatra.name}} Nakshatra Prediction</h4>
           <p>{{kundliData.predictions.nakshatra.prediction}}</p>
           
-          <h4>Education & Income</h4>
+          <h4>{{translations.educationIncome}}</h4>
           <p>{{kundliData.predictions.nakshatra.educationIncome}}</p>
           
           <h4>Family Life</h4>
@@ -221,27 +293,27 @@ const template = Handlebars.compile(`
       </div>
 
       <div class="section">
-        <div class="section-title">Sun Position</div>
+        <div class="section-title">{{translations.sunPosition}}</div>
         <div class="info-item">
-          <span class="label">Tropical Sign:</span>
+          <span class="label">{{translations.tropicalSign}}:</span>
           <span class="value">{{kundliData.sunPosition.tropical.sign}}</span>
         </div>
         <div class="info-item">
-          <span class="label">Tropical Degree:</span>
+          <span class="label">{{translations.tropicalDegree}}:</span>
           <span class="value">{{kundliData.sunPosition.tropical.degree}}°</span>
         </div>
         <div class="info-item">
-          <span class="label">Sidereal Sign:</span>
+          <span class="label">{{translations.siderealSign}}:</span>
           <span class="value">{{kundliData.sunPosition.sidereal.sign}}</span>
         </div>
         <div class="info-item">
-          <span class="label">Sidereal Degree:</span>
+          <span class="label">{{translations.siderealDegree}}:</span>
           <span class="value">{{kundliData.sunPosition.sidereal.degree}}°</span>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">Houses</div>
+        <div class="section-title">{{translations.houses}}</div>
         <div class="house-grid">
           {{#each kundliData.houses}}
           <div class="house-item">
@@ -254,9 +326,9 @@ const template = Handlebars.compile(`
       </div>
 
       <div class="section">
-        <div class="section-title">Additional Information</div>
+        <div class="section-title">{{translations.additionalInfo}}</div>
         <div class="info-item">
-          <span class="label">Ayanamsa:</span>
+          <span class="label">{{translations.ayanamsa}}:</span>
           <span class="value">{{kundliData.ayanamsa}}°</span>
         </div>
       </div>
@@ -315,6 +387,7 @@ interface KundliData {
       familyLife: string;
     };
   };
+  language?: string;
 }
 
 export async function POST(request: Request) {
@@ -329,14 +402,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Add current date to the template data
+    // Add translations based on language
+    const translations = getTranslations(kundliData.language || 'en');
+
+    // Add current date and translations to the template data
     const templateData = {
       kundliData,
-      currentDate: new Date().toLocaleDateString('en-US', {
+      currentDate: new Date().toLocaleDateString(kundliData.language || 'en', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-      })
+      }),
+      translations
     };
 
     // Generate HTML content
@@ -344,18 +421,16 @@ export async function POST(request: Request) {
 
     // Launch browser with optimized settings
     browser = await puppeteer.launch({
-      headless: true,
+      headless: true as const,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
-        '--window-size=1920x1080',
-        '--disable-web-security',
-        '--disable-features=IsolateOrigins,site-per-process'
+        '--window-size=1920x1080'
       ],
-      timeout: 30000 // Reduced timeout to 30 seconds
+      timeout: 60000 // Increase timeout to 60 seconds
     });
 
     // Create new page with optimized settings
@@ -368,19 +443,12 @@ export async function POST(request: Request) {
 
     // Set content with optimized settings
     await page.setContent(htmlContent, {
-      waitUntil: 'networkidle0',
+      waitUntil: 'domcontentloaded', // Changed from networkidle0 for faster loading
       timeout: 30000
     });
 
-    // Wait for fonts to load with timeout
-    try {
-      await Promise.race([
-        page.evaluateHandle('document.fonts.ready'),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Font loading timeout')), 10000))
-      ]);
-    } catch (error) {
-      console.warn('Font loading timeout, continuing with PDF generation');
-    }
+    // Wait for fonts to load
+    await page.evaluateHandle('document.fonts.ready');
 
     // Generate PDF with optimized settings
     const pdfBuffer = await page.pdf({
@@ -415,10 +483,6 @@ export async function POST(request: Request) {
         errorMessage = 'PDF generation timed out. Please try again.';
       } else if (errorDetails.includes('browser')) {
         errorMessage = 'Failed to initialize PDF generation. Please try again.';
-      } else if (errorDetails.includes('Target closed')) {
-        errorMessage = 'PDF generation was interrupted. Please try again.';
-      } else if (errorDetails.includes('Protocol error')) {
-        errorMessage = 'Error during PDF generation. Please try again.';
       }
     }
 
