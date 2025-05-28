@@ -88,29 +88,13 @@ export async function POST(request: Request) {
 
     const { secure_url: url } = uploadResponse as { secure_url: string };
 
-    // Get the user's profile
-    const profile = await prisma.profile.findUnique({
-      where: { userId: decoded.userId }
-    });
-
-    if (!profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      );
-    }
-
     // Create photo record in database
     const photo = await prisma.photo.create({
       data: {
         url,
         isProfile,
         isVerified: false,
-        profile: {
-          connect: {
-            id: profile.id
-          }
-        }
+        userId: decoded.userId
       }
     });
 
@@ -118,7 +102,7 @@ export async function POST(request: Request) {
     if (isProfile) {
       await prisma.photo.updateMany({
         where: {
-          profileId: profile.id,
+          userId: decoded.userId,
           id: { not: photo.id }
         },
         data: {
@@ -130,6 +114,13 @@ export async function POST(request: Request) {
     return NextResponse.json(photo);
   } catch (error) {
     console.error('Error uploading photo:', error);
+    // Check if it's a Cloudinary error
+    if (error instanceof Error && error.message.includes('cloudinary')) {
+      return NextResponse.json(
+        { error: 'Failed to upload photo to Cloudinary. Please check your Cloudinary configuration.' },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to upload photo', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

@@ -7,12 +7,21 @@ import Image from 'next/image';
 import PhotoUpload from '@/components/PhotoUpload';
 import { Camera, X } from 'lucide-react';
 
+interface Photo {
+  id: string;
+  url: string;
+  isProfile: boolean;
+  isVerified: boolean;
+  caption?: string;
+}
+
 interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
   isVerified: boolean;
+  photos?: Photo[];
   profile?: {
     height?: number;
     weight?: number;
@@ -33,7 +42,6 @@ interface User {
     familyStatus?: string;
     aboutMe?: string;
     hobbies?: string[];
-    photos?: { url: string; caption?: string }[];
   };
 }
 
@@ -270,7 +278,7 @@ function ProfilePage() {
     return null;
   }
 
-  const profilePhoto = user.profile?.photos?.find(photo => photo.isProfile) || user.profile?.photos?.[0];
+  const profilePhoto = user.photos?.find(photo => photo.isProfile) || user.photos?.[0];
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] py-10">
@@ -284,7 +292,7 @@ function ProfilePage() {
                 <div
                   className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105"
                   onClick={() => {
-                    if (user.profile?.photos && user.profile.photos.length > 0) {
+                    if (user.photos && user.photos.length > 0) {
                       setIsPhotoModalOpen(true);
                     }
                   }}
@@ -395,7 +403,7 @@ function ProfilePage() {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {user.profile?.photos?.slice(0, 3).map((photo, index) => (
+              {user.photos?.slice(0, 3).map((photo, index) => (
                 <div key={index} className="aspect-square rounded-lg overflow-hidden relative group">
                   <Image
                     src={photo.url}
@@ -411,7 +419,7 @@ function ProfilePage() {
                   )}
                 </div>
               ))}
-              {(!user.profile?.photos || user.profile.photos.length < 3) && (
+              {(!user.photos || user.photos.length < 3) && (
                 <div 
                   onClick={() => setIsUploadModalOpen(true)}
                   className="aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
@@ -665,7 +673,7 @@ function ProfilePage() {
         )}
 
       {/* Profile Photo Modal */}
-      {isPhotoModalOpen && user.profile?.photos && user.profile.photos.length > 0 && (
+      {isPhotoModalOpen && user.photos && user.photos.length > 0 && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
           onClick={() => setIsPhotoModalOpen(false)}

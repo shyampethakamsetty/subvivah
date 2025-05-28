@@ -7,7 +7,10 @@ import withAuth from '@/components/withAuth';
 import { Camera, X, ChevronLeft, ChevronRight, Upload, Trash2, Heart } from 'lucide-react';
 
 interface Photo {
+  id: string;
   url: string;
+  isProfile: boolean;
+  isVerified: boolean;
   caption?: string;
 }
 
@@ -15,9 +18,7 @@ interface User {
   id: string;
   firstName: string;
   lastName: string;
-  profile?: {
-    photos?: Photo[];
-  };
+  photos?: Photo[];
 }
 
 function PhotoGalleryPage() {
@@ -62,15 +63,15 @@ function PhotoGalleryPage() {
 
   const handlePreviousPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (selectedPhotoIndex !== null && user?.profile?.photos) {
-      setSelectedPhotoIndex((selectedPhotoIndex - 1 + user.profile.photos.length) % user.profile.photos.length);
+    if (selectedPhotoIndex !== null && user?.photos) {
+      setSelectedPhotoIndex((selectedPhotoIndex - 1 + user.photos.length) % user.photos.length);
     }
   };
 
   const handleNextPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (selectedPhotoIndex !== null && user?.profile?.photos) {
-      setSelectedPhotoIndex((selectedPhotoIndex + 1) % user.profile.photos.length);
+    if (selectedPhotoIndex !== null && user?.photos) {
+      setSelectedPhotoIndex((selectedPhotoIndex + 1) % user.photos.length);
     }
   };
 
@@ -116,7 +117,7 @@ function PhotoGalleryPage() {
   };
 
   const handleDeletePhoto = async (index: number) => {
-    if (!user?.profile?.photos) return;
+    if (!user?.photos) return;
 
     try {
       const response = await fetch('/api/photos/delete', {
@@ -125,7 +126,7 @@ function PhotoGalleryPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          photoUrl: user.profile.photos[index].url,
+          photoUrl: user.photos[index].url,
         }),
       });
 
@@ -194,13 +195,13 @@ function PhotoGalleryPage() {
     setTouchStart(null);
   };
   const handlePreviousMainPhoto = () => {
-    if (user?.profile?.photos) {
-      setCurrentPhotoIndex((currentPhotoIndex - 1 + user.profile.photos.length) % user.profile.photos.length);
+    if (user?.photos) {
+      setCurrentPhotoIndex((currentPhotoIndex - 1 + user.photos.length) % user.photos.length);
     }
   };
   const handleNextMainPhoto = () => {
-    if (user?.profile?.photos) {
-      setCurrentPhotoIndex((currentPhotoIndex + 1) % user.profile.photos.length);
+    if (user?.photos) {
+      setCurrentPhotoIndex((currentPhotoIndex + 1) % user.photos.length);
     }
   };
 
@@ -216,7 +217,7 @@ function PhotoGalleryPage() {
     return null;
   }
 
-  const photos = user.profile?.photos || [];
+  const photos = user.photos || [];
   const currentPhoto = photos[currentPhotoIndex];
 
   return (

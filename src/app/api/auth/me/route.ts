@@ -22,13 +22,10 @@ export async function GET(request: Request) {
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: {
-        profile: {
-          include: {
-            photos: true
-          }
-        },
+        profile: true,
         horoscope: true,
         preferences: true,
+        photos: true
       },
     });
 
