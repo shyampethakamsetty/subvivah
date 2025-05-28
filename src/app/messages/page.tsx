@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import withAuth from '@/components/withAuth';
+import { useState, useEffect, useRef } from 'react';
+import UserSearch from '@/components/UserSearch';
+import { format } from 'date-fns/format';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -95,13 +95,71 @@ function MessagesPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+  const handleUserSelect = (user: any) => {
+    const conversation = conversations.find(c => c.id === user.id) || {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      photo: user.photo || null,
+      lastMessage: '',
+      lastMessageTime: new Date().toISOString(),
+      unreadCount: 0
+    };
+    setSelectedConversation(conversation);
+  };
+
+  const handleEditMessage = async (messageId: string, newContent: string) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: newContent }),
+      });
+
+      if (!response.ok) throw new Error('Failed to edit message');
+      
+      const updatedMessage = await response.json();
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? updatedMessage : msg
+      ));
+      setEditingMessage(null);
+      setEditContent('');
+    } catch (error) {
+      console.error('Error editing message:', error);
+      alert('Failed to edit message. Please try again.');
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete message');
+      
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      alert('Failed to delete message. Please try again.');
   }
+  };
+
+  const formatMessageTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+      return format(date, 'h:mm a');
+    } catch (error) {
+      return 'Invalid date';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -172,21 +230,78 @@ function MessagesPage() {
                     {messages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex mb-4 ${
-                          message.senderId === 'current' ? 'justify-end' : 'justify-start'
-                        }`}
+                        className={`flex flex-col ${message.senderId === selectedConversation?.id ? 'items-start' : 'items-end'} group`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                            message.senderId === 'current'
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-gray-100 text-gray-900'
+                          className={`max-w-[70%] rounded-lg p-3 shadow-sm ${
+                            message.senderId === selectedConversation?.id
+                              ? 'bg-white text-black border border-gray-100'
+                              : 'bg-purple-600 text-white'
                           }`}
                         >
-                          <p>{message.content}</p>
-                          <p className="text-xs mt-1 opacity-75">
-                            {new Date(message.timestamp).toLocaleTimeString()}
-                          </p>
+                          {editingMessage?.id === message.id ? (
+                            <form
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                handleEditMessage(message.id, editContent);
+                              }}
+                              className="flex gap-2"
+                            >
+                              <input
+                                type="text"
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                                className="flex-1 p-1 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black"
+                                autoFocus
+                              />
+                              <button
+                                type="submit"
+                                className="px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingMessage(null);
+                                  setEditContent('');
+                                }}
+                                className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+                              >
+                                Cancel
+                              </button>
+                            </form>
+                          ) : (
+                            <p className={message.senderId === selectedConversation?.id ? 'text-black' : 'text-white'}>
+                              {message.content}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 px-1">
+                          <span className="text-xs text-gray-500">
+                            {formatMessageTime(message.createdAt)}
+                          </span>
+                          {message.senderId !== selectedConversation?.id && (
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                              <button
+                                onClick={() => {
+                                  setEditingMessage(message);
+                                  setEditContent(message.content);
+                                }}
+                                className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
+                                title="Edit message"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteMessage(message.id)}
+                                className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
+                                title="Delete message"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
