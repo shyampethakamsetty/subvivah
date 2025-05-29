@@ -230,6 +230,8 @@ export default function KundliPage() {
 
     try {
       setLoading(true);
+      setError(null);
+      
       const response = await fetch('/api/generate-kundli-pdf', {
         method: 'POST',
         headers: {
@@ -242,7 +244,8 @@ export default function KundliPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate PDF');
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'Failed to generate PDF');
       }
 
       const blob = await response.blob();

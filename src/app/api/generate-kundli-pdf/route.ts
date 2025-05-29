@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import Handlebars from 'handlebars';
 import translations from '@/translations/kundli';
@@ -198,15 +198,15 @@ const template = Handlebars.compile(`
           <h3>{{t.sections.ascendant}}</h3>
           <div class="info-item">
             <span class="label">{{t.labels.health}}:</span>
-            <span class="value">{{kundliData.predictions.ascendant.health}}</span>
+            <span class="value">{{translatePrediction "ascendant" "health" kundliData.ascendant.sign language}}</span>
           </div>
           <div class="info-item">
             <span class="label">{{t.labels.temperament}}:</span>
-            <span class="value">{{kundliData.predictions.ascendant.temperament}}</span>
+            <span class="value">{{translatePrediction "ascendant" "temperament" kundliData.ascendant.sign language}}</span>
           </div>
           <div class="info-item">
             <span class="label">{{t.labels.physical}}:</span>
-            <span class="value">{{kundliData.predictions.ascendant.physical}}</span>
+            <span class="value">{{translatePrediction "ascendant" "physical" kundliData.ascendant.sign language}}</span>
           </div>
         </div>
       </div>
@@ -284,19 +284,19 @@ const template = Handlebars.compile(`
           {{#if kundliData.predictions.nakshatra.prediction}}
           <div class="info-item">
             <span class="label">{{t.labels.generalPrediction}}:</span>
-            <span class="value">{{kundliData.predictions.nakshatra.prediction}}</span>
+            <span class="value">{{translatePrediction "nakshatra" "general" kundliData.sunPosition.sidereal.nakshatra.name language}}</span>
           </div>
           {{/if}}
           {{#if kundliData.predictions.nakshatra.educationIncome}}
           <div class="info-item">
             <span class="label">{{t.labels.educationIncome}}:</span>
-            <span class="value">{{kundliData.predictions.nakshatra.educationIncome}}</span>
+            <span class="value">{{translatePrediction "nakshatra" "educationIncome" kundliData.sunPosition.sidereal.nakshatra.name language}}</span>
           </div>
           {{/if}}
           {{#if kundliData.predictions.nakshatra.familyLife}}
           <div class="info-item">
             <span class="label">{{t.labels.familyLife}}:</span>
-            <span class="value">{{kundliData.predictions.nakshatra.familyLife}}</span>
+            <span class="value">{{translatePrediction "nakshatra" "familyLife" kundliData.sunPosition.sidereal.nakshatra.name language}}</span>
           </div>
           {{/if}}
         </div>
@@ -376,7 +376,7 @@ interface KundliData {
   disclaimer: string;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   let browser = null;
   try {
     // Register Handlebars helper for 'or' condition
@@ -386,23 +386,42 @@ export async function POST(request: Request) {
 
     // Register helper for translating signs
     Handlebars.registerHelper('translateSign', function(sign: string, language: Language) {
+      if (!sign) return '';
       const signKey = sign.toLowerCase() as keyof typeof kundliContent[Language]['signs'];
-      return kundliContent[language]?.signs[signKey] || sign;
+      const translation = kundliContent[language]?.signs[signKey];
+      return translation || kundliContent.en.signs[signKey] || sign;
     });
 
     // Register helper for translating nakshatras
     Handlebars.registerHelper('translateNakshatra', function(nakshatra: string, language: Language) {
+      if (!nakshatra) return '';
       const nakshatraKey = nakshatra.toLowerCase().replace(/\s+/g, '') as keyof typeof kundliContent[Language]['nakshatras'];
-      return kundliContent[language]?.nakshatras[nakshatraKey] || nakshatra;
+      const translation = kundliContent[language]?.nakshatras[nakshatraKey];
+      return translation || kundliContent.en.nakshatras[nakshatraKey] || nakshatra;
     });
 
     // Register helper for translating houses
     Handlebars.registerHelper('translateHouse', function(houseNumber: number, language: Language) {
+      if (!houseNumber) return '';
       const houseKey = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth'][houseNumber - 1] as keyof typeof kundliContent[Language]['houses'];
-      return kundliContent[language]?.houses[houseKey] || `House ${houseNumber}`;
+      const translation = kundliContent[language]?.houses[houseKey];
+      return translation || kundliContent.en.houses[houseKey] || `House ${houseNumber}`;
     });
 
-    const { kundliData, language = 'en' } = await request.json() as { kundliData: KundliData; language: Language };
+    // Register helper for translating predictions
+    Handlebars.registerHelper('translatePrediction', function(type: string, subtype: string, key: string, language: Language) {
+      if (!type || !subtype || !key) return '';
+      try {
+        const predictionType = type as keyof typeof kundliContent[Language]['standardPredictions'];
+        const predictionSubtype = subtype as keyof typeof kundliContent[Language]['standardPredictions'][typeof predictionType];
+        const prediction = kundliContent[language]?.standardPredictions[predictionType]?.[predictionSubtype]?.[key.toLowerCase()];
+        return prediction || kundliContent.en.standardPredictions[predictionType][predictionSubtype][key.toLowerCase()] || '';
+      } catch (error) {
+        return '';
+      }
+    });
+
+    const { kundliData, language = 'en' } = await request.json();
 
     if (!kundliData) {
       return NextResponse.json(
@@ -411,23 +430,62 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get translations for the selected language
+    // Get translations for the selected language with fallback to English
     const t = translations[language as Language] || translations.en;
     const content = kundliContent[language as Language] || kundliContent.en;
 
-    // Translate predictions based on sign and nakshatra
+    // Format date in the selected language
+    const dateFormatter = new Intl.DateTimeFormat(language, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Translate personal info based on language
+    const translatedPersonalInfo = {
+      fullName: kundliData.personalInfo.fullName,
+      dateOfBirth: new Date(kundliData.personalInfo.dateOfBirth).toLocaleDateString(language, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      timeOfBirth: new Date(`1970-01-01T${kundliData.personalInfo.timeOfBirth}`).toLocaleTimeString(language, {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }),
+      placeOfBirth: kundliData.personalInfo.placeOfBirth,
+      gender: t.labels.gender === undefined ? kundliData.personalInfo.gender : t.labels.gender,
+      coordinates: kundliData.personalInfo.coordinates
+    };
+
+    // Translate predictions based on sign and nakshatra with proper fallbacks
     const translatedKundliData = {
       ...kundliData,
+      personalInfo: translatedPersonalInfo,
       predictions: {
         ascendant: {
-          health: content.standardPredictions.ascendant.health[kundliData.ascendant.sign.toLowerCase()] || kundliData.predictions.ascendant.health,
-          temperament: content.standardPredictions.ascendant.temperament[kundliData.ascendant.sign.toLowerCase()] || kundliData.predictions.ascendant.temperament,
-          physical: content.standardPredictions.ascendant.physical[kundliData.ascendant.sign.toLowerCase()] || kundliData.predictions.ascendant.physical
+          health: content.standardPredictions.ascendant.health[kundliData.ascendant.sign.toLowerCase()] || 
+                 kundliContent.en.standardPredictions.ascendant.health[kundliData.ascendant.sign.toLowerCase()] ||
+                 kundliData.predictions.ascendant.health,
+          temperament: content.standardPredictions.ascendant.temperament[kundliData.ascendant.sign.toLowerCase()] ||
+                      kundliContent.en.standardPredictions.ascendant.temperament[kundliData.ascendant.sign.toLowerCase()] ||
+                      kundliData.predictions.ascendant.temperament,
+          physical: content.standardPredictions.ascendant.physical[kundliData.ascendant.sign.toLowerCase()] ||
+                   kundliContent.en.standardPredictions.ascendant.physical[kundliData.ascendant.sign.toLowerCase()] ||
+                   kundliData.predictions.ascendant.physical
         },
         nakshatra: {
-          prediction: content.standardPredictions.nakshatra.general[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase().replace(/\s+/g, '')] || kundliData.predictions.nakshatra.prediction,
-          educationIncome: content.standardPredictions.nakshatra.educationIncome[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase().replace(/\s+/g, '')] || kundliData.predictions.nakshatra.educationIncome,
-          familyLife: content.standardPredictions.nakshatra.familyLife[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase().replace(/\s+/g, '')] || kundliData.predictions.nakshatra.familyLife
+          prediction: content.standardPredictions.nakshatra.general[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase()] ||
+                     kundliContent.en.standardPredictions.nakshatra.general[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase()] ||
+                     kundliData.predictions.nakshatra.prediction,
+          educationIncome: content.standardPredictions.nakshatra.educationIncome[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase()] ||
+                          kundliContent.en.standardPredictions.nakshatra.educationIncome[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase()] ||
+                          kundliData.predictions.nakshatra.educationIncome,
+          familyLife: content.standardPredictions.nakshatra.familyLife[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase()] ||
+                     kundliContent.en.standardPredictions.nakshatra.familyLife[kundliData.sunPosition.sidereal.nakshatra.name.toLowerCase()] ||
+                     kundliData.predictions.nakshatra.familyLife
         }
       }
     };
@@ -436,17 +494,14 @@ export async function POST(request: Request) {
     const templateData = {
       kundliData: translatedKundliData,
       t,
-      currentDate: new Date().toLocaleDateString(language, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+      language,
+      currentDate: dateFormatter.format(new Date())
     };
 
     // Generate HTML content
     const htmlContent = template(templateData);
 
-    // Launch browser with optimized settings
+    // Launch browser with more robust configuration
     browser = await puppeteer.launch({
       headless: true,
       args: [
@@ -454,45 +509,66 @@ export async function POST(request: Request) {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-        '--window-size=1920x1080'
-      ]
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ],
+      timeout: 60000 // Increase timeout to 60 seconds
     });
 
-    // Create new page with optimized settings
+    // Create new page with more robust configuration
     const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(30000);
+    await page.setDefaultTimeout(30000);
+    
     await page.setViewport({
       width: 1920,
       height: 1080,
       deviceScaleFactor: 1
     });
 
-    // Set content with optimized settings
-    await page.setContent(htmlContent, {
-      waitUntil: 'networkidle0',
-      timeout: 30000
-    });
+    // Set content with more robust error handling
+    try {
+      await page.setContent(htmlContent, {
+        waitUntil: ['load', 'networkidle0'],
+        timeout: 60000
+      });
+    } catch (contentError) {
+      console.error('Error setting page content:', contentError);
+      throw new Error('Failed to set page content: ' + (contentError instanceof Error ? contentError.message : 'Unknown error'));
+    }
 
-    // Generate PDF with optimized settings
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px'
-      },
-      printBackground: true,
-      preferCSSPageSize: true
-    });
+    // Generate PDF with more robust error handling
+    let pdfBuffer;
+    try {
+      pdfBuffer = await page.pdf({
+        format: 'A4',
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px'
+        },
+        printBackground: true,
+        preferCSSPageSize: true,
+        timeout: 60000
+      });
+    } catch (pdfError) {
+      console.error('Error generating PDF:', pdfError);
+      throw new Error('Failed to generate PDF: ' + (pdfError instanceof Error ? pdfError.message : 'Unknown error'));
+    }
 
-    // Close browser
+    // Ensure browser cleanup
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error('Error closing browser:', closeError);
+      }
       browser = null;
     }
 
-    // Set response headers
+    // Set response headers and return
     const response = new NextResponse(pdfBuffer);
     response.headers.set('Content-Type', 'application/pdf');
     response.headers.set(
@@ -501,14 +577,20 @@ export async function POST(request: Request) {
     );
 
     return response;
+
   } catch (error) {
-    console.error('PDF generation error:', error);
+    console.error('PDF generation error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: error instanceof Error ? error.constructor.name : typeof error
+    });
     
+    // Ensure browser cleanup on error
     if (browser) {
       try {
         await browser.close();
       } catch (closeError) {
-        console.error('Error closing browser:', closeError);
+        console.error('Error closing browser cleanup:', closeError);
       }
     }
 

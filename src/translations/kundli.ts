@@ -138,20 +138,20 @@ const translations: Record<string, Translation> = {
       ruler: 'অধিপতি',
       generalPrediction: 'সাধারণ ভবিষ্যদ্বাণী',
       educationIncome: 'শিক্ষা ও আয়',
-      familyLife: 'পারিবারিক জীবন',
+      familyLife: 'পারিবারিক জીবন',
       ayanamsa: 'অয়নাংশ'
     },
     generated: 'তৈরি করা হয়েছে',
     disclaimer: 'এটি একটি মৌলিক কুন্ডলী গণনা। বিস্তারিত বিশ্লেষণের জন্য, অনুগ্রহ করে একজন পেশাদার জ্যোতিষীর পরামর্শ নিন।'
   },
   hi: {
-    title: 'विस्तृत कुंडली रिपोर्ट',
+    title: 'कुंडली विवरण',
     sections: {
       personalInfo: 'व्यक्तिगत जानकारी',
       ascendant: 'लग्न',
-      sunPosition: 'सूर्य की स्थिति',
+      sunPosition: 'सूर्य स्थिति',
       houses: 'भाव',
-      nakshatraPredictions: 'नक्षत्र भविष्यवाणी',
+      nakshatraPredictions: 'नक्षत्र फल',
       additionalInfo: 'अतिरिक्त जानकारी'
     },
     labels: {
@@ -160,25 +160,25 @@ const translations: Record<string, Translation> = {
       timeOfBirth: 'जन्म समय',
       placeOfBirth: 'जन्म स्थान',
       gender: 'लिंग',
-      coordinates: 'निर्देशांक',
+      coordinates: 'भौगोलिक निर्देशांक',
       sign: 'राशि',
       degree: 'अंश',
-      longitude: 'देशांतर',
+      longitude: 'रेखांश',
+      tropical: 'सायन (पाश्चात्य)',
+      sidereal: 'निरयन (वैदिक)',
+      nakshatra: 'नक्षत्र',
+      pada: 'पाद',
+      ruler: 'स्वामी',
       health: 'स्वास्थ्य',
       temperament: 'स्वभाव',
-      physical: 'शारीरिक विशेषताएं',
-      tropical: 'ट्रॉपिकल (पाश्चात्य)',
-      sidereal: 'सायन (वैदिक)',
-      nakshatra: 'नक्षत्र',
-      pada: 'पद',
-      ruler: 'स्वामी',
-      generalPrediction: 'सामान्य भविष्यवाणी',
+      physical: 'शारीरिक लक्षण',
+      generalPrediction: 'सामान्य फल',
       educationIncome: 'शिक्षा और आय',
       familyLife: 'पारिवारिक जीवन',
       ayanamsa: 'अयनांश'
     },
-    generated: 'निर्माण तिथि',
-    disclaimer: 'यह एक बुनियादी कुंडली गणना है। विस्तृत विश्लेषण के लिए, कृपया किसी पेशेवर ज्योतिषी से परामर्श करें।'
+    disclaimer: 'यह एक बुनियादी कुंडली विश्लेषण है। विस्तृत विश्लेषण के लिए, कृपया पेशेवर ज्योतिषी से परामर्श करें।',
+    generated: 'तैयार किया गया'
   },
   brx: {
     title: 'गहनथार कुण्डली रिपोर्ट',
@@ -275,7 +275,7 @@ const translations: Record<string, Translation> = {
       health: 'સ્વાસ્થ્ય',
       temperament: 'સ્વભાવ',
       physical: 'શારીરિક લક્ષણો',
-      tropical: 'ટ્રોપિકલ (પશ્ચિમી)',
+      tropical: 'ટ્રોપિકલ (પાશ્ચાત્ય)',
       sidereal: 'સાયન (વૈદિક)',
       nakshatra: 'નક્ષત્ર',
       pada: 'પદ',
@@ -322,7 +322,7 @@ const translations: Record<string, Translation> = {
       ayanamsa: 'ಅಯನಾಂಶ'
     },
     generated: 'ರಚಿಸಲಾಗಿದೆ',
-    disclaimer: 'ಇದು ಮೂಲ ಕುಂಡಲಿ ಲೆಕ್ಕಾಚಾರ. ವಿವರವಾದ ವಿಶ್ಲೇಷಣೆಗಾಗಿ, ದಯವಿಟ್ಟು ವೃತ್ತಿಪರ ಜ್ಯೋತಿಷಿಯೊ ಸಂಪರ್ಕಿಸಿ.'
+    disclaimer: 'ಇದು ಮೂಲ ಕುಂಡಲಿ ಲೆಕ್ಕಾಚಾರ. ವಿವರವಾದ ವಿಶ್ಲೇಷಣೆಗಾಗಿ, ದಯವಿಟ್ಟು ವೃತ್ತಿಪರ ಜ್ಯೋತಿಷೀಯೊ ಸಂಪರ್ಕಿಸಿ.'
   },
   ks: {
     title: 'تفصیلی کنڈلی رپورٹ',
@@ -394,7 +394,7 @@ const translations: Record<string, Translation> = {
       ayanamsa: 'अयनांश'
     },
     generated: 'तयार केल्लें',
-    disclaimer: 'ही एक मूळ कुंडली गणना आसा. सविस्तर विश्लेशणाखातीर, उपकार करून व्यावसायिक ज्योतिष्याचो सल्लो घेवचो.'
+    disclaimer: 'ही एक मूल कुंडली गणना आसा. सविस्तर विश्लेशणाखातीर, उपकार करून व्यावसायिक ज्योतिष्याचो सल्लो घेवचो.'
   },
   mai: {
     title: 'विस्तृत कुण्डली रिपोर्ट',
@@ -610,16 +610,52 @@ const translations: Record<string, Translation> = {
       ayanamsa: 'ଅୟନାଂଶ'
     },
     generated: 'ପ୍ରସ୍ତୁତ ହୋଇଛି',
-    disclaimer: 'ଏହା ଏକ ମୌଳିକ କୁଣ୍ଡଳୀ ଗଣନା। ବିସ୍ତୃତ ବିଶ୍ଳେଷଣ ପାଇଁ, ଦୟାକରି ଜଣେ ବୃତ୍ତିଗତ ଜ୍ୟୋତିଷୀଙ୍କ ପରାମର୍ଶ ନିଅନ୍ତୁ।'
+    disclaimer: 'ଏହା ଏକ ମୌଳିକ କୁଣ୍ଡଳୀ ଗଣନା। ବିସ୍ତୃତ ବିଶ୍ଳେଷଣ ପାଇଁ, ଦୟାକରି ଜଣେ ବୃତ୍ତିପରମୈନ ଜ୍ୟୋତିଷୀଙ୍କ ପରାମର୍ଶ ନିଅନ୍ତୁ।'
+  },
+  te: {
+    title: 'వివరణాత్మక కుండలి నివేదిక',
+    sections: {
+      personalInfo: 'వ్యక్తిగత సమాచారం',
+      ascendant: 'లగ్నం',
+      sunPosition: 'సూర్య స్థానం',
+      houses: 'భావాలు',
+      nakshatraPredictions: 'నక్షత్ర ఫలితాలు',
+      additionalInfo: 'అదనపు సమాచారం'
+    },
+    labels: {
+      name: 'పేరు',
+      dateOfBirth: 'పుట్టిన తేదీ',
+      timeOfBirth: 'పుట్టిన సమయం',
+      placeOfBirth: 'పుట్టిన స్థలం',
+      gender: 'లింగం',
+      coordinates: 'అక్షాంశ రేఖాంశాలు',
+      sign: 'రాశి',
+      degree: 'అంశం',
+      longitude: 'రేఖాంశం',
+      health: 'ఆరోగ్యం',
+      temperament: 'స్వభావం',
+      physical: 'శారీరక లక్షణాలు',
+      tropical: 'ట్రాపికల్ (పాశ్చాత్య)',
+      sidereal: 'సైడేరియల్ (వైదిక)',
+      nakshatra: 'నక్షత్రం',
+      pada: 'పాదం',
+      ruler: 'అధిపతి',
+      generalPrediction: 'సాధారణ ఫలితం',
+      educationIncome: 'విద్య మరియు ఆదాయం',
+      familyLife: 'కుటుంబ జీవితం',
+      ayanamsa: 'అయనాంశం'
+    },
+    generated: 'రూపొందించబడింది',
+    disclaimer: 'ఇది ప్రాథమిక కుండలి లెక్కింపు. వివరణాత్మక విశ్లేషణ కోసం, దయచేసి వృత్తిపరమైన జ్యోతిష్యుడిని సంప్రదించండి.'
   },
   ur: {
     title: 'تفصیلی کنڈلی رپورٹ',
     sections: {
       personalInfo: 'ذاتی معلومات',
-      ascendant: 'لگن',
+      ascendant: 'طالع',
       sunPosition: 'سورج کی پوزیشن',
       houses: 'گھر',
-      nakshatraPredictions: 'نکشتر پیش گوئی',
+      nakshatraPredictions: 'نکشتر کی پیشن گوئیاں',
       additionalInfo: 'اضافی معلومات'
     },
     labels: {
@@ -628,9 +664,9 @@ const translations: Record<string, Translation> = {
       timeOfBirth: 'وقت پیدائش',
       placeOfBirth: 'مقام پیدائش',
       gender: 'جنس',
-      coordinates: 'کوآرڈینیٹس',
+      coordinates: 'جغرافیائی محل وقوع',
       sign: 'راشی',
-      degree: 'ڈگری',
+      degree: 'درجہ',
       longitude: 'طول البلد',
       health: 'صحت',
       temperament: 'مزاج',
@@ -638,15 +674,15 @@ const translations: Record<string, Translation> = {
       tropical: 'ٹراپیکل (مغربی)',
       sidereal: 'سائیڈیریل (ویدک)',
       nakshatra: 'نکشتر',
-      pada: 'پد',
+      pada: 'پاد',
       ruler: 'حکمران',
-      generalPrediction: 'عام پیش گوئی',
+      generalPrediction: 'عام پیشن گوئی',
       educationIncome: 'تعلیم اور آمدنی',
       familyLife: 'خاندانی زندگی',
-      ayanamsa: 'اینامشا'
+      ayanamsa: 'ایانامسہ'
     },
-    generated: 'تیار کیا گیا',
-    disclaimer: 'یہ ایک بنیادی کنڈلی حساب ہے۔ تفصیلی تجزیہ کے لئے، براہ کرم کسی پیشہ ور جیوتشی سے مشورہ کریں۔'
+    generated: 'تیار کردہ',
+    disclaimer: 'یہ ایک بنیادی کنڈلی حساب ہے۔ تفصیلی تجزیہ کے لیے، براہ کرم کسی پیشہ ور جیوتشی سے رجوع کریں۔'
   },
   // Add more languages as needed
 };

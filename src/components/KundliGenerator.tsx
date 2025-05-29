@@ -9,6 +9,7 @@ interface KundliData {
   dateOfBirth: string;
   timeOfBirth: string;
   placeOfBirth: string;
+  gender: string;
 }
 
 interface GeneratedKundli {
@@ -69,57 +70,55 @@ export default function KundliGenerator() {
     dateOfBirth: '',
     timeOfBirth: '',
     placeOfBirth: '',
+    gender: 'male'
   });
 
-  const [generatedKundli, setGeneratedKundli] = useState<GeneratedKundli | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [generatedKundli, setGeneratedKundli] = useState<GeneratedKundli | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Sample detailed kundli data
+    // Simulated kundli generation - replace with actual API call
     const kundli: GeneratedKundli = {
       rashi: 'Mithuna (Gemini)',
       nakshatra: 'Ardra',
-      gothra: 'Kashyap',
+      gothra: 'Kashyapa',
       manglikStatus: 'Non-Manglik',
       planetaryPositions: {
-        sun: 'Taurus (Vrishabha) - 2nd House',
-        moon: 'Gemini (Mithuna) - 3rd House',
-        mars: 'Leo (Simha) - 5th House',
-        mercury: 'Taurus (Vrishabha) - 2nd House',
-        jupiter: 'Cancer (Karka) - 4th House',
-        venus: 'Aries (Mesha) - 1st House',
-        saturn: 'Libra (Tula) - 7th House',
-        rahu: 'Pisces (Meena) - 12th House',
-        ketu: 'Virgo (Kanya) - 6th House',
+        sun: 'Taurus',
+        moon: 'Gemini',
+        mars: 'Cancer',
+        mercury: 'Gemini',
+        jupiter: 'Pisces',
+        venus: 'Aries',
+        saturn: 'Aquarius',
+        rahu: 'Aries',
+        ketu: 'Libra'
       },
       predictions: {
-        career: 'Strong potential in communication and creative fields. Good opportunities in media, writing, and education. Leadership qualities will develop with time.',
-        marriage: 'Marriage prospects are favorable. Partner will be supportive and understanding. Best marriage period between 28-32 years.',
-        health: 'Generally good health. Need to take care of respiratory system and maintain regular exercise routine.',
-        wealth: 'Steady financial growth. Good opportunities for wealth accumulation through career and investments.',
+        career: 'Good prospects in communication-related fields. Success through intellectual pursuits.',
+        marriage: 'Compatible with air and fire signs. Marriage after 27 years.',
+        health: 'Generally good health. Need to take care of respiratory system.',
+        wealth: 'Good financial prospects through multiple sources of income.'
       },
       doshas: {
         mangal: 'No Mangal Dosha',
-        kaalSarpa: 'Partial Kaal Sarpa Yoga',
+        kaalSarpa: 'No Kaal Sarpa Dosha',
         pitru: 'No Pitru Dosha',
-        nadi: 'Adi Nadi'
+        nadi: 'Madhya Nadi'
       },
       gemstones: [
-        'Pearl (Moti)',
-        'Moonstone',
-        'White Sapphire'
+        'Emerald (Primary)',
+        'Pearl (Secondary)',
+        'Yellow Sapphire (Supporting)'
       ],
       remedies: [
         'Wear Emerald (Panna) for Mercury',
         'Donate green items on Wednesdays',
         'Chant Mercury Mantra daily',
-        'Keep a small plant in the study area',
+        'Keep a small plant in the study area'
       ],
       detailedAnalysis: {
         personality: 'Intelligent, communicative, and adaptable. Strong analytical skills with a creative streak. Natural ability to connect with people.',
@@ -133,20 +132,20 @@ export default function KundliGenerator() {
           'Wear Emerald (Panna) for Mercury',
           'Donate green items on Wednesdays',
           'Chant Mercury Mantra daily',
-          'Keep a small plant in the study area',
-        ],
+          'Keep a small plant in the study area'
+        ]
       },
       compatibility: {
-        bestMatches: ['Virgo', 'Capricorn', 'Taurus'],
-        avoidMatches: ['Sagittarius', 'Pisces'],
-        compatibilityScore: 85,
+        bestMatches: ['Libra', 'Aquarius', 'Leo'],
+        avoidMatches: ['Pisces', 'Virgo'],
+        compatibilityScore: 85
       },
       auspiciousTimings: {
         marriage: '2025-2026',
         career: '2024 onwards',
         education: '2023-2024',
-        travel: '2024-2025',
-      },
+        travel: '2024-2025'
+      }
     };
 
     setGeneratedKundli(kundli);
