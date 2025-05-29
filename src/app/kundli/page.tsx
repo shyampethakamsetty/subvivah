@@ -153,8 +153,9 @@ export default function KundliPage() {
   const kundliRef = useRef<HTMLDivElement>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
 
-  // List of 22 Indian languages and their codes
-  const indianLanguages = [
+  // List of Indian languages
+  const languages = [
+    { code: 'en', name: 'English' },
     { code: 'as', name: 'Assamese' },
     { code: 'bn', name: 'Bengali' },
     { code: 'brx', name: 'Bodo' },
@@ -176,12 +177,11 @@ export default function KundliPage() {
     { code: 'sd', name: 'Sindhi' },
     { code: 'ta', name: 'Tamil' },
     { code: 'te', name: 'Telugu' },
-    { code: 'ur', name: 'Urdu' },
+    { code: 'ur', name: 'Urdu' }
   ];
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedLanguage(e.target.value);
-    // In a real app, you'd also load translations here if using client-side i18n
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -229,16 +229,15 @@ export default function KundliPage() {
     if (!kundliData) return;
 
     try {
+      setLoading(true);
       const response = await fetch('/api/generate-kundli-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          kundliData: {
-            ...kundliData,
-            language: selectedLanguage
-          }
+          kundliData,
+          language: selectedLanguage 
         }),
       });
 
@@ -246,44 +245,25 @@ export default function KundliPage() {
         throw new Error('Failed to generate PDF');
       }
 
-      // Get the PDF blob
       const blob = await response.blob();
-      
-      // Create a download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'kundli.pdf';
+      a.download = `${kundliData.personalInfo.fullName}-kundli.pdf`;
       document.body.appendChild(a);
       a.click();
-      
-      // Clean up
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
+      setError(error instanceof Error ? error.message : 'Failed to generate PDF');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white relative">
-      {/* Language Selector positioned at bottom right */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <label htmlFor="language" className="sr-only">Language</label>
-        <select
-          id="language"
-          value={selectedLanguage}
-          onChange={handleLanguageChange}
-          className="rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm"
-        >
-          <option value="en">English</option>
-          {indianLanguages.map((lang) => (
-            <option key={lang.code} value={lang.code}>{lang.name}</option>
-          ))}
-        </select>
-      </div>
-
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center text-purple-900 mb-8">
           Get Your Kundli by Date of Birth
@@ -553,15 +533,35 @@ export default function KundliPage() {
                 </div>
               )}
             </div>
-            <div className="flex justify-center mt-4">
+            <div className="flex items-center justify-between mt-6 space-x-4">
+              <select
+                id="language"
+                value={selectedLanguage}
+                onChange={handleLanguageChange}
+                className="rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm"
+              >
+                {languages.map(lang => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+
               <button
                 onClick={handleDownloadPDF}
-                className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                disabled={loading}
+                className="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50"
               >
-                Download PDF
+                {loading ? 'Generating PDF...' : 'Download PDF'}
               </button>
             </div>
           </>
+        )}
+
+        {error && (
+          <div className="text-red-600 mt-4">
+            {error}
+          </div>
         )}
       </div>
     </div>

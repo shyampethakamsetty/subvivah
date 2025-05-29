@@ -159,26 +159,66 @@ function getHouseName(houseNumber: number) {
 
 // Ascendant predictions data
 const ascendantPredictions: Record<string, { health: string; temperament: string; physical: string }> = {
-  'Aries': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Taurus': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Gemini': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Cancer': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Leo': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
+  'Aries': {
+    health: 'Aries ascendant people generally have strong vitality and quick recovery from illnesses. They may be prone to headaches, migraines, and injuries to the head or face. They should be careful of accidents due to their impulsive nature. Regular exercise is essential for maintaining their high energy levels.',
+    temperament: 'Aries ascendant individuals are natural leaders with a bold, confident, and dynamic personality. They are straightforward, enthusiastic, and have a pioneering spirit. They can be impulsive and quick-tempered but are also courageous and willing to take initiative. They have a competitive nature and strong drive to succeed.',
+    physical: 'Aries ascendant people typically have a strong, athletic build with a prominent forehead and sharp features. They often have a confident walk and commanding presence. Their complexion tends to be ruddy or reddish, and they may have a distinctive mark on their head or face. They usually appear younger than their age.'
+  },
+  'Taurus': {
+    health: 'Taurus ascendant people have good stamina and endurance. They may be prone to throat problems, thyroid issues, and neck stiffness. They should watch their diet as they have a tendency to overindulge. Regular exercise is important to maintain their physical well-being and prevent weight gain.',
+    temperament: 'Taurus ascendant individuals are stable, reliable, and patient. They have a strong sense of values and are practical in their approach to life. They can be stubborn but are also determined and persistent. They appreciate beauty and comfort, and have a strong connection to the material world.',
+    physical: 'Taurus ascendant people often have a strong, well-built body with a rounded face and thick neck. They have attractive features with full lips and often possess a melodious voice. They tend to have a steady, graceful walk and carry themselves with dignity.'
+  },
+  'Gemini': {
+    health: 'Gemini ascendant people may experience respiratory issues, nervous system sensitivity, and problems related to arms and shoulders. They need to manage stress and anxiety through relaxation techniques. Regular breathing exercises and meditation can be beneficial.',
+    temperament: 'Gemini ascendant individuals are versatile, quick-witted, and excellent communicators. They are curious, adaptable, and enjoy learning new things. They can be restless and sometimes scattered, but their mental agility and charm make them excellent networkers and problem solvers.',
+    physical: 'Gemini ascendant people typically have a tall, slender build with long arms and fingers. They often have an expressive face with bright, alert eyes and quick movements. They tend to have a youthful appearance and a swift, light walk.'
+  },
+  'Cancer': {
+    health: 'Cancer ascendant people may be sensitive to digestive issues and emotional stress affecting their physical health. They should pay attention to stomach and breast health. Their health is closely tied to their emotional well-being, making stress management important.',
+    temperament: 'Cancer ascendant individuals are nurturing, emotional, and intuitive. They are protective of loved ones and have strong family values. They can be moody but are also very caring and sympathetic. They have excellent memory and strong emotional intelligence.',
+    physical: 'Cancer ascendant people often have a round or oval face with soft features. They typically have a pale complexion and a plump or rounded body structure. Their walk is usually gentle and they have expressive eyes that reflect their emotions.'
+  },
+  'Leo': {
+    health: 'Leo ascendant people generally have strong vitality but may be prone to heart and spine issues. They should pay attention to cardiovascular health and maintain good posture. They recover quickly from illness due to their strong constitution.',
+    temperament: 'Leo ascendant individuals are natural leaders with a dignified and dramatic personality. They are generous, warm-hearted, and creative. They can be proud and attention-seeking but are also loyal and protective. They have strong willpower and natural authority.',
+    physical: 'Leo ascendant people typically have a strong, well-proportioned body with broad shoulders and a commanding presence. They often have thick hair, bright eyes, and a noble bearing. Their walk is usually confident and they carry themselves with pride.'
+  },
   'Virgo': {
     health: 'Problems with intestines and constipation are common Virgo complaints. Mood swings and despondency from time to time can adversely affect others in the surrounding area. Virgo Ascendant people may have trouble with their sexual organs. Their stomachs require them to be careful about their diet, it is essential that they treat their fascination with exotic food with extreme care.',
     temperament: 'Virgo Ascendant people are relatively reserved and are polite and soft spoken. They find their friends among those who can help them move up the social stratum. When confronted with obstacles, they stay calm and rational and work on finding a solution. This calmness is sometimes seen as being cold and calculating. They have the ability to analyze and solve the most complex problems. They have wonderful eye for details and thus often neglect the overall issues. They are very intellectual and are tend to make few, if any, concessions to the often dirty and distracting nature of reality. Virgo Ascendant people are very friendly and knowledgeable almost about everything and are usually observant, sharp, critical and patient. They are very selective in friendship and prefer keeping relationships on apparent basis. Virgo Ascendant people are prone to worry and hypochondria. They make their selves useful to others that it often leaves them vulnerable to misuse and mistreatment. Virgo Ascendant people are nit-picker, stickler and critical of self and others.',
     physical: 'Virgo Ascendant people often project an image of easygoing bohemianism or general eccentricity. There is often something \'\'petite\'\' and spare about the physical appearance, especially the face, of Virgo. Their carefully measured walk, symmetrical bodies and typically youthful, innocent features are telling. They do possess a good forehead with straight nose and massive cheek.'
   },
-  'Libra': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Scorpio': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Sagittarius': {
-     health: 'Problems with intestines and constipation are common Sagittarius complaints. Mood swings and despondency from time to time can adversely affect others in the surrounding area. Sagittarius Ascendant people may have trouble with their sexual organs. Their stomachs require them to be careful about their diet, it is essential that they treat their fascination with exotic food with extreme care.',
-     temperament: 'Sagittarius Ascendant people are optimistic, enthusiastic, and have a great sense of humor. They are freedom-loving and enjoy exploring new ideas and places. They can be restless and impatient at times. They value honesty and directness.',
-     physical: 'Sagittarius Ascendant people often have a tall and well-built physique. They may have a long face, high forehead, and clear eyes. They often have a friendly and open expression.'
+  'Libra': {
+    health: 'Libra ascendant people may experience issues with kidneys, lower back, and skin. They should maintain balance in their diet and lifestyle. Regular exercise and adequate rest are important for their well-being. They may be prone to indecision-related stress.',
+    temperament: 'Libra ascendant individuals are diplomatic, charming, and peace-loving. They have a strong sense of justice and harmony. They can be indecisive but are excellent mediators. They appreciate beauty and have refined tastes. They seek balance in all aspects of life.',
+    physical: 'Libra ascendant people typically have a well-proportioned body with graceful features. They often have a symmetrical face with dimples and an attractive smile. Their movements are usually graceful and they carry themselves with elegance.'
   },
-  'Capricorn': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Aquarius': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
-  'Pisces': { health: '...', temperament: '...', physical: '...' }, // Add actual predictions
+  'Scorpio': {
+    health: 'Scorpio ascendant people have strong regenerative powers but may be prone to reproductive system issues and allergies. They should be careful with their emotional health as it affects their physical well-being. They have good recovery abilities but should avoid excessive stress.',
+    temperament: 'Scorpio ascendant individuals are intense, determined, and mysterious. They have strong willpower and are naturally investigative. They can be secretive but are also deeply loyal and passionate. They have excellent intuition and psychological insight.',
+    physical: 'Scorpio ascendant people often have a magnetic presence with penetrating eyes. They typically have a strong, muscular build and a distinctive walk. Their facial features are usually sharp and well-defined, with a somewhat serious expression.'
+  },
+  'Sagittarius': {
+    health: 'Sagittarius ascendant people may experience issues related to hips, thighs, and liver. They should maintain an active lifestyle but avoid overexertion. They benefit from outdoor activities and need to watch their diet to prevent excess.',
+    temperament: 'Sagittarius ascendant individuals are optimistic, philosophical, and freedom-loving. They are honest, direct, and have a great sense of humor. They can be restless but are also inspiring and enthusiastic. They have a strong desire for knowledge and adventure.',
+    physical: 'Sagittarius ascendant people typically have a tall, athletic build with a long face and high forehead. They often have a cheerful expression and an energetic walk. They tend to have good posture and carry themselves with confidence.'
+  },
+  'Capricorn': {
+    health: 'Capricorn ascendant people may have sensitive joints, bones, and skin. They should pay attention to their skeletal system and teeth. They have good endurance but should avoid overwork. Regular exercise and proper nutrition are essential.',
+    temperament: 'Capricorn ascendant individuals are ambitious, disciplined, and practical. They have strong organizational skills and are naturally responsible. They can be reserved but are also determined and patient. They have excellent business sense and leadership abilities.',
+    physical: 'Capricorn ascendant people often have a dignified appearance with prominent bones and good height. They typically have a serious expression and may appear older when young but maintain their appearance well with age. Their walk is usually measured and purposeful.'
+  },
+  'Aquarius': {
+    health: 'Aquarius ascendant people may experience circulation issues and ankle problems. They should maintain good blood flow through regular exercise. They may be prone to nervous system sensitivity and should practice stress management.',
+    temperament: 'Aquarius ascendant individuals are innovative, independent, and humanitarian. They are forward-thinking and often unconventional. They can be detached but are also friendly and progressive. They have strong intellectual abilities and value freedom.',
+    physical: 'Aquarius ascendant people typically have a distinctive appearance with unique features. They often have a good height with a slim build. Their walk is usually quick and they may have an unusual style or way of carrying themselves.'
+  },
+  'Pisces': {
+    health: 'Pisces ascendant people may be sensitive to feet problems and immune system issues. They should pay attention to their lymphatic system and avoid damp environments. Regular exercise and proper rest are important for their well-being.',
+    temperament: 'Pisces ascendant individuals are intuitive, compassionate, and artistic. They are sensitive and have strong empathy. They can be dreamy but are also adaptable and understanding. They have rich imagination and spiritual inclination.',
+    physical: 'Pisces ascendant people often have a soft, dreamy appearance with large, expressive eyes. They typically have a medium height with a flexible body. Their walk is usually fluid and they have a gentle presence.'
+  }
 };
 
 // Nakshatra predictions data
