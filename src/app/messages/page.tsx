@@ -92,8 +92,15 @@ export default function MessagesPage() {
       if (!response.ok) throw new Error('Failed to send message');
       
       const sentMessage = await response.json();
-      setMessages(prev => [...prev, sentMessage]);
-        setNewMessage('');
+      setMessages(prev => [...prev, {
+        ...sentMessage,
+        senderId: sentMessage.senderId,
+        receiverId: sentMessage.receiverId,
+        content: sentMessage.content,
+        createdAt: sentMessage.createdAt,
+        isRead: false
+      }]);
+      setNewMessage('');
       fetchConversations();
     } catch (error) {
       console.error('Error sending message:', error);
@@ -152,6 +159,19 @@ export default function MessagesPage() {
       console.error('Error deleting message:', error);
       alert('Failed to delete message. Please try again.');
   }
+  };
+
+  const formatMessageTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+      return format(date, 'h:mm a');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
   };
 
   return (
@@ -246,69 +266,14 @@ export default function MessagesPage() {
                               : 'bg-purple-600 text-white'
                           }`}
                         >
-                          {editingMessage?.id === message.id ? (
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-                                handleEditMessage(message.id, editContent);
-                              }}
-                              className="flex gap-2"
-                            >
-                              <input
-                                type="text"
-                                value={editContent}
-                                onChange={(e) => setEditContent(e.target.value)}
-                                className="flex-1 p-1 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black"
-                                autoFocus
-                              />
-                              <button
-                                type="submit"
-                                className="px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm"
-                              >
-                                Save
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setEditingMessage(null);
-                                  setEditContent('');
-                                }}
-                                className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
-                              >
-                                Cancel
-                              </button>
-                            </form>
-                          ) : (
-                            <p className={message.senderId === selectedConversation.id ? 'text-black' : 'text-white'}>
-                              {message.content}
-                            </p>
-                          )}
+                          <p className={message.senderId === selectedConversation.id ? 'text-black' : 'text-white'}>
+                            {message.content}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 px-1">
                           <span className="text-xs text-gray-500">
-                            {format(new Date(message.createdAt), 'h:mm a')}
+                            {formatMessageTime(message.createdAt)}
                           </span>
-                          {message.senderId !== selectedConversation.id && (
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                              <button
-                                onClick={() => {
-                                  setEditingMessage(message);
-                                  setEditContent(message.content);
-                                }}
-                                className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
-                                title="Edit message"
-                              >
-                                <Pencil className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteMessage(message.id)}
-                                className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
-                                title="Delete message"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
                         </div>
                       </div>
                     ))}
