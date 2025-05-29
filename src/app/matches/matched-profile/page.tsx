@@ -76,6 +76,11 @@ function MatchedProfilePage() {
         setLoading(true);
         setError(null);
 
+        if (!searchParams) {
+          setError('Invalid search parameters');
+          return;
+        }
+
         const matchedUserId = searchParams.get('userId');
         if (!matchedUserId) {
           setError('No user ID provided');

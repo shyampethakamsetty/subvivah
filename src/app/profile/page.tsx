@@ -64,6 +64,7 @@ function ProfilePage() {
   });
   const router = useRouter();
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string } | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [caption, setCaption] = useState('');
@@ -276,7 +277,7 @@ function ProfilePage() {
     return null;
   }
 
-  const profilePhoto = user.photos?.find(photo => photo.isProfile) || user.photos?.[0];
+  const profilePhoto = user?.photos?.find(photo => photo.isProfile) || user?.photos?.[0];
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] py-10">
@@ -290,7 +291,8 @@ function ProfilePage() {
                 <div
                   className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105"
                   onClick={() => {
-                    if (user.photos && user.photos.length > 0) {
+                    if (profilePhoto) {
+                      setSelectedPhoto({ url: profilePhoto.url });
                       setIsPhotoModalOpen(true);
                     }
                   }}
@@ -430,7 +432,7 @@ function ProfilePage() {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {user.photos?.slice(0, 3).map((photo, index) => (
+              {user?.photos?.slice(0, 3).map((photo, index) => (
                 <div key={index} className="aspect-square rounded-lg overflow-hidden relative group">
                   <Image
                     src={photo.url}
@@ -446,7 +448,7 @@ function ProfilePage() {
                   )}
                 </div>
               ))}
-              {(!user.photos || user.photos.length < 3) && (
+              {(!user?.photos || user.photos.length < 3) && (
                 <div 
                   onClick={() => setIsUploadModalOpen(true)}
                   className="aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
@@ -700,7 +702,7 @@ function ProfilePage() {
         )}
 
       {/* Profile Photo Modal */}
-      {isPhotoModalOpen && user.photos && user.photos.length > 0 && (
+      {isPhotoModalOpen && selectedPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
           onClick={() => setIsPhotoModalOpen(false)}
@@ -716,7 +718,7 @@ function ProfilePage() {
               <span className="material-icons">close</span>
             </button>
             <Image
-              src={profilePhoto.url}
+              src={selectedPhoto.url}
               alt="Full Profile Photo"
               width={600}
               height={600}

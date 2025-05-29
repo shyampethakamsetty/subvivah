@@ -49,11 +49,14 @@ export default function GoogleLoginButton() {
 
       if (res.ok) {
         router.refresh();
+        router.push('/profile');
       } else {
         console.error('Google login failed');
+        alert('Failed to login with Google. Please try again.');
       }
     } catch (error) {
       console.error('Error during Google login:', error);
+      alert('An error occurred during login. Please try again.');
     }
   };
 

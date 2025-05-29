@@ -31,9 +31,7 @@ export async function DELETE(request: Request) {
     await prisma.photo.deleteMany({
       where: {
         url: photoUrl,
-        profile: {
-          userId: session.user.id,
-        },
+        userId: session.user.id,
       },
     });
 
