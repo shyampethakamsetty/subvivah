@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import UserSearch from '@/components/UserSearch';
 import { format } from 'date-fns/format';
 import { Pencil, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import withAuth from '@/components/withAuth';
 
 interface Message {
   id: string;
@@ -12,6 +14,7 @@ interface Message {
   content: string;
   timestamp: string;
   isRead: boolean;
+  createdAt?: string;
 }
 
 interface Conversation {
@@ -25,12 +28,21 @@ interface Conversation {
   photo: string;
 }
 
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  photo: string | null;
+}
+
 function MessagesPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [editingMessage, setEditingMessage] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
     fetchConversations();
@@ -95,17 +107,18 @@ function MessagesPage() {
     }
   };
 
-  const handleUserSelect = (user: any) => {
+  const handleUserSelect = (user: User) => {
     const conversation = conversations.find(c => c.id === user.id) || {
       id: user.id,
+      userId: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      photo: user.photo || null,
+      photo: user.photo || '/default-avatar.png',
       lastMessage: '',
       lastMessageTime: new Date().toISOString(),
       unreadCount: 0
     };
-    setSelectedConversation(conversation);
+    setSelectedConversation(conversation.id);
   };
 
   const handleEditMessage = async (messageId: string, newContent: string) => {
@@ -146,7 +159,7 @@ function MessagesPage() {
     } catch (error) {
       console.error('Error deleting message:', error);
       alert('Failed to delete message. Please try again.');
-  }
+    }
   };
 
   const formatMessageTime = (dateString: string) => {
@@ -177,8 +190,11 @@ function MessagesPage() {
             <div className="border-r border-gray-200">
               <div className="p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
+                <div className="mt-2">
+                  <UserSearch onUserSelect={handleUserSelect} />
+                </div>
               </div>
-              <div className="overflow-y-auto h-[calc(600px-4rem)]">
+              <div className="overflow-y-auto h-[calc(600px-8rem)]">
                 {conversations.length === 0 ? (
                   <div className="p-4 text-center text-gray-500">
                     No conversations yet
@@ -230,33 +246,32 @@ function MessagesPage() {
                     {messages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex flex-col ${message.senderId === selectedConversation?.id ? 'items-start' : 'items-end'} group`}
+                        className={`flex flex-col ${message.senderId === selectedConversation ? 'items-start' : 'items-end'} group`}
                       >
                         <div
                           className={`max-w-[70%] rounded-lg p-3 shadow-sm ${
-                            message.senderId === selectedConversation?.id
+                            message.senderId === selectedConversation
                               ? 'bg-white text-black border border-gray-100'
                               : 'bg-purple-600 text-white'
                           }`}
                         >
-                          {editingMessage?.id === message.id ? (
+                          {editingMessage === message.id ? (
                             <form
                               onSubmit={(e) => {
                                 e.preventDefault();
                                 handleEditMessage(message.id, editContent);
                               }}
-                              className="flex gap-2"
+                              className="flex items-center space-x-2"
                             >
                               <input
                                 type="text"
                                 value={editContent}
                                 onChange={(e) => setEditContent(e.target.value)}
-                                className="flex-1 p-1 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black"
-                                autoFocus
+                                className="flex-1 px-2 py-1 border rounded"
                               />
                               <button
                                 type="submit"
-                                className="px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm"
+                                className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
                               >
                                 Save
                               </button>
@@ -266,58 +281,52 @@ function MessagesPage() {
                                   setEditingMessage(null);
                                   setEditContent('');
                                 }}
-                                className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+                                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
                               >
                                 Cancel
                               </button>
                             </form>
                           ) : (
-                            <p className={message.senderId === selectedConversation?.id ? 'text-black' : 'text-white'}>
-                              {message.content}
-                            </p>
+                            <>
+                              <p>{message.content}</p>
+                              <div className="flex items-center space-x-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => {
+                                    setEditingMessage(message.id);
+                                    setEditContent(message.content);
+                                  }}
+                                  className="text-gray-500 hover:text-gray-700"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteMessage(message.id)}
+                                  className="text-gray-500 hover:text-red-500"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-1 px-1">
-                          <span className="text-xs text-gray-500">
-                            {formatMessageTime(message.createdAt)}
-                          </span>
-                          {message.senderId !== selectedConversation?.id && (
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                              <button
-                                onClick={() => {
-                                  setEditingMessage(message);
-                                  setEditContent(message.content);
-                                }}
-                                className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
-                                title="Edit message"
-                              >
-                                <Pencil className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteMessage(message.id)}
-                                className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
-                                title="Delete message"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        <span className="text-xs text-gray-500 mt-1">
+                          {formatMessageTime(message.timestamp)}
+                        </span>
                       </div>
                     ))}
                   </div>
-                  <form onSubmit={sendMessage} className="p-4 border-t border-gray-200">
-                    <div className="flex space-x-4">
+                  <form onSubmit={sendMessage} className="p-4 border-t">
+                    <div className="flex space-x-2">
                       <input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type your message..."
-                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                        placeholder="Type a message..."
+                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
                       <button
                         type="submit"
-                        className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                        className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       >
                         Send
                       </button>
