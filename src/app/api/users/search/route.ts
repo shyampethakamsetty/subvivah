@@ -76,11 +76,12 @@ export async function GET(request: Request) {
       take: 10
     });
 
-    // Transform the response to include the profile photo URL
+    // Transform the response to match the User interface
     const transformedUsers = users.map(user => ({
       id: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      profilePhoto: user.photos[0]?.url || null
+      firstName: user.firstName,
+      lastName: user.lastName,
+      photo: user.photos[0]?.url || null
     }));
 
     return NextResponse.json({ users: transformedUsers });

@@ -159,7 +159,7 @@ const MatchesPage = () => {
         {matches.length > 0 && matches[0].isBestMatch && (
           <div className="mb-8">
             <Link
-              href="/matches/matched-profile"
+              href={`/matches/matched-profile?userId=${matches[0].profile.userId}`}
               className="block bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
             >
               <div className="p-6">

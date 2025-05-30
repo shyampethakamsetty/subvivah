@@ -6,12 +6,13 @@ import debounce from 'lodash/debounce';
 
 interface User {
   id: string;
-  name: string;
-  profilePhoto: string | null;
+  firstName: string;
+  lastName: string;
+  photo: string | null;
 }
 
 interface UserSearchProps {
-  onUserSelect?: (userId: string) => void;
+  onUserSelect: (user: User) => void;
 }
 
 export default function UserSearch({ onUserSelect }: UserSearchProps) {
@@ -47,12 +48,8 @@ export default function UserSearch({ onUserSelect }: UserSearchProps) {
     searchUsers(query);
   }, [query, searchUsers]);
 
-  const handleUserClick = (userId: string) => {
-    if (onUserSelect) {
-      onUserSelect(userId);
-    } else {
-      router.push(`/messages/${userId}`);
-    }
+  const handleUserClick = (user: User) => {
+    onUserSelect(user);
     setShowResults(false);
     setQuery('');
   };
@@ -83,28 +80,28 @@ export default function UserSearch({ onUserSelect }: UserSearchProps) {
             users.map((user) => (
               <button
                 key={user.id}
-                onClick={() => handleUserClick(user.id)}
+                onClick={() => handleUserClick(user)}
                 className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
               >
                 <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                  {user.profilePhoto ? (
+                  {user.photo ? (
                     <Image
-                      src={user.profilePhoto}
-                      alt={user.name}
+                      src={user.photo}
+                      alt={`${user.firstName} ${user.lastName}`}
                       fill
                       className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full bg-purple-100 flex items-center justify-center">
                       <span className="text-purple-600 font-medium">
-                        {user.name.split(' ').map(n => n[0]).join('')}
+                        {user.firstName[0]}{user.lastName[0]}
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-black">
-                    {user.name}
+                    {user.firstName} {user.lastName}
                   </h3>
                 </div>
               </button>

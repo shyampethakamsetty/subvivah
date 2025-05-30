@@ -77,6 +77,33 @@ export default function MessagesPage() {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
 
+    const messageContent = newMessage.trim();
+    setNewMessage(''); // Clear input immediately
+
+    // Create a temporary message object with current timestamp
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      content: messageContent,
+      createdAt: new Date().toISOString(),
+      senderId: 'current-user',
+      receiverId: selectedConversation.id,
+      isRead: false
+    };
+
+    // Immediately update the UI with the new message
+    setMessages(prev => [...prev, tempMessage]);
+
+    // Update the conversation list immediately
+    const updatedConversation = {
+      ...selectedConversation,
+      lastMessage: messageContent,
+      lastMessageTime: new Date().toISOString(),
+      unreadCount: 0
+    };
+    setConversations(prev => 
+      [updatedConversation, ...prev.filter(c => c.id !== selectedConversation.id)]
+    );
+
     try {
       const response = await fetch('/api/messages', {
         method: 'POST',
@@ -85,39 +112,58 @@ export default function MessagesPage() {
         },
         body: JSON.stringify({
           receiverId: selectedConversation.id,
-          content: newMessage.trim(),
+          content: messageContent,
         }),
       });
 
       if (!response.ok) throw new Error('Failed to send message');
       
       const sentMessage = await response.json();
-      setMessages(prev => [...prev, {
-        ...sentMessage,
-        senderId: sentMessage.senderId,
-        receiverId: sentMessage.receiverId,
-        content: sentMessage.content,
-        createdAt: sentMessage.createdAt,
-        isRead: false
-      }]);
-      setNewMessage('');
-      fetchConversations();
+      
+      // Update the message in place without removing it
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempMessage.id ? {
+          ...sentMessage,
+          // Preserve the original timestamp to maintain order
+          createdAt: tempMessage.createdAt
+        } : msg
+      ));
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove the temporary message if sending failed
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
+      // Restore the message in the input field
+      setNewMessage(messageContent);
+      alert('Failed to send message. Please try again.');
     }
   };
 
   const handleUserSelect = (user: any) => {
-    const conversation = conversations.find(c => c.id === user.id) || {
+    if (!user || !user.id || !user.firstName || !user.lastName) {
+      console.error('Invalid user data:', user);
+      return;
+    }
+
+    // Check if conversation already exists
+    const existingConversation = conversations.find(c => c.id === user.id);
+    if (existingConversation) {
+      setSelectedConversation(existingConversation);
+      return;
+    }
+
+    // Create new conversation
+    const newConversation = {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      photo: user.photo,
+      photo: user.photo || null,
       lastMessage: '',
       lastMessageTime: new Date().toISOString(),
       unreadCount: 0
     };
-    setSelectedConversation(conversation);
+
+    setSelectedConversation(newConversation);
+    setConversations(prev => [newConversation, ...prev]);
   };
 
   const handleEditMessage = async (messageId: string, newContent: string) => {
@@ -165,12 +211,12 @@ export default function MessagesPage() {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
-        return 'Invalid date';
+        return '';
       }
       return format(date, 'h:mm a');
     } catch (error) {
       console.error('Error formatting date:', error);
-      return 'Invalid date';
+      return '';
     }
   };
 
@@ -233,7 +279,7 @@ export default function MessagesPage() {
                 <>
               <div className="p-4 border-b flex items-center bg-white shadow-sm">
                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-3 ring-2 ring-offset-2 ring-purple-100 flex-shrink-0">
-                  {selectedConversation.photo ? (
+                  {selectedConversation?.photo ? (
                     <img
                       src={selectedConversation.photo}
                       alt={`${selectedConversation.firstName} ${selectedConversation.lastName}`}
@@ -241,13 +287,13 @@ export default function MessagesPage() {
                     />
                   ) : (
                     <span className="text-gray-500">
-                      {selectedConversation.firstName[0]}{selectedConversation.lastName[0]}
+                      {selectedConversation?.firstName?.[0] || ''}{selectedConversation?.lastName?.[0] || ''}
                     </span>
                   )}
                 </div>
                 <div>
                   <h3 className="font-medium text-black">
-                    {selectedConversation.firstName} {selectedConversation.lastName}
+                    {selectedConversation?.firstName} {selectedConversation?.lastName}
                   </h3>
                 </div>
               </div>
