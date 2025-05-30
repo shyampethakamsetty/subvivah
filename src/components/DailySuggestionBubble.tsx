@@ -162,7 +162,7 @@ const DailySuggestionBubble = () => {
 
   const handleViewProfile = () => {
     if (matchedProfile) {
-      router.push('/matches/matched-profile');
+      router.push(`/matches/matched-profile?userId=${matchedProfile.userId}`);
     }
   };
 
