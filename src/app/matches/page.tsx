@@ -180,7 +180,15 @@ const MatchesPage = () => {
         {/* Display Preferences */}
         {preferences && (
           <div className="mb-8 bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Preferences</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Your Preferences</h2>
+              <button
+                onClick={() => router.push('/preferences')}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                Edit Preferences
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {preferences.ageFrom && preferences.ageTo && (
                 <div>
