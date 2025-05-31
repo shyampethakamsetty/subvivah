@@ -1,0 +1,4 @@
+{
+  "/page": "app/page.js",
+  "/api/kundli/route": "app/api/kundli/route.js"
+}
