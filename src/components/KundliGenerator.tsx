@@ -1,332 +1,278 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import KundliPDF from './KundliPDF';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { CalendarIcon, Clock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { TimePickerInput } from '@/components/ui/time-picker-input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-interface KundliData {
-  dateOfBirth: string;
-  timeOfBirth: string;
-  placeOfBirth: string;
-}
-
-interface GeneratedKundli {
-  rashi: string;
-  nakshatra: string;
-  gothra: string;
-  manglikStatus: string;
-  planetaryPositions: {
-    sun: string;
-    moon: string;
-    mars: string;
-    mercury: string;
-    jupiter: string;
-    venus: string;
-    saturn: string;
-    rahu: string;
-    ketu: string;
+interface KundliResponse {
+  personalInfo: {
+    fullName: string;
+    dateOfBirth: string;
+    timeOfBirth: string;
+    placeOfBirth: string;
+    gender: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
   };
-  predictions: {
-    career: string;
-    marriage: string;
-    health: string;
-    wealth: string;
+  ascendant: {
+    longitude: number;
+    sign: string;
+    degree: number;
   };
-  doshas: {
-    mangal: string;
-    kaalSarpa: string;
-    pitru: string;
-    nadi: string;
+  sunPosition: {
+    tropical: {
+      longitude: number;
+      sign: string;
+      degree: number;
+    };
+    sidereal: {
+      longitude: number;
+      sign: string;
+      degree: number;
+      nakshatra: {
+        name: string;
+        ruler: string;
+        pada: number;
+      };
+    };
   };
-  gemstones: string[];
-  remedies: string[];
-  detailedAnalysis: {
-    personality: string;
-    education: string;
-    family: string;
-    relationships: string;
-    careerProspects: string;
-    healthAspects: string;
-    financialProspects: string;
-    remedies: string[];
-  };
-  compatibility: {
-    bestMatches: string[];
-    avoidMatches: string[];
-    compatibilityScore: number;
-  };
-  auspiciousTimings: {
-    marriage: string;
-    career: string;
-    education: string;
-    travel: string;
-  };
+  houses: Array<{
+    house: number;
+    sign: string;
+    degree: number;
+    name: string;
+  }>;
+  ayanamsa: number;
+  disclaimer: string;
 }
 
 export default function KundliGenerator() {
-  const [formData, setFormData] = useState<KundliData>({
-    dateOfBirth: '',
-    timeOfBirth: '',
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<KundliResponse | null>(null);
+  const [date, setDate] = useState<Date>();
+  const [time, setTime] = useState<string>('12:00');
+  const [formData, setFormData] = useState({
+    fullName: '',
     placeOfBirth: '',
+    gender: ''
   });
-
-  const [generatedKundli, setGeneratedKundli] = useState<GeneratedKundli | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!date) return;
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoading(true);
+    try {
+      const response = await fetch('/api/kundli', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          dob: format(date, 'yyyy-MM-dd'),
+          tob: time,
+          pob: formData.placeOfBirth,
+          gender: formData.gender
+        }),
+      });
 
-    // Sample detailed kundli data
-    const kundli: GeneratedKundli = {
-      rashi: 'Mithuna (Gemini)',
-      nakshatra: 'Ardra',
-      gothra: 'Kashyap',
-      manglikStatus: 'Non-Manglik',
-      planetaryPositions: {
-        sun: 'Taurus (Vrishabha) - 2nd House',
-        moon: 'Gemini (Mithuna) - 3rd House',
-        mars: 'Leo (Simha) - 5th House',
-        mercury: 'Taurus (Vrishabha) - 2nd House',
-        jupiter: 'Cancer (Karka) - 4th House',
-        venus: 'Aries (Mesha) - 1st House',
-        saturn: 'Libra (Tula) - 7th House',
-        rahu: 'Pisces (Meena) - 12th House',
-        ketu: 'Virgo (Kanya) - 6th House',
-      },
-      predictions: {
-        career: 'Strong potential in communication and creative fields. Good opportunities in media, writing, and education. Leadership qualities will develop with time.',
-        marriage: 'Marriage prospects are favorable. Partner will be supportive and understanding. Best marriage period between 28-32 years.',
-        health: 'Generally good health. Need to take care of respiratory system and maintain regular exercise routine.',
-        wealth: 'Steady financial growth. Good opportunities for wealth accumulation through career and investments.',
-      },
-      doshas: {
-        mangal: 'No Mangal Dosha',
-        kaalSarpa: 'Partial Kaal Sarpa Yoga',
-        pitru: 'No Pitru Dosha',
-        nadi: 'Adi Nadi'
-      },
-      gemstones: [
-        'Pearl (Moti)',
-        'Moonstone',
-        'White Sapphire'
-      ],
-      remedies: [
-        'Wear Emerald (Panna) for Mercury',
-        'Donate green items on Wednesdays',
-        'Chant Mercury Mantra daily',
-        'Keep a small plant in the study area',
-      ],
-      detailedAnalysis: {
-        personality: 'Intelligent, communicative, and adaptable. Strong analytical skills with a creative streak. Natural ability to connect with people.',
-        education: 'Good academic potential. Strong in languages and communication skills. Higher education will be beneficial.',
-        family: 'Strong family support. Good relationships with siblings. Parents will be supportive of decisions.',
-        relationships: 'Good social skills. Will maintain strong friendships. Romantic relationships will be meaningful and long-lasting.',
-        careerProspects: 'Multiple career options available. Success in fields requiring communication and analytical skills. Good leadership potential.',
-        healthAspects: 'Generally good health. Need to maintain regular exercise and balanced diet. Pay attention to respiratory health.',
-        financialProspects: 'Steady income growth. Good investment opportunities. Financial stability achievable through careful planning.',
-        remedies: [
-          'Wear Emerald (Panna) for Mercury',
-          'Donate green items on Wednesdays',
-          'Chant Mercury Mantra daily',
-          'Keep a small plant in the study area',
-        ],
-      },
-      compatibility: {
-        bestMatches: ['Virgo', 'Capricorn', 'Taurus'],
-        avoidMatches: ['Sagittarius', 'Pisces'],
-        compatibilityScore: 85,
-      },
-      auspiciousTimings: {
-        marriage: '2025-2026',
-        career: '2024 onwards',
-        education: '2023-2024',
-        travel: '2024-2025',
-      },
-    };
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setGeneratedKundli(kundli);
-    setIsLoading(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-2 sm:p-6">
-      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-purple-800 mb-4 sm:mb-6 text-center">
-          Generate Your Kundli
-        </h2>
-        
-        {!generatedKundli ? (
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            <div>
-              <label className="block text-gray-700 mb-1 sm:mb-2">Date of Birth</label>
-              <input
-                type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                className="w-full p-2 sm:p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-gray-700 mb-1 sm:mb-2">Time of Birth</label>
-              <input
-                type="time"
-                value={formData.timeOfBirth}
-                onChange={(e) => setFormData({ ...formData, timeOfBirth: e.target.value })}
-                className="w-full p-2 sm:p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-gray-700 mb-1 sm:mb-2">Place of Birth</label>
-              <input
-                type="text"
-                value={formData.placeOfBirth}
-                onChange={(e) => setFormData({ ...formData, placeOfBirth: e.target.value })}
-                className="w-full p-2 sm:p-3 border rounded-md focus:ring-2 focus:ring-purple-500"
-                placeholder="Enter city and country"
-                required
-              />
-            </div>
-            
-            <button
-              type="submit"
-              className="w-full bg-purple-700 text-white py-2 sm:py-3 rounded-lg font-semibold hover:bg-purple-800 transition duration-300"
-            >
-              Generate Kundli
-            </button>
-          </form>
-        ) : (
-          <div className="space-y-8">
-            {/* Basic Information */}
-            <div className="bg-purple-50 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Basic Information</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">Rashi (Moon Sign)</p>
-                  <p className="font-semibold">{generatedKundli.rashi}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Nakshatra</p>
-                  <p className="font-semibold">{generatedKundli.nakshatra}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Gothra</p>
-                  <p className="font-semibold">{generatedKundli.gothra}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Manglik Status</p>
-                  <p className="font-semibold">{generatedKundli.manglikStatus}</p>
-                </div>
+    <div className="container mx-auto p-4 max-w-4xl">
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Generate Kundli</CardTitle>
+          <CardDescription>
+            Enter your birth details to generate your astrological chart
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your full name"
+                />
               </div>
-            </div>
 
-            {/* Planetary Positions */}
-            <div>
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Planetary Positions</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {generatedKundli.planetaryPositions && typeof generatedKundli.planetaryPositions === 'object' ? Object.entries(generatedKundli.planetaryPositions).map(([planet, position]) => (
-                  <div key={planet} className="bg-white p-4 rounded-lg shadow-sm">
-                    <p className="text-gray-600 capitalize">{planet}</p>
-                    <p className="font-semibold">{position}</p>
-                  </div>
-                )) : null}
-              </div>
-            </div>
-
-            {/* Detailed Analysis */}
-            <div>
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Detailed Analysis</h3>
-              <div className="space-y-4">
-                {generatedKundli.detailedAnalysis && typeof generatedKundli.detailedAnalysis === 'object' ? Object.entries(generatedKundli.detailedAnalysis).map(([aspect, description]) => (
-                  <div key={aspect} className="bg-white p-4 rounded-lg shadow-sm">
-                    <h4 className="font-semibold text-purple-700 capitalize">{aspect}</h4>
-                    <p className="text-gray-600 mt-2">{description}</p>
-                  </div>
-                )) : null}
-              </div>
-            </div>
-
-            {/* Compatibility */}
-            <div className="bg-purple-50 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Compatibility</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">Best Matches</p>
-                  <p className="font-semibold">{Array.isArray(generatedKundli.compatibility.bestMatches) ? generatedKundli.compatibility.bestMatches.join(', ') : ''}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Avoid Matches</p>
-                  <p className="font-semibold">{Array.isArray(generatedKundli.compatibility.avoidMatches) ? generatedKundli.compatibility.avoidMatches.join(', ') : ''}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-gray-600">Compatibility Score</p>
-                  <div className="w-full bg-gray-200 rounded-full h-4">
-                    <div
-                      className="bg-purple-600 h-4 rounded-full"
-                      style={{ width: `${generatedKundli.compatibility.compatibilityScore}%` }}
+              <div className="space-y-2">
+                <Label>Date of Birth</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
                     />
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">{generatedKundli.compatibility.compatibilityScore}%</p>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Time of Birth</Label>
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <TimePickerInput
+                    value={time}
+                    onChange={setTime}
+                    className="w-full"
+                  />
                 </div>
               </div>
-            </div>
 
-            {/* Auspicious Timings */}
-            <div>
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Auspicious Timings</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {generatedKundli.auspiciousTimings && typeof generatedKundli.auspiciousTimings === 'object' ? Object.entries(generatedKundli.auspiciousTimings).map(([event, timing]) => (
-                  <div key={event} className="bg-white p-4 rounded-lg shadow-sm">
-                    <p className="text-gray-600 capitalize">{event}</p>
-                    <p className="font-semibold">{timing}</p>
-                  </div>
-                )) : null}
+              <div className="space-y-2">
+                <Label htmlFor="placeOfBirth">Place of Birth</Label>
+                <Input
+                  id="placeOfBirth"
+                  name="placeOfBirth"
+                  value={formData.placeOfBirth}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter place of birth"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gender">Gender</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            {/* Remedies */}
-            <div className="bg-purple-50 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-purple-800 mb-4">Remedies</h3>
-              <ul className="list-disc list-inside space-y-2">
-                {generatedKundli.detailedAnalysis.remedies.map((remedy, index) => (
-                  <li key={index} className="text-gray-600">{remedy}</li>
-                ))}
-              </ul>
-            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Generating...' : 'Generate Kundli'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-            {/* Action Buttons */}
-            <div className="flex justify-between">
-              <button
-                onClick={() => setGeneratedKundli(null)}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-              >
-                Generate New Kundli
-              </button>
-              <PDFDownloadLink
-                document={<KundliPDF kundliData={formData} generatedKundli={generatedKundli} />}
-                fileName="kundli-report.pdf"
-              >
-                {({ loading }) => (
-                  <button
-                    className="px-6 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-                    disabled={loading}
-                  >
-                    {loading ? 'Preparing PDF...' : 'Download PDF'}
-                  </button>
-                )}
-              </PDFDownloadLink>
+      {result && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Kundli Details</CardTitle>
+            <CardDescription>Your astrological chart details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Personal Information</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Name:</span> {result.personalInfo.fullName}</p>
+                    <p><span className="font-medium">Date of Birth:</span> {result.personalInfo.dateOfBirth}</p>
+                    <p><span className="font-medium">Time of Birth:</span> {result.personalInfo.timeOfBirth}</p>
+                    <p><span className="font-medium">Place of Birth:</span> {result.personalInfo.placeOfBirth}</p>
+                    <p><span className="font-medium">Gender:</span> {result.personalInfo.gender}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Ascendant (Lagna)</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Sign:</span> {result.ascendant.sign}</p>
+                    <p><span className="font-medium">Degree:</span> {result.ascendant.degree.toFixed(2)}°</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Sun Position (Tropical)</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Sign:</span> {result.sunPosition.tropical.sign}</p>
+                    <p><span className="font-medium">Degree:</span> {result.sunPosition.tropical.degree.toFixed(2)}°</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Sun Position (Sidereal)</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Sign:</span> {result.sunPosition.sidereal.sign}</p>
+                    <p><span className="font-medium">Degree:</span> {result.sunPosition.sidereal.degree.toFixed(2)}°</p>
+                    <p><span className="font-medium">Nakshatra:</span> {result.sunPosition.sidereal.nakshatra.name}</p>
+                    <p><span className="font-medium">Pada:</span> {result.sunPosition.sidereal.nakshatra.pada}</p>
+                    <p><span className="font-medium">Ruler:</span> {result.sunPosition.sidereal.nakshatra.ruler}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-semibold">Houses</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {result.houses.map((house) => (
+                    <div key={house.house} className="p-3 border rounded-lg">
+                      <p className="font-medium">House {house.house}</p>
+                      <p className="text-sm">{house.name}</p>
+                      <p className="text-sm">{house.sign} {house.degree.toFixed(2)}°</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                <p><span className="font-medium">Ayanamsa:</span> {result.ayanamsa.toFixed(2)}°</p>
+                <p className="mt-2 italic">{result.disclaimer}</p>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 } 

@@ -126,6 +126,8 @@ model Horoscope {
   dateOfBirth  DateTime
   timeOfBirth  String?
   placeOfBirth String?
+  gender       String?
+  kundliData   Json?
   rashi        String?
   nakshatra    String?
   gotra        String?
