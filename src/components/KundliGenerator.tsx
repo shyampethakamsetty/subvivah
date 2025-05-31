@@ -1,278 +1,87 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { CalendarIcon, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { TimePickerInput } from '@/components/ui/time-picker-input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React, { useState } from 'react';
+import { Moon, Sun, Stars } from 'lucide-react';
+import KundliForm from './KundliForm';
+import KundliIntro from './KundliIntro';
+import KundliResult from './KundliResult';
+import { useZodiac } from '../context/ZodiacContext';
 
-interface KundliResponse {
-  personalInfo: {
-    fullName: string;
-    dateOfBirth: string;
-    timeOfBirth: string;
-    placeOfBirth: string;
-    gender: string;
-    coordinates: {
-      lat: number;
-      lng: number;
-    };
-  };
-  ascendant: {
-    longitude: number;
-    sign: string;
-    degree: number;
-  };
-  sunPosition: {
-    tropical: {
-      longitude: number;
-      sign: string;
-      degree: number;
-    };
-    sidereal: {
-      longitude: number;
-      sign: string;
-      degree: number;
-      nakshatra: {
-        name: string;
-        ruler: string;
-        pada: number;
-      };
-    };
-  };
-  houses: Array<{
-    house: number;
-    sign: string;
-    degree: number;
-    name: string;
-  }>;
-  ayanamsa: number;
-  disclaimer: string;
-}
+const containers = [
+  { component: <KundliIntro />, label: 'Intro' },
+  { component: <KundliForm />, label: 'Form' },
+  { component: <KundliResult />, label: 'Result' },
+];
 
-export default function KundliGenerator() {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<KundliResponse | null>(null);
-  const [date, setDate] = useState<Date>();
-  const [time, setTime] = useState<string>('12:00');
-  const [formData, setFormData] = useState({
-    fullName: '',
-    placeOfBirth: '',
-    gender: ''
-  });
+const KundliGenerator: React.FC = () => {
+  const { result } = useZodiac();
+  // If result is available, always focus on the result container
+  const [active, setActive] = useState(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!date) return;
+  // If result is available, focus on result
+  React.useEffect(() => {
+    if (result) setActive(2);
+  }, [result]);
 
-    setLoading(true);
-    try {
-      const response = await fetch('/api/kundli', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          dob: format(date, 'yyyy-MM-dd'),
-          tob: time,
-          pob: formData.placeOfBirth,
-          gender: formData.gender
-        }),
-      });
+  const prev = () => setActive((prev) => (prev === 0 ? 2 : prev - 1));
+  const next = () => setActive((prev) => (prev === 2 ? 0 : prev + 1));
 
-      const data = await response.json();
-      setResult(data);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  // Calculate positions for coverflow effect
+  const getPosition = (idx: number) => {
+    if (idx === active) return 'center';
+    if ((active === 0 && idx === 2) || idx === active - 1) return 'left';
+    return 'right';
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Generate Kundli</CardTitle>
-          <CardDescription>
-            Enter your birth details to generate your astrological chart
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your full name"
-                />
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <header className="text-center mb-8 relative">
+        <div className="absolute top-0 left-0 opacity-30">
+          <Stars size={24} />
+        </div>
+        <div className="flex justify-center items-center gap-3 mb-2">
+          <Sun className="text-amber-300" size={28} />
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-purple-200">
+            Celestial Birth Chart
+          </h1>
+          <Moon className="text-blue-200" size={24} />
+        </div>
+        <p className="text-lg text-purple-200 max-w-2xl mx-auto">
+          Discover your cosmic blueprint and the celestial influences that shape your life journey
+        </p>
+      </header>
+
+      <div className="flex flex-col items-center justify-center min-h-[160vh]">
+        <div className="relative flex items-center justify-center w-full max-w-4xl h-[500px]">
+          {containers.map((c, idx) => {
+            const pos = getPosition(idx);
+            let className =
+              'absolute transition-all duration-500 ease-in-out flex items-center justify-center';
+            if (pos === 'center') {
+              className += ' left-1/2 -translate-x-1/2 z-20 scale-100 w-[650px] h-[100px]';
+            } else if (pos === 'left') {
+              className += ' left-0 z-10 scale-75 opacity-10 w-[500px] h-[50px]';
+            } else {
+              className += ' right-0 z-10 scale-75 opacity-10 w-[500px] h-[10px]';
+            }
+            return (
+              <div key={c.label} className={className} style={{ pointerEvents: pos === 'center' ? 'auto' : 'none' }}>
+                {c.component}
               </div>
-
-              <div className="space-y-2">
-                <Label>Date of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Time of Birth</Label>
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <TimePickerInput
-                    value={time}
-                    onChange={setTime}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="placeOfBirth">Place of Birth</Label>
-                <Input
-                  id="placeOfBirth"
-                  name="placeOfBirth"
-                  value={formData.placeOfBirth}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter place of birth"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Select
-                  value={formData.gender}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Generating...' : 'Generate Kundli'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Kundli Details</CardTitle>
-            <CardDescription>Your astrological chart details</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Personal Information</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Name:</span> {result.personalInfo.fullName}</p>
-                    <p><span className="font-medium">Date of Birth:</span> {result.personalInfo.dateOfBirth}</p>
-                    <p><span className="font-medium">Time of Birth:</span> {result.personalInfo.timeOfBirth}</p>
-                    <p><span className="font-medium">Place of Birth:</span> {result.personalInfo.placeOfBirth}</p>
-                    <p><span className="font-medium">Gender:</span> {result.personalInfo.gender}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Ascendant (Lagna)</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Sign:</span> {result.ascendant.sign}</p>
-                    <p><span className="font-medium">Degree:</span> {result.ascendant.degree.toFixed(2)}°</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Sun Position (Tropical)</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Sign:</span> {result.sunPosition.tropical.sign}</p>
-                    <p><span className="font-medium">Degree:</span> {result.sunPosition.tropical.degree.toFixed(2)}°</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Sun Position (Sidereal)</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Sign:</span> {result.sunPosition.sidereal.sign}</p>
-                    <p><span className="font-medium">Degree:</span> {result.sunPosition.sidereal.degree.toFixed(2)}°</p>
-                    <p><span className="font-medium">Nakshatra:</span> {result.sunPosition.sidereal.nakshatra.name}</p>
-                    <p><span className="font-medium">Pada:</span> {result.sunPosition.sidereal.nakshatra.pada}</p>
-                    <p><span className="font-medium">Ruler:</span> {result.sunPosition.sidereal.nakshatra.ruler}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="font-semibold">Houses</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {result.houses.map((house) => (
-                    <div key={house.house} className="p-3 border rounded-lg">
-                      <p className="font-medium">House {house.house}</p>
-                      <p className="text-sm">{house.name}</p>
-                      <p className="text-sm">{house.sign} {house.degree.toFixed(2)}°</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="text-sm text-muted-foreground">
-                <p><span className="font-medium">Ayanamsa:</span> {result.ayanamsa.toFixed(2)}°</p>
-                <p className="mt-2 italic">{result.disclaimer}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            );
+          })}
+        </div>
+        <div className="flex justify-between w-full max-w-4xl mt-4">
+          <button onClick={prev} className="px-4 py-2 rounded bg-purple-700 text-white">Previous</button>
+          <button onClick={next} className="px-4 py-2 rounded bg-purple-700 text-white">Next</button>
+        </div>
+      </div>
+      
+      <footer className="mt-16 text-center text-sm text-purple-300 opacity-80">
+        <p>© {new Date().getFullYear()} Celestial Insights. All celestial rights reserved.</p>
+      </footer>
     </div>
   );
-} 
+};
+
+export default KundliGenerator;

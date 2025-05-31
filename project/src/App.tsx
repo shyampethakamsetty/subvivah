@@ -1,6 +1,6 @@
 import React from 'react';
-import KundliGenerator from '@/components/KundliGenerator';
-import { ZodiacProvider } from '@/context/ZodiacContext';
+import KundliGenerator from './components/KundliGenerator';
+import { ZodiacProvider } from './context/ZodiacContext';
 
 function App() {
   return (
