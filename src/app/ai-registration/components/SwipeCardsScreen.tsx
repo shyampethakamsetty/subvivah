@@ -62,9 +62,9 @@ export default function SwipeCardsScreen({ onNext, onBack, aiAnswers }: SwipeCar
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-600"></div>
-        <p className="mt-4 text-gray-600">Generating your preferences...</p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[70vh]">
+        <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-t-2 border-b-2 border-purple-600"></div>
+        <p className="mt-4 text-white-200 text-sm sm:text-base">Generating your preferences...</p>
       </div>
     );
   }
@@ -74,18 +74,18 @@ export default function SwipeCardsScreen({ onNext, onBack, aiAnswers }: SwipeCar
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="max-w-2xl mx-auto"
+      className="max-w-2xl mx-auto px-4 sm:px-6"
     >
       <div className="flex flex-col items-center">
-        <h2 className="text-3xl font-bold text-center mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-8 text-white">
           Quick Choices
         </h2>
         
-        <p className="text-lg text-gray-600 text-center mb-8">
+        <p className="text-base sm:text-lg text-purple-200 text-center mb-6 sm:mb-8 px-2">
           Based on what you told us, which do you prefer?
         </p>
 
-        <div className="relative w-full h-[400px] mb-8">
+        <div className="relative w-full h-[300px] sm:h-[400px] mb-6 sm:mb-8">
           <AnimatePresence>
             {cards[currentCard] && (
               <motion.div
@@ -95,27 +95,53 @@ export default function SwipeCardsScreen({ onNext, onBack, aiAnswers }: SwipeCar
                 exit={{ opacity: 0, scale: 0.8 }}
                 className="absolute inset-0"
               >
-                <div className="grid grid-cols-2 gap-4 h-full">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 h-full">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)" }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleChoice('left')}
-                    className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center hover:bg-purple-50 transition-colors"
+                    className="bg-white/10 backdrop-blur-sm rounded-xl shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center hover:bg-white/20 transition-all duration-300 border border-purple-500/30 touch-manipulation"
                   >
-                    <span className="text-4xl mb-4">{cards[currentCard].leftEmoji}</span>
-                    <span className="text-xl font-semibold text-center">
+                    <motion.span 
+                      className="text-5xl sm:text-6xl mb-4 sm:mb-6"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    >
+                      {cards[currentCard].leftEmoji}
+                    </motion.span>
+                    <span className="text-lg sm:text-xl font-semibold text-center text-purple-200 px-1">
                       {cards[currentCard].left}
                     </span>
                   </motion.button>
 
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)" }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleChoice('right')}
-                    className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center hover:bg-purple-50 transition-colors"
+                    className="bg-white/10 backdrop-blur-sm rounded-xl shadow-lg p-4 sm:p-6 flex flex-col items-center justify-center hover:bg-white/20 transition-all duration-300 border border-purple-500/30 touch-manipulation"
                   >
-                    <span className="text-4xl mb-4">{cards[currentCard].rightEmoji}</span>
-                    <span className="text-xl font-semibold text-center">
+                    <motion.span 
+                      className="text-5xl sm:text-6xl mb-4 sm:mb-6"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, -5, 5, 0]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    >
+                      {cards[currentCard].rightEmoji}
+                    </motion.span>
+                    <span className="text-lg sm:text-xl font-semibold text-center text-purple-200 px-1">
                       {cards[currentCard].right}
                     </span>
                   </motion.button>
@@ -125,17 +151,17 @@ export default function SwipeCardsScreen({ onNext, onBack, aiAnswers }: SwipeCar
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between w-full items-center">
           <motion.button
             onClick={onBack}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-white/10 text-purple-200 rounded-lg font-semibold hover:bg-white/20 transition-colors text-sm sm:text-base touch-manipulation"
           >
             Back
           </motion.button>
 
-          <div className="text-gray-600">
+          <div className="text-purple-200 text-sm sm:text-base">
             {currentCard + 1} of {cards.length}
           </div>
         </div>

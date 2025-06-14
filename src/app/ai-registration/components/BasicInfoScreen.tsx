@@ -111,7 +111,7 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
       </div>
 
       <form onSubmit={handleSubmit} className="w-full space-y-8 flex flex-col items-center">
-        <label className="block text-2xl font-semibold text-center mb-4">
+        <label className="block text-2xl font-semibold text-center mb-4 text-white">
           {currentQ.label}
         </label>
         {currentQ.type === 'select' ? (
@@ -120,10 +120,10 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
             value={inputValue}
             onChange={handleChange}
             required={currentQ.required}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+            className="w-full px-4 py-2 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg text-white placeholder-purple-300"
           >
             {currentQ.options?.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+              <option key={opt.value} value={opt.value} className="bg-indigo-950 text-white">{opt.label}</option>
             ))}
           </select>
         ) : (
@@ -136,7 +136,7 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
             min={currentQ.min}
             max={currentQ.max}
             placeholder={currentQ.placeholder}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+            className="w-full px-4 py-2 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg text-white placeholder-purple-300"
           />
         )}
         <div className="flex justify-between w-full mt-8">
@@ -148,7 +148,7 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
             }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            className="px-6 py-3 bg-white/10 text-purple-200 rounded-lg font-semibold hover:bg-white/20 transition-colors"
           >
             Back
           </motion.button>
@@ -157,7 +157,7 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
             type="submit"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors"
             disabled={currentQ.required && !inputValue}
           >
             {step < questions.length - 1 ? 'Next' : 'Continue'}

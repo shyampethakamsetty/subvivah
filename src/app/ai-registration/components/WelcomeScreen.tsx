@@ -19,11 +19,11 @@ export default function WelcomeScreen({ onNext }: WelcomeScreenProps) {
     >
       <SpeakingAvatar text={welcomeMessage} size="lg" />
 
-      <h1 className="text-4xl font-bold text-center mb-4 mt-8">
+      <h1 className="text-4xl font-bold text-center mb-4 mt-8 text-white">
         Welcome to Subvivah AI Interview!
       </h1>
       
-      <p className="text-xl text-gray-600 text-center mb-8 max-w-2xl">
+      <p className="text-xl text-purple-200 text-center mb-8 max-w-2xl">
         I'll help you create your perfect profile by asking personalized questions
         and understanding your preferences better.
       </p>
@@ -31,7 +31,7 @@ export default function WelcomeScreen({ onNext }: WelcomeScreenProps) {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="px-8 py-4 bg-purple-600 text-white rounded-full text-lg font-semibold shadow-lg hover:bg-purple-700 transition-colors"
+        className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full text-lg font-semibold shadow-lg hover:from-pink-500 hover:to-purple-500 transition-colors"
         onClick={() => onNext({})}
       >
         Let's Begin

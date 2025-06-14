@@ -62,9 +62,9 @@ export default function SummaryScreen({ onBack, formData }: SummaryScreenProps) 
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-600"></div>
-        <p className="mt-4 text-gray-600">Generating your profile summary...</p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[70vh]">
+        <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-t-2 border-b-2 border-purple-600"></div>
+        <p className="mt-4 text-purple-200 text-sm sm:text-base">Generating your profile summary...</p>
       </div>
     );
   }
@@ -74,43 +74,37 @@ export default function SummaryScreen({ onBack, formData }: SummaryScreenProps) 
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="max-w-2xl mx-auto"
+      className="max-w-2xl mx-auto px-4 sm:px-6"
     >
       <div className="flex flex-col items-center">
-        <SpeakingAvatar 
-          text="Here's your AI-crafted profile summary. I've combined all your answers and preferences to create a unique profile that represents you." 
-          size="md" 
+        <SpeakingAvatar
+          text={summary}
+          size="md"
+          showStopButton={true}
+          onStopSpeaking={handleSave}
         />
 
-        <h2 className="text-3xl font-bold text-center mb-8 mt-8">
-          Your AI-Crafted Profile
-        </h2>
-
-        <div className="w-full bg-white rounded-lg shadow-lg p-8 mb-8">
-          <div className="prose max-w-none">
-            <p className="text-lg text-gray-700 leading-relaxed">
-              {summary}
-            </p>
-          </div>
+        <div className="w-full bg-white/10 backdrop-blur-sm rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 mt-6 sm:mt-8">
+          <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-white">Your Profile Summary</h3>
+          <textarea
+            className="w-full h-48 sm:h-64 px-3 sm:px-4 py-2 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-purple-300 text-sm sm:text-base"
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            placeholder="Your profile summary will appear here..."
+          />
         </div>
 
         <div className="flex justify-between w-full">
           <motion.button
-            onClick={onBack}
+            onClick={() => {
+              handleSave();
+              onBack();
+            }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-white/10 text-purple-200 rounded-lg font-semibold hover:bg-white/20 transition-colors text-sm sm:text-base touch-manipulation"
           >
             Back
-          </motion.button>
-
-          <motion.button
-            onClick={handleSave}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
-          >
-            Save Profile
           </motion.button>
         </div>
       </div>

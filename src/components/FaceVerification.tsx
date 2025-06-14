@@ -4,6 +4,7 @@ import { FaceMesh } from '@mediapipe/face_mesh';
 import { Camera } from '@mediapipe/camera_utils';
 import * as faceapi from '@vladmandic/face-api';
 import { FaCheckCircle, FaTimesCircle, FaHeart, FaCamera, FaUserCheck } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
 const YAW_LEFT_THRESHOLD = -30;
 const YAW_RIGHT_THRESHOLD = 30;
@@ -182,7 +183,7 @@ const FaceVerification: React.FC = () => {
       modelsLoadedRef.current
     ) {
       updateStepCompletion(2);
-      setPrompt('Hold still – Analyzing Gender…');
+      setPrompt('Hold still – Analyzing...');
       setLoading(true);
       genderRequestedRef.current = true;
       // Capture and run face-api gender detection
@@ -208,21 +209,21 @@ const FaceVerification: React.FC = () => {
             setStarted(false); // Freeze UI and stop camera
             cameraRef.current?.stop();
           } else {
-            setError('Gender detection failed. No face detected.');
-            setPrompt('Gender detection failed. Please try again.');
+            setError('Server error occurred. Please try again.');
+            setPrompt('Server error occurred. Please try again.');
             setStarted(false);
             cameraRef.current?.stop();
-            console.log('[DEBUG] Gender detection failed: No face detected', result);
+            console.log('[DEBUG] Server error: No face detected', result);
           }
           setLoading(false);
           return undefined;
         }).catch((e: any) => {
-          setError('Gender detection failed.');
-          setPrompt('Gender detection failed. Please try again.');
+          setError('Server error occurred. Please try again.');
+          setPrompt('Server error occurred. Please try again.');
           setStarted(false);
           cameraRef.current?.stop();
           setLoading(false);
-          console.error('[DEBUG] Gender detection error:', e);
+          console.error('[DEBUG] Server error:', e);
           return undefined;
         });
       }
@@ -263,8 +264,15 @@ const FaceVerification: React.FC = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
-    canvas.width = 480;
-    canvas.height = 360;
+
+    // Set responsive dimensions based on screen size
+    const isMobile = window.innerWidth < 640;
+    const width = isMobile ? 320 : 480;
+    const height = isMobile ? 240 : 360;
+    
+    canvas.width = width;
+    canvas.height = height;
+    
     faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
@@ -279,8 +287,8 @@ const FaceVerification: React.FC = () => {
       onFrame: async () => {
         await faceMesh!.send({ image: video });
       },
-      width: 640,
-      height: 480,
+      width: isMobile ? 320 : 640,
+      height: isMobile ? 240 : 480,
       facingMode: 'user'
     });
     camera.start();
@@ -289,122 +297,121 @@ const FaceVerification: React.FC = () => {
     return () => {
       camera?.stop();
     };
-    // eslint-disable-next-line
   }, [started, step]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 flex flex-col items-center justify-center py-8 px-2">
-      <div className="w-full max-w-2xl mx-auto flex flex-col items-center">
-        <h1 className="text-5xl font-extrabold text-blue-200 mb-2 flex items-center gap-3 tracking-tight drop-shadow-lg">
-          <FaHeart className="text-indigo-400 animate-pulse" />
-          <span className="bg-gradient-to-r from-blue-300 via-indigo-400 to-blue-300 bg-clip-text text-transparent">3-Step Face Verification</span>
-        </h1>
-        <p className="text-xl text-blue-100 mb-8 text-center max-w-xl font-medium italic drop-shadow-sm">
-          For your safety and trust, please complete the steps below to verify your profile.
-        </p>
-        <div className="bg-gradient-to-br from-gray-800 via-blue-950 to-gray-900/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 w-full flex flex-col items-center border border-blue-900">
-          <div className="relative flex flex-col items-center justify-center">
-            <video 
-              ref={videoRef} 
-              style={{ 
-                position: 'absolute',
-                width: '1px',
-                height: '1px',
-                opacity: 0,
-                pointerEvents: 'none'
-              }} 
-              playsInline
-              autoPlay
-            />
-            <canvas ref={canvasRef} width={480} height={360} className="border-2 border-indigo-700 rounded-xl shadow-md mx-auto bg-gray-900" />
-            <div className="absolute top-4 left-4 bg-gray-900/80 px-4 py-2 rounded-lg shadow-sm border border-blue-900">
-              <div className="text-sm text-blue-200">Yaw: {yaw.toFixed(1)}°</div>
-              <div className="text-sm text-blue-200">Lighting: {lighting.toFixed(0)}</div>
+    <div className="flex flex-col items-center justify-center min-h-[100vh] bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 p-4 sm:p-6">
+      <div className="w-full max-w-2xl mx-auto">
+        <div className="text-center mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
+            Face Verification
+          </h1>
+          <p className="text-sm text-purple-200">
+            Please follow the instructions to complete your verification
+          </p>
         </div>
-      </div>
 
-          <div className="mt-8 space-y-6 w-full">
-            <div className="flex justify-center space-x-6">
-              {steps.map((_, index) => (
-                <div key={index} className="flex items-center">
-                  {completedSteps[index] ? (
-                    <FaCheckCircle className="text-green-400 text-3xl animate-bounce transition-all duration-300" />
-                  ) : (
-                    <FaTimesCircle className={`text-3xl ${index === step ? 'text-indigo-400 animate-pulse' : 'text-gray-700'} transition-all duration-300`} />
-                  )}
-                  {index < steps.length - 1 && (
-                    <div className={`w-20 h-1 ${completedSteps[index] ? 'bg-green-900' : 'bg-gray-700'}`} />
-                  )}
-                </div>
-              ))}
+        <div className="relative w-full aspect-[4/3] max-w-[320px] sm:max-w-[480px] mx-auto mb-4 sm:mb-6">
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover rounded-lg"
+            playsInline
+            muted
+          />
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-full"
+          />
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-purple-600"></div>
             </div>
+          )}
+        </div>
 
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-100 mb-6 bg-blue-950/60 p-4 rounded-lg shadow-inner tracking-tight border border-blue-900">
-                {prompt}
-              </div>
-        {!started ? (
-                <button 
-                  onClick={startVerification} 
-                  className="group relative px-8 py-4 bg-gradient-to-r from-blue-800 via-indigo-700 to-blue-900 text-blue-100 font-semibold rounded-full shadow hover:shadow-lg transition-all duration-300 overflow-hidden border border-blue-900"
-                >
-                  <span className="relative z-10 flex items-center justify-center">
-                    <FaCamera className="mr-2" />
-                    Start Verification
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-        ) : (
-                <button 
-                  onClick={stopVerification} 
-                  className="group relative px-8 py-4 bg-gradient-to-r from-indigo-800 via-blue-900 to-indigo-900 text-indigo-100 font-semibold rounded-full shadow hover:shadow-lg transition-all duration-300 overflow-hidden border border-indigo-900"
-                >
-                  <span className="relative z-10 flex items-center justify-center">
-                    <FaUserCheck className="mr-2" />
-                    Stop Verification
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-        )}
-      </div>
-
-            {loading && (
-              <div className="text-center">
-                <div className="inline-block text-blue-200 animate-pulse bg-blue-950/60 px-6 py-3 rounded-full font-semibold border border-blue-900">
-                  <FaHeart className="inline-block mr-2 text-indigo-400" />
-                  Analyzing gender...
-                </div>
-              </div>
-            )}
-
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="text-center">
+            <p className="text-base sm:text-lg font-semibold text-white mb-2">
+              {prompt}
+            </p>
             {error && (
-              <div className="text-center">
-                <div className="inline-block text-rose-300 bg-rose-950/60 p-4 rounded-lg shadow-sm font-semibold border border-rose-900">
-                  {error}
-                </div>
-              </div>
+              <p className="text-red-400 text-sm mb-2">
+                {error}
+              </p>
             )}
-
-      {genderResult && (
-              <div className="mt-8 p-8 bg-gradient-to-r from-green-900/80 to-blue-950/80 rounded-xl shadow-md border border-green-900">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-300 mb-4 flex items-center justify-center">
-                    <FaHeart className="text-indigo-400 mr-2" />
-                    Verification Complete!
-                  </div>
-                  <div className="text-xl mb-2">
-                    Detected Gender: <span className="font-bold text-green-200">{genderResult.gender}</span>
-                  </div>
-                  <div className="text-xl">
-                    Confidence: <span className="font-bold text-green-200">{(genderResult.confidence * 100).toFixed(1)}%</span>
-                  </div>
-                </div>
+            {genderResult && (
+              <div className="text-purple-200 text-sm">
+                <p>Gender: {genderResult.gender}</p>
+                <p>Confidence: {(genderResult.confidence * 100).toFixed(1)}%</p>
               </div>
             )}
           </div>
+
+          <div className="mt-3 sm:mt-4">
+            <div className="flex justify-between items-center mb-1 sm:mb-2">
+              <span className="text-sm text-purple-200">Lighting</span>
+              <span className="text-sm text-purple-200">{lighting}%</span>
+            </div>
+            <div className="w-full bg-white/20 rounded-full h-1.5 sm:h-2">
+              <div
+                className="bg-purple-500 h-full rounded-full transition-all duration-300"
+                style={{ width: `${lighting}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-3 sm:mt-4">
+            <div className="flex justify-between items-center mb-1 sm:mb-2">
+              <span className="text-sm text-purple-200">Head Position</span>
+              <span className="text-sm text-purple-200">{yaw.toFixed(1)}°</span>
+            </div>
+            <div className="w-full bg-white/20 rounded-full h-1.5 sm:h-2">
+              <div
+                className="bg-purple-500 h-full rounded-full transition-all duration-300"
+                style={{
+                  width: '100%',
+                  transform: `translateX(${((yaw + 45) / 90) * 100}%)`,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          {!started ? (
+            <motion.button
+              onClick={startVerification}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors text-sm touch-manipulation"
+            >
+              Start Verification
+            </motion.button>
+          ) : (
+            <motion.button
+              onClick={stopVerification}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/10 text-purple-200 rounded-lg font-semibold hover:bg-white/20 transition-colors text-sm touch-manipulation"
+            >
+              Stop Verification
+            </motion.button>
+          )}
+        </div>
+
+        <div className="mt-4 sm:mt-6">
+          <div className="flex justify-between items-center mb-1 sm:mb-2">
+            <span className="text-sm text-purple-200">Progress</span>
+            <span className="text-sm text-purple-200">{step + 1}/3</span>
+          </div>
+          <div className="w-full bg-white/20 rounded-full h-1.5 sm:h-2">
+            <div
+              className="bg-purple-500 h-full rounded-full transition-all duration-300"
+              style={{ width: `${((step + 1) / 3) * 100}%` }}
+            />
+          </div>
         </div>
       </div>
-      <audio ref={audioRef} src="/beep.mp3" preload="auto" />
     </div>
   );
 };
