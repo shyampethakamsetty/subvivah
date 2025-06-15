@@ -6,9 +6,10 @@ import { useLanguage } from '@/context/LanguageContext';
 
 interface WelcomeScreenProps {
   onNext: (data: any) => void;
+  onBack: () => void;
 }
 
-export default function WelcomeScreen({ onNext }: WelcomeScreenProps) {
+export default function WelcomeScreen({ onNext, onBack }: WelcomeScreenProps) {
   const { language, setLanguage } = useLanguage();
 
   const TEXT = {

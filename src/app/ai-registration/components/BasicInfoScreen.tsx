@@ -37,19 +37,6 @@ const questions = [
     max: 100,
   },
   {
-    key: 'gender',
-    label: { hi: 'आपका लिंग क्या है?', en: 'What is your gender?' },
-    placeholder: { hi: 'लिंग चुनें', en: 'Select gender' },
-    type: 'select',
-    options: [
-      { value: '', label: { hi: 'लिंग चुनें', en: 'Select gender' } },
-      { value: 'male', label: { hi: 'पुरुष', en: 'Male' } },
-      { value: 'female', label: { hi: 'महिला', en: 'Female' } },
-      { value: 'other', label: { hi: 'अन्य', en: 'Other' } },
-    ],
-    required: true,
-  },
-  {
     key: 'location',
     label: { hi: 'आप कहाँ रहते हैं?', en: 'Where are you located?' },
     placeholder: { hi: 'शहर, देश', en: 'City, Country' },
@@ -79,7 +66,6 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
   const [formData, setFormData] = useState<Record<string, any>>({
     name: initialData.name || '',
     age: initialData.age || '',
-    gender: initialData.gender || '',
     location: initialData.location || '',
     profession: initialData.profession || '',
     education: initialData.education || '',

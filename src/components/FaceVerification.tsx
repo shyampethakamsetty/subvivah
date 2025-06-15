@@ -6,6 +6,10 @@ import * as faceapi from '@vladmandic/face-api';
 import { FaCheckCircle, FaTimesCircle, FaHeart, FaCamera, FaUserCheck } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
+interface FaceVerificationProps {
+  onNext: (data: any) => void;
+}
+
 const YAW_LEFT_THRESHOLD = -30;
 const YAW_RIGHT_THRESHOLD = 30;
 const PROXIMITY_THRESHOLD = 120; // px, adjust as needed
@@ -22,7 +26,7 @@ type GenderResult = {
   confidence: number;
 };
 
-const FaceVerification: React.FC = () => {
+const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -39,7 +43,14 @@ const FaceVerification: React.FC = () => {
   const faceMeshRef = useRef<FaceMesh | null>(null);
   const genderRequestedRef = useRef(false);
   const modelsLoadedRef = useRef(false);
- 
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answer, setAnswer] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [verificationComplete, setVerificationComplete] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Improved yaw calculation using ears and nose
   function computeYaw(landmarks: any[]): number {
@@ -125,12 +136,31 @@ const FaceVerification: React.FC = () => {
     playBeep();
   };
 
+  const handleVerificationComplete = (gender: string, confidence: number) => {
+    setVerificationComplete(true);
+    setGenderResult({
+      gender: 'male',
+      confidence: confidence
+    });
+    setPrompt('Verification complete!');
+    setStarted(false);
+    cameraRef.current?.stop();
+  };
+
+  const handleContinue = () => {
+    console.log('Continue clicked, genderResult:', genderResult); // Debug log
+    if (genderResult) {
+      onNext({ 
+        gender: genderResult.gender, 
+        genderConfidence: genderResult.confidence 
+      });
+    }
+  };
+
   // Handle FaceMesh results
   const onResults = (results: any) => {
-    console.log('[DEBUG] onResults called', { started, results });
     if (!started) return;
     if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
-      console.log('[DEBUG] No face landmarks detected', results);
       return;
     }
     const landmarks = results.multiFaceLandmarks[0];
@@ -158,23 +188,19 @@ const FaceVerification: React.FC = () => {
       lightingVal = computeLighting(ctx, canvas.width, canvas.height);
       setLighting(lightingVal);
     }
-    console.log('[DEBUG] Step:', step, 'Yaw:', yawVal, 'Proximity:', proximity, 'Lighting:', lightingVal);
     // Step logic
     if (lightingVal < LIGHTING_THRESHOLD) {
       setPrompt('Poor lighting. Please adjust.');
-      console.log('[DEBUG] Poor lighting:', lightingVal);
       return;
     }
     if (step === 0 && yawVal < YAW_LEFT_THRESHOLD) {
       setStep(1);
       setPrompt(steps[1]);
       updateStepCompletion(0);
-      console.log('[DEBUG] Step 1 reached (turn head left)');
     } else if (step === 1 && yawVal > YAW_RIGHT_THRESHOLD) {
       setStep(2);
       setPrompt(steps[2]);
       updateStepCompletion(1);
-      console.log('[DEBUG] Step 2 reached (turn head right)');
     } else if (
       step === 2 &&
       Math.abs(yawVal) < 10 &&
@@ -188,13 +214,7 @@ const FaceVerification: React.FC = () => {
       genderRequestedRef.current = true;
       // Instead of face-api detection, return random male confidence
       const randomConfidence = Math.floor(Math.random() * (98 - 70 + 1)) + 70;
-      setGenderResult({
-        gender: 'male',
-        confidence: randomConfidence / 100, // Convert to decimal for consistency
-      });
-      setPrompt('Verification complete!');
-      setStarted(false); // Freeze UI and stop camera
-      cameraRef.current?.stop();
+      handleVerificationComplete('male', randomConfidence / 100);
       setLoading(false);
     }
   };
@@ -360,7 +380,7 @@ const FaceVerification: React.FC = () => {
           )}
 
           <div className="flex justify-center space-x-3 mt-4">
-            {!started ? (
+            {!started && !verificationComplete ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -369,7 +389,7 @@ const FaceVerification: React.FC = () => {
               >
                 Start Verification
               </motion.button>
-            ) : (
+            ) : started ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -377,6 +397,15 @@ const FaceVerification: React.FC = () => {
                 className="bg-white/10 text-white px-6 py-2 rounded-lg font-medium hover:bg-white/20 transition-colors shadow-md text-sm"
               >
                 Stop
+              </motion.button>
+            ) : verificationComplete && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleContinue}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg font-medium hover:from-green-500 hover:to-emerald-500 transition-colors shadow-md text-sm"
+              >
+                Continue
               </motion.button>
             )}
           </div>
