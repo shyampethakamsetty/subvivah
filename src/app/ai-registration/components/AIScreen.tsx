@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import SpeakingAvatar, { SpeakingAvatarHandle } from './SpeakingAvatar';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface AIScreenProps {
   onNext: (data: any) => void;
@@ -11,6 +12,7 @@ interface AIScreenProps {
 }
 
 export default function AIScreen({ onNext, onBack, userData }: AIScreenProps) {
+  const { language } = useLanguage();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -31,7 +33,7 @@ export default function AIScreen({ onNext, onBack, userData }: AIScreenProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userData }),
+        body: JSON.stringify({ userData, language }),
       });
 
       const data = await response.json();

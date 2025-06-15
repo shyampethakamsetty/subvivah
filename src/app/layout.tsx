@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import FooterWrapper from "@/components/FooterWrapper";
 import DelayedLoginModal from "@/components/DelayedLoginModal";
+import { LanguageProvider } from '@/context/LanguageContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,12 +24,14 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={inter.className}>
-        <Navbar />
-        <main className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 text-white">
-          {children}
-        </main>
-        <FooterWrapper />
-        <DelayedLoginModal />
+        <LanguageProvider>
+          <Navbar />
+          <main className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 text-white">
+            {children}
+          </main>
+          <FooterWrapper />
+          <DelayedLoginModal />
+        </LanguageProvider>
       </body>
     </html>
   );

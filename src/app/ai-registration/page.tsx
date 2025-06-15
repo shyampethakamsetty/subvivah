@@ -7,7 +7,7 @@ import BasicInfoScreen from './components/BasicInfoScreen';
 import AIScreen from './components/AIScreen';
 import SwipeCardsScreen from './components/SwipeCardsScreen';
 import SummaryScreen from './components/SummaryScreen';
-import LoveBubbles from './components/LoveBubbles';
+import MarriageBackground from './components/MarriageBackground';
 
 interface FormData {
   basics: Record<string, any>;
@@ -38,8 +38,8 @@ export default function AIRegistration() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 relative">
-      <LoveBubbles />
+    <>
+      <MarriageBackground />
       <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
         {/* Progress Bar */}
         <div className="w-full h-2 bg-white/10 rounded-full mb-8">
@@ -85,6 +85,6 @@ export default function AIRegistration() {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </>
   );
 } 

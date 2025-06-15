@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { basics, aiAnswers, preferences } = await req.json();
+    const { basics, aiAnswers, preferences, language = 'en' } = await req.json();
 
     const prompt = `Create a compelling and personalized profile summary based on the following information:
 
@@ -31,6 +31,8 @@ Generate a concise, engaging profile summary that:
 3. Maintains a professional yet personal tone
 4. Is suitable for a matrimonial context
 5. Is between 150-200 words
+
+${language === 'hi' ? 'The summary must be in Hindi.' : 'The summary must be in English.'}
 
 Format the response as a JSON object with a "summary" string.`;
 

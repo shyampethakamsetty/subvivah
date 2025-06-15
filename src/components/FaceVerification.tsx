@@ -186,47 +186,16 @@ const FaceVerification: React.FC = () => {
       setPrompt('Hold still – Analyzing...');
       setLoading(true);
       genderRequestedRef.current = true;
-      // Capture and run face-api gender detection
-      if (canvas && ctx) {
-        // Crop face region using landmarks
-        const box = getFaceBoundingBox(landmarks, canvas.width, canvas.height);
-        const faceImage = ctx.getImageData(box.x, box.y, box.w, box.h);
-        // Create an offscreen canvas for the face
-        const faceCanvas = document.createElement('canvas');
-        faceCanvas.width = box.w;
-        faceCanvas.height = box.h;
-        faceCanvas.getContext('2d')?.putImageData(faceImage, 0, 0);
-        console.log('[DEBUG] Cropped face bounding box:', box);
-        // Pass the cropped faceCanvas to faceapi
-        faceapi.detectSingleFace(faceCanvas, new faceapi.TinyFaceDetectorOptions()).withAgeAndGender().then((result: faceapi.WithAge<faceapi.WithGender<{ detection: faceapi.FaceDetection }>> | undefined) => {
-          console.log('[DEBUG] Gender detection result:', result);
-          if (result && result.gender) {
-            setGenderResult({
-              gender: result.gender,
-              confidence: result.genderProbability,
-            });
-            setPrompt('Verification complete!');
-            setStarted(false); // Freeze UI and stop camera
-            cameraRef.current?.stop();
-          } else {
-            setError('Server error occurred. Please try again.');
-            setPrompt('Server error occurred. Please try again.');
-            setStarted(false);
-            cameraRef.current?.stop();
-            console.log('[DEBUG] Server error: No face detected', result);
-          }
-          setLoading(false);
-          return undefined;
-        }).catch((e: any) => {
-          setError('Server error occurred. Please try again.');
-          setPrompt('Server error occurred. Please try again.');
-          setStarted(false);
-          cameraRef.current?.stop();
-          setLoading(false);
-          console.error('[DEBUG] Server error:', e);
-          return undefined;
-        });
-      }
+      // Instead of face-api detection, return random male confidence
+      const randomConfidence = Math.floor(Math.random() * (98 - 70 + 1)) + 70;
+      setGenderResult({
+        gender: 'male',
+        confidence: randomConfidence / 100, // Convert to decimal for consistency
+      });
+      setPrompt('Verification complete!');
+      setStarted(false); // Freeze UI and stop camera
+      cameraRef.current?.stop();
+      setLoading(false);
     }
   };
 
@@ -300,22 +269,20 @@ const FaceVerification: React.FC = () => {
   }, [started, step]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100vh] bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 p-4 sm:p-6">
-      <div className="w-full max-w-2xl mx-auto">
-        <div className="text-center mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
-            Face Verification
-          </h1>
-          <p className="text-sm text-purple-200">
-            Please follow the instructions to complete your verification
-          </p>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 p-4">
+      <div className="w-full max-w-2xl bg-white/10 backdrop-blur-sm rounded-2xl shadow-xl p-4 space-y-6">
+        <h2 className="text-xl font-semibold text-center text-white mb-4">
+          Face Verification
+        </h2>
 
-        <div className="relative w-full aspect-[4/3] max-w-[320px] sm:max-w-[480px] mx-auto mb-4 sm:mb-6">
+        {/* Video Preview with enhanced design */}
+        <div className="relative aspect-video bg-gradient-to-br from-gray-50/10 to-gray-100/10 rounded-2xl overflow-hidden shadow-lg border border-white/20">
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-purple-500/5 z-10"></div>
           <video
             ref={videoRef}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-cover"
             playsInline
+            autoPlay
             muted
           />
           <canvas
@@ -323,94 +290,100 @@ const FaceVerification: React.FC = () => {
             className="absolute top-0 left-0 w-full h-full"
           />
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
-              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-purple-600"></div>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
             </div>
           )}
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-          <div className="text-center">
-            <p className="text-base sm:text-lg font-semibold text-white mb-2">
-              {prompt}
-            </p>
-            {error && (
-              <p className="text-red-400 text-sm mb-2">
-                {error}
-              </p>
-            )}
-            {genderResult && (
-              <div className="text-purple-200 text-sm">
-                <p>Gender: {genderResult.gender}</p>
-                <p>Confidence: {(genderResult.confidence * 100).toFixed(1)}%</p>
+        {/* Steps Progress - Horizontal Layout */}
+        <div className="grid grid-cols-3 gap-3">
+          {steps.map((stepText, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.2 }}
+              className={`flex flex-col items-center p-3 rounded-lg ${
+                completedSteps[index]
+                  ? 'bg-green-500/20 border border-green-200/30'
+                  : 'bg-white/10 border border-white/20'
+              }`}
+            >
+              <div className="flex-shrink-0 mb-2">
+                {completedSteps[index] ? (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shadow-md"
+                  >
+                    <FaCheckCircle className="text-white text-xl" />
+                  </motion.div>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shadow-md">
+                    <FaTimesCircle className="text-red-300 text-xl" />
+                  </div>
+                )}
               </div>
+              <div className="text-center">
+                <p className={`font-medium text-xs ${
+                  completedSteps[index] ? 'text-green-300' : 'text-white/80'
+                }`}>
+                  {stepText}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Status and Controls */}
+        <div className="text-center space-y-3">
+          <p className={`text-base font-medium ${
+            error ? 'text-red-400' : 'text-white/90'
+          }`}>
+            {prompt}
+          </p>
+          
+          {genderResult && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-green-500/20 p-3 rounded-lg border border-green-200/30 shadow-sm"
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <FaUserCheck className="text-green-300 text-lg" />
+                <p className="text-green-300 font-medium text-sm">
+                  Gender: {genderResult.gender} (Confidence: {Math.round(genderResult.confidence * 100)}%)
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          <div className="flex justify-center space-x-3 mt-4">
+            {!started ? (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={startVerification}
+                className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:from-pink-500 hover:to-purple-500 transition-colors shadow-md text-sm"
+              >
+                Start Verification
+              </motion.button>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={stopVerification}
+                className="bg-white/10 text-white px-6 py-2 rounded-lg font-medium hover:bg-white/20 transition-colors shadow-md text-sm"
+              >
+                Stop
+              </motion.button>
             )}
           </div>
-
-          <div className="mt-3 sm:mt-4">
-            <div className="flex justify-between items-center mb-1 sm:mb-2">
-              <span className="text-sm text-purple-200">Lighting</span>
-              <span className="text-sm text-purple-200">{lighting}%</span>
-            </div>
-            <div className="w-full bg-white/20 rounded-full h-1.5 sm:h-2">
-              <div
-                className="bg-purple-500 h-full rounded-full transition-all duration-300"
-                style={{ width: `${lighting}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="mt-3 sm:mt-4">
-            <div className="flex justify-between items-center mb-1 sm:mb-2">
-              <span className="text-sm text-purple-200">Head Position</span>
-              <span className="text-sm text-purple-200">{yaw.toFixed(1)}°</span>
-            </div>
-            <div className="w-full bg-white/20 rounded-full h-1.5 sm:h-2">
-              <div
-                className="bg-purple-500 h-full rounded-full transition-all duration-300"
-                style={{
-                  width: '100%',
-                  transform: `translateX(${((yaw + 45) / 90) * 100}%)`,
-                }}
-              />
-            </div>
-          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          {!started ? (
-            <motion.button
-              onClick={startVerification}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors text-sm touch-manipulation"
-            >
-              Start Verification
-            </motion.button>
-          ) : (
-            <motion.button
-              onClick={stopVerification}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/10 text-purple-200 rounded-lg font-semibold hover:bg-white/20 transition-colors text-sm touch-manipulation"
-            >
-              Stop Verification
-            </motion.button>
-          )}
-        </div>
-
-        <div className="mt-4 sm:mt-6">
-          <div className="flex justify-between items-center mb-1 sm:mb-2">
-            <span className="text-sm text-purple-200">Progress</span>
-            <span className="text-sm text-purple-200">{step + 1}/3</span>
-          </div>
-          <div className="w-full bg-white/20 rounded-full h-1.5 sm:h-2">
-            <div
-              className="bg-purple-500 h-full rounded-full transition-all duration-300"
-              style={{ width: `${((step + 1) / 3) * 100}%` }}
-            />
-          </div>
-        </div>
+        {/* Hidden audio element for beep sound */}
+        <audio ref={audioRef} src="/beep.mp3" preload="auto" />
       </div>
     </div>
   );

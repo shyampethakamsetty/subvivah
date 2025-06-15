@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import SpeakingAvatar from './SpeakingAvatar';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SummaryScreenProps {
   onBack: () => void;
@@ -14,6 +15,7 @@ interface SummaryScreenProps {
 }
 
 export default function SummaryScreen({ onBack, formData }: SummaryScreenProps) {
+  const { language } = useLanguage();
   const [summary, setSummary] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -28,7 +30,7 @@ export default function SummaryScreen({ onBack, formData }: SummaryScreenProps) 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, language }),
       });
 
       const data = await response.json();

@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { userData } = await req.json();
+    const { userData, language = 'en' } = await req.json();
 
     const prompt = `You are an expert matchmaker for a matrimonial service. Your job is to ask 3 personalized, open-ended questions that will help you understand the user's values, relationship goals, compatibility factors, and preferences for matchmaking. Do NOT ask generic personality questions. All questions must be strictly relevant to finding a compatible life partner, understanding their expectations from marriage, and what matters most to them in a relationship. Use the user's background to personalize the questions, but always keep the matchmaking context primary.
 
@@ -24,6 +24,8 @@ Generate 3 questions that:
 2. Are personalized to their background
 3. Are open-ended and encourage detailed responses
 4. Are suitable for a matrimonial context
+
+${language === 'hi' ? 'All questions must be in Hindi.' : 'All questions must be in English.'}
 
 Format the response as a JSON object: { "questions": [ ... ] }`;
 

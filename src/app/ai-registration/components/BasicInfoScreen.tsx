@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import SpeakingAvatar from './SpeakingAvatar';
+import CityAutocomplete from '../../../components/CityAutocomplete';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface BasicInfoScreenProps {
   onNext: (data: any) => void;
@@ -10,18 +12,25 @@ interface BasicInfoScreenProps {
   initialData: any;
 }
 
+const educationOptions = [
+  '', 'High School', 'B.Tech', 'MBBS', 'B.Com', 'BBA', 'MBA', 'MCA', 'B.Sc', 'M.Sc', 'Ph.D', 'CA', 'LLB', 'B.Arch', 'BDS', 'B.Pharm', 'M.Tech', 'Any'
+];
+const professionOptions = [
+  '', 'Engineer', 'Doctor', 'Teacher', 'Professor', 'Lawyer', 'Accountant', 'Architect', 'Pharmacist', 'Business Analyst', 'Software Developer', 'Civil Servant', 'Entrepreneur', 'Artist', 'Designer', 'Nurse', 'Scientist', 'Manager', 'Consultant', 'Banker', 'CA', 'Other'
+];
+
 const questions = [
   {
     key: 'name',
-    label: 'What is your full name?',
-    placeholder: 'Full Name',
+    label: { hi: 'आपका पूरा नाम क्या है?', en: 'What is your full name?' },
+    placeholder: { hi: 'पूरा नाम', en: 'Full Name' },
     type: 'text',
     required: true,
   },
   {
     key: 'age',
-    label: 'How old are you?',
-    placeholder: 'Age',
+    label: { hi: 'आपकी उम्र क्या है?', en: 'How old are you?' },
+    placeholder: { hi: 'आयु', en: 'Age' },
     type: 'number',
     required: true,
     min: 18,
@@ -29,41 +38,44 @@ const questions = [
   },
   {
     key: 'gender',
-    label: 'What is your gender?',
-    placeholder: 'Select gender',
+    label: { hi: 'आपका लिंग क्या है?', en: 'What is your gender?' },
+    placeholder: { hi: 'लिंग चुनें', en: 'Select gender' },
     type: 'select',
     options: [
-      { value: '', label: 'Select gender' },
-      { value: 'male', label: 'Male' },
-      { value: 'female', label: 'Female' },
-      { value: 'other', label: 'Other' },
+      { value: '', label: { hi: 'लिंग चुनें', en: 'Select gender' } },
+      { value: 'male', label: { hi: 'पुरुष', en: 'Male' } },
+      { value: 'female', label: { hi: 'महिला', en: 'Female' } },
+      { value: 'other', label: { hi: 'अन्य', en: 'Other' } },
     ],
     required: true,
   },
   {
     key: 'location',
-    label: 'Where are you located?',
-    placeholder: 'City, Country',
-    type: 'text',
+    label: { hi: 'आप कहाँ रहते हैं?', en: 'Where are you located?' },
+    placeholder: { hi: 'शहर, देश', en: 'City, Country' },
+    type: 'city-autocomplete',
     required: true,
   },
   {
     key: 'profession',
-    label: 'What is your profession?',
-    placeholder: 'Profession',
-    type: 'text',
+    label: { hi: 'आपका पेशा क्या है?', en: 'What is your profession?' },
+    placeholder: { hi: 'पेशा', en: 'Profession' },
+    type: 'select',
+    options: professionOptions.map(p => ({ value: p, label: { hi: p === '' ? 'पेशा चुनें' : p, en: p === '' ? 'Select Profession' : p } })),
     required: true,
   },
   {
     key: 'education',
-    label: 'What is your education?',
-    placeholder: 'Education',
-    type: 'text',
+    label: { hi: 'आपकी शिक्षा क्या है?', en: 'What is your education?' },
+    placeholder: { hi: 'शिक्षा', en: 'Education' },
+    type: 'select',
+    options: educationOptions.map(e => ({ value: e, label: { hi: e === '' ? 'शिक्षा चुनें' : e, en: e === '' ? 'Select Education' : e } })),
     required: true,
   },
 ];
 
 export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicInfoScreenProps) {
+  const { language } = useLanguage();
   const [formData, setFormData] = useState<Record<string, any>>({
     name: initialData.name || '',
     age: initialData.age || '',
@@ -74,11 +86,11 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
   });
   const [step, setStep] = useState(0);
   const [inputValue, setInputValue] = useState(formData[questions[0].key] || '');
-  const [avatarText, setAvatarText] = useState(questions[0].label);
+  const [avatarText, setAvatarText] = useState(questions[0].label[language]);
 
   useEffect(() => {
     setInputValue(formData[questions[step].key] || '');
-    setAvatarText(questions[step].label);
+    setAvatarText(questions[step].label[language]);
   }, [step]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -112,7 +124,7 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
 
       <form onSubmit={handleSubmit} className="w-full space-y-8 flex flex-col items-center">
         <label className="block text-2xl font-semibold text-center mb-4 text-white">
-          {currentQ.label}
+          {currentQ.label[language]}
         </label>
         {currentQ.type === 'select' ? (
           <select
@@ -123,9 +135,11 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
             className="w-full px-4 py-2 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg text-white placeholder-purple-300"
           >
             {currentQ.options?.map(opt => (
-              <option key={opt.value} value={opt.value} className="bg-indigo-950 text-white">{opt.label}</option>
+              <option key={opt.value} value={opt.value} className="bg-indigo-950 text-white">{opt.label[language]}</option>
             ))}
           </select>
+        ) : currentQ.type === 'city-autocomplete' ? (
+          <CityAutocomplete value={inputValue} onChange={setInputValue} required={currentQ.required} />
         ) : (
           <input
             type={currentQ.type}
@@ -135,7 +149,7 @@ export default function BasicInfoScreen({ onNext, onBack, initialData }: BasicIn
             required={currentQ.required}
             min={currentQ.min}
             max={currentQ.max}
-            placeholder={currentQ.placeholder}
+            placeholder={currentQ.placeholder[language]}
             className="w-full px-4 py-2 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg text-white placeholder-purple-300"
           />
         )}
