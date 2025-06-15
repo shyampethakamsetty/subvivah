@@ -13,7 +13,7 @@ interface FaceVerificationProps {
 const YAW_LEFT_THRESHOLD = -30;
 const YAW_RIGHT_THRESHOLD = 30;
 const PROXIMITY_THRESHOLD = 120; // px, adjust as needed
-const LIGHTING_THRESHOLD = 100; // grayscale avg
+const LIGHTING_THRESHOLD = 10; // grayscale avg
 
 const steps = [
   'Turn your head LEFT',

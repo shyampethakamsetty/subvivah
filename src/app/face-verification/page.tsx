@@ -4,18 +4,18 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import SpeakingAvatar from '../ai-registration/components/SpeakingAvatar';
+import { useRouter } from 'next/navigation';
 
-interface FaceVerificationProps {
-  onNext: (data: any) => void;
-}
-
-export default function FaceVerification({ onNext }: FaceVerificationProps) {
+export default function FaceVerificationPage() {
+  const router = useRouter();
   const { language } = useLanguage();
   const [step, setStep] = useState(1);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [verificationStep, setVerificationStep] = useState<'initial' | 'capturing' | 'verifying' | 'success'>('initial');
+  const [yaw, setYaw] = useState(0);
+  const [lighting, setLighting] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -92,9 +92,9 @@ export default function FaceVerification({ onNext }: FaceVerificationProps) {
             setIsCapturing(false);
             setVerificationStep('capturing');
           } else {
-            // On final step, return gender data
+            // On final step, navigate to next page
             const genderConfidence = Math.floor(Math.random() * (98 - 70 + 1)) + 70;
-            onNext({ gender: 'male', genderConfidence });
+            router.push('/ai-registration/preferences');
           }
         }, 2000);
       }
@@ -195,6 +195,19 @@ export default function FaceVerification({ onNext }: FaceVerificationProps) {
                 </div>
               </div>
             )}
+            {/* Metrics Display */}
+            <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg p-3 text-white">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm opacity-75">Yaw:</span>
+                  <span className="font-mono">{yaw.toFixed(1)}°</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm opacity-75">Lighting:</span>
+                  <span className="font-mono">{lighting.toFixed(0)}</span>
+                </div>
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -228,7 +241,7 @@ export default function FaceVerification({ onNext }: FaceVerificationProps) {
           className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full text-lg font-semibold shadow-lg hover:from-pink-500 hover:to-purple-500 transition-colors"
           onClick={() => {
             stopCamera();
-            onNext({});
+            router.push('/ai-registration/preferences');
           }}
         >
           {t.next}

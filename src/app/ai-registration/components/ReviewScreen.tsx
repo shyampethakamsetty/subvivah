@@ -65,7 +65,7 @@ export default function ReviewScreen({ onNext, onBack, initialData }: ReviewScre
       exit={{ opacity: 0, y: -20 }}
       className="flex flex-col items-center justify-center min-h-[70vh] relative"
     >
-      <SpeakingAvatar message={summary || t.title} isSpeaking={!!summary && !loading && !error} />
+      <SpeakingAvatar text={summary || t.title} />
 
       <h1 className="text-4xl font-bold text-center mb-4 mt-8 text-white">
         {t.title}

@@ -122,6 +122,19 @@ function ProfilePage() {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    // Toggle body class for hiding navbar when modal is open
+    if (isEditing) {
+      document.body.classList.add('edit-profile-modal-open');
+    } else {
+      document.body.classList.remove('edit-profile-modal-open');
+    }
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('edit-profile-modal-open');
+    };
+  }, [isEditing]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -624,11 +637,11 @@ function ProfilePage() {
 
         {/* Edit Form Modal */}
         {isEditing && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="edit-profile-modal fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="bg-gradient-to-br from-slate-950/95 via-purple-900/95 to-slate-950/95 backdrop-blur-lg rounded-2xl shadow-2xl p-6 w-full max-w-xl relative max-h-[90vh] overflow-y-auto border border-purple-400/30">
               {/* Enhanced close button */}
               <button
-                className="absolute -top-4 -right-4 p-3 rounded-full bg-purple-600 hover:bg-purple-700 transition-all duration-300 transform hover:scale-110 shadow-lg border-2 border-purple-400/30 group z-50"
+                className="close-btn absolute top-6 left-6 p-3 rounded-full bg-purple-600 hover:bg-purple-700 transition-all duration-300 transform hover:scale-110 shadow-lg border-2 border-purple-400/30 group z-50"
                 onClick={() => setIsEditing(false)}
               >
                 <X className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-300" />
@@ -645,8 +658,7 @@ function ProfilePage() {
                   {/* Personal Information Form */}
                   <div className="space-y-6">
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">person</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Personal Information
                       </h2>
                   <div className="space-y-4">
@@ -713,8 +725,7 @@ function ProfilePage() {
                     </div>
 
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">family_restroom</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Family Information
                       </h2>
                       <div className="space-y-4">
@@ -768,8 +779,7 @@ function ProfilePage() {
 
                   <div className="space-y-6">
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">work</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Professional Information
                       </h2>
                   <div className="space-y-4">
@@ -821,8 +831,7 @@ function ProfilePage() {
                     </div>
 
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">description</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         About Me
                       </h2>
                       <textarea
@@ -836,8 +845,7 @@ function ProfilePage() {
                     </div>
 
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">interests</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Hobbies & Interests
                       </h2>
                       <input

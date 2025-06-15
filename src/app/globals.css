@@ -46,3 +46,31 @@ input::placeholder, select::placeholder, textarea::placeholder {
     color: #060606 !important;
   }
 }
+
+/* --- Edit Profile Modal Custom Styles --- */
+.edit-profile-modal input,
+.edit-profile-modal select,
+.edit-profile-modal textarea {
+  background: #2d1a4a !important;
+  color: #fff !important;
+  border: 1px solid #5a2ea6 !important;
+}
+
+.edit-profile-modal input::placeholder,
+.edit-profile-modal textarea::placeholder {
+  color: #b39ddb !important;
+}
+
+.edit-profile-modal ::-webkit-scrollbar {
+  width: 8px;
+  background: #2d1a4a;
+}
+.edit-profile-modal ::-webkit-scrollbar-thumb {
+  background: #5a2ea6;
+  border-radius: 4px;
+}
+
+.edit-profile-modal {
+  scrollbar-width: thin;
+  scrollbar-color: #5a2ea6 #2d1a4a;
+}
