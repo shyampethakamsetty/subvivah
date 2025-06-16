@@ -78,9 +78,21 @@ const KundliGenerator: React.FC = () => {
             );
           })}
         </div>
-        <div className="flex flex-col xs:flex-row justify-between items-center w-full max-w-xs sm:max-w-2xl md:max-w-4xl gap-2 mt-4">
-          <button onClick={prev} className="w-full xs:w-auto px-4 py-2 rounded bg-purple-700 text-white">Previous</button>
-          <button onClick={next} className="w-full xs:w-auto px-4 py-2 rounded bg-purple-700 text-white">Next</button>
+        <div className="flex flex-row justify-between items-center w-full max-w-2xl mt-20 px-2">
+          <button
+            onClick={prev}
+            className="px-6 py-2 rounded bg-purple-700 text-white text-base shadow-md"
+            style={{ minWidth: 100 }}
+          >
+            Previous
+          </button>
+          <button
+            onClick={next}
+            className="px-6 py-2 rounded bg-purple-700 text-white text-base shadow-md"
+            style={{ minWidth: 100 }}
+          >
+            Next
+          </button>
         </div>
       </div>
       
