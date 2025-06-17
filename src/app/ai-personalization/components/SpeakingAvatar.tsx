@@ -32,102 +32,207 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
     const isStoppedRef = useRef(false);
     const [isMounted, setIsMounted] = useState(false);
     const [voiceReady, setVoiceReady] = useState(false);
+    const retryCountRef = useRef(0);
+    const maxRetries = 3;
+    const voiceLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const [isPermissionGranted, setIsPermissionGranted] = useState(true);
+
+    // Check if speech synthesis is available and allowed
+    const checkSpeechSynthesisAvailability = () => {
+      if (!window.speechSynthesis) {
+        console.error('Speech synthesis not supported');
+        setVoiceError(true);
+        return false;
+      }
+
+      // Some browsers require user interaction before allowing speech synthesis
+      try {
+        const testUtterance = new SpeechSynthesisUtterance('');
+        window.speechSynthesis.speak(testUtterance);
+        window.speechSynthesis.cancel();
+        return true;
+      } catch (error) {
+        console.error('Speech synthesis not allowed:', error);
+        setIsPermissionGranted(false);
+        setVoiceError(true);
+        return false;
+      }
+    };
 
     useEffect(() => {
       setIsMounted(true);
+      checkSpeechSynthesisAvailability();
+      return () => {
+        if (voiceLoadTimeoutRef.current) {
+          clearTimeout(voiceLoadTimeoutRef.current);
+        }
+        window.speechSynthesis.cancel();
+      };
     }, []);
 
-    // Wait for voices to load and select a female voice
+    // Enhanced voice loading with retries and better error handling
     useEffect(() => {
-      if (!isMounted) return;
+      if (!isMounted || !isPermissionGranted) return;
 
       function loadVoices() {
+        if (!checkSpeechSynthesisAvailability()) return;
+
         const voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
-        if (language === 'hi') {
-          // Prefer female Hindi voices
-          selectedVoice = voices.find(
-            v => v.lang.toLowerCase().includes('hi') && (
-              v.name.toLowerCase().includes('female') ||
-              v.name.toLowerCase().includes('woman') ||
-              v.name.toLowerCase().includes('girl') ||
-              v.name.toLowerCase().includes('zira') ||
-              v.name.toLowerCase().includes('susan') ||
-              v.name.toLowerCase().includes('samantha')
-            )
-          ) || voices.find(v => v.lang.toLowerCase().includes('hi'));
-        } else {
-          // Prefer female English voices
-          selectedVoice = voices.find(
-            v => v.lang.toLowerCase().includes('en') && (
-              v.name.toLowerCase().includes('female') ||
-              v.name.toLowerCase().includes('woman') ||
-              v.name.toLowerCase().includes('girl') ||
-              v.name.toLowerCase().includes('zira') ||
-              v.name.toLowerCase().includes('susan') ||
-              v.name.toLowerCase().includes('samantha')
-            )
-          ) || voices.find(v => v.lang.toLowerCase().includes('en'));
-        }
-        if (selectedVoice) {
-          setFemaleVoice(selectedVoice);
-          setVoiceError(false);
-          setVoiceReady(true);
-        } else {
-          setFemaleVoice(null);
+
+        try {
+          if (language === 'hi') {
+            selectedVoice = voices.find(
+              v => v.lang.toLowerCase().includes('hi') && (
+                v.name.toLowerCase().includes('female') ||
+                v.name.toLowerCase().includes('woman') ||
+                v.name.toLowerCase().includes('girl') ||
+                v.name.toLowerCase().includes('zira') ||
+                v.name.toLowerCase().includes('susan') ||
+                v.name.toLowerCase().includes('samantha')
+              )
+            ) || voices.find(v => v.lang.toLowerCase().includes('hi'));
+          } else {
+            selectedVoice = voices.find(
+              v => v.lang.toLowerCase().includes('en') && (
+                v.name.toLowerCase().includes('female') ||
+                v.name.toLowerCase().includes('woman') ||
+                v.name.toLowerCase().includes('girl') ||
+                v.name.toLowerCase().includes('zira') ||
+                v.name.toLowerCase().includes('susan') ||
+                v.name.toLowerCase().includes('samantha')
+              )
+            ) || voices.find(v => v.lang.toLowerCase().includes('en'));
+          }
+
+          if (selectedVoice) {
+            setFemaleVoice(selectedVoice);
+            setVoiceError(false);
+            setVoiceReady(true);
+            retryCountRef.current = 0;
+          } else {
+            throw new Error('No suitable voice found');
+          }
+        } catch (error) {
+          console.error('Voice loading error:', error);
           setVoiceError(true);
           setVoiceReady(false);
+          
+          // Retry logic
+          if (retryCountRef.current < maxRetries) {
+            retryCountRef.current++;
+            voiceLoadTimeoutRef.current = setTimeout(loadVoices, 1000 * retryCountRef.current);
+          }
         }
       }
+
+      // Initial voice loading
       if (window.speechSynthesis.getVoices().length === 0) {
         window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
         window.speechSynthesis.onvoiceschanged = loadVoices;
-        setTimeout(loadVoices, 100);
+        voiceLoadTimeoutRef.current = setTimeout(loadVoices, 100);
       } else {
         loadVoices();
       }
+
       return () => {
         window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
         window.speechSynthesis.onvoiceschanged = null;
+        if (voiceLoadTimeoutRef.current) {
+          clearTimeout(voiceLoadTimeoutRef.current);
+        }
       };
-    }, [isMounted, language]);
+    }, [isMounted, language, isPermissionGranted]);
 
-    // Expose stopSpeaking method via ref
+    // Enhanced speech synthesis with better error handling and cleanup
+    useEffect(() => {
+      if (!isMounted || !text || !femaleVoice || !voiceReady || !isPermissionGranted) return;
+      
+      isStoppedRef.current = false;
+      window.speechSynthesis.cancel();
+
+      try {
+        const speech = new window.SpeechSynthesisUtterance(text);
+        speech.rate = 0.95;
+        speech.pitch = 1.1;
+        speech.voice = femaleVoice;
+        utteranceRef.current = speech;
+
+        // Add error handling for speech synthesis
+        speech.onerror = (event) => {
+          console.error('Speech synthesis error:', event);
+          
+          // Handle specific error types
+          if (event.error === 'not-allowed') {
+            setIsPermissionGranted(false);
+            setVoiceError(true);
+            // Try to recover by checking permissions again
+            setTimeout(() => {
+              if (checkSpeechSynthesisAvailability()) {
+                setIsPermissionGranted(true);
+                setVoiceError(false);
+              }
+            }, 1000);
+          }
+          
+          setIsSpeaking(false);
+          onSpeakEnd?.();
+        };
+
+        speech.onstart = () => {
+          setIsSpeaking(true);
+          setVoiceError(false);
+        };
+
+        speech.onend = () => {
+          if (isStoppedRef.current) return;
+          setIsSpeaking(false);
+          onSpeakEnd?.();
+        };
+
+        // Ensure speech synthesis is in a good state
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+        }
+
+        // Add a small delay before speaking to ensure proper initialization
+        setTimeout(() => {
+          if (!isStoppedRef.current) {
+            window.speechSynthesis.speak(speech);
+          }
+        }, 100);
+      } catch (error) {
+        console.error('Speech synthesis initialization error:', error);
+        setVoiceError(true);
+        setIsSpeaking(false);
+        onSpeakEnd?.();
+      }
+
+      return () => {
+        if (utteranceRef.current) {
+          utteranceRef.current.onend = null;
+          utteranceRef.current.onerror = null;
+          utteranceRef.current.onstart = null;
+        }
+        window.speechSynthesis.cancel();
+      };
+    }, [text, femaleVoice, isMounted, voiceReady, onSpeakEnd, isPermissionGranted]);
+
+    // Expose enhanced stopSpeaking method
     useImperativeHandle(ref, () => ({
       stopSpeaking: () => {
         if (isStoppedRef.current) return;
         isStoppedRef.current = true;
+        if (utteranceRef.current) {
+          utteranceRef.current.onend = null;
+          utteranceRef.current.onerror = null;
+          utteranceRef.current.onstart = null;
+        }
         window.speechSynthesis.cancel();
         setIsSpeaking(false);
+        onStopSpeaking?.();
       },
     }));
-
-    useEffect(() => {
-      if (!isMounted || !text || !femaleVoice || !voiceReady) return;
-      isStoppedRef.current = false;
-      window.speechSynthesis.cancel();
-
-      const speech = new window.SpeechSynthesisUtterance(text);
-      speech.rate = 0.95;
-      speech.pitch = 1.1;
-      speech.voice = femaleVoice;
-      utteranceRef.current = speech;
-
-      speech.onstart = () => {
-        setIsSpeaking(true);
-      };
-      speech.onend = () => {
-        if (isStoppedRef.current) return;
-        setIsSpeaking(false);
-        onSpeakEnd?.();
-      };
-
-      window.speechSynthesis.speak(speech);
-
-      return () => {
-        window.speechSynthesis.cancel();
-      };
-    }, [text, femaleVoice, isMounted, voiceReady]);
 
     const svgSize = sizeMap[size];
 
@@ -260,7 +365,11 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
         </div>
         {/* Speaking Indicator */}
         {voiceError && (
-          <div className="text-red-500 text-sm mt-2">No female voice found. Please check your browser's speech settings.</div>
+          <div className="text-red-500 text-sm mt-2">
+            {!isPermissionGranted 
+              ? "Please allow speech synthesis in your browser settings and refresh the page."
+              : "Unable to load voice. Please check your browser's speech settings."}
+          </div>
         )}
         {showStopButton && isSpeaking && (
           <button
