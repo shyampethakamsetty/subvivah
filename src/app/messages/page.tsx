@@ -361,13 +361,14 @@ export default function MessagesPage() {
                         className={`flex flex-col ${message.senderId === selectedConversation.id ? 'items-start' : 'items-end'} group`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-lg p-3 shadow-sm ${
+                          className={`max-w-[70%] rounded-lg p-3 shadow-sm break-words whitespace-normal ${
                             message.senderId === selectedConversation.id
                               ? 'bg-white/10 text-white border border-purple-400/20'
                               : 'bg-purple-600/90 text-white'
                           }`}
+                          style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
-                          <p>{message.content}</p>
+                          <p className="break-words">{message.content}</p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 px-1">
                           <span className="text-xs text-purple-200">
