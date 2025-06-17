@@ -2,8 +2,6 @@
   "/not-found": "app/not-found.js",
   "/page": "app/page.js",
   "/profile/page": "app/profile/page.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/spotlight/route": "app/api/spotlight/route.js",
-  "/api/ai/match-analysis/route": "app/api/ai/match-analysis/route.js",
-  "/ai-personalization/page": "app/ai-personalization/page.js"
+  "/ai-personalization/page": "app/ai-personalization/page.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js"
 }
