@@ -8,6 +8,16 @@ import PhotoUpload from '@/components/PhotoUpload';
 import { Camera, X, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import FaceVerification from '@/components/FaceVerification';
+import dynamicImport from 'next/dynamic';
+
+// Add export configuration
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Dynamically import FaceVerification with no SSR
+const FaceVerificationNoSSR = dynamicImport(() => import('@/components/FaceVerification'), {
+  ssr: false
+});
 
 interface User {
   id: string;
@@ -1000,7 +1010,9 @@ function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowFaceVerification(false)} />
           <div className="relative z-10 w-full max-w-2xl">
-            <FaceVerification onNext={handleVerificationComplete} />
+            <FaceVerificationNoSSR
+              onNext={handleVerificationComplete}
+            />
           </div>
         </div>
       )}
