@@ -90,67 +90,151 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
     const centerY = height / 2;
     const faceSize = Math.min(width, height) * 0.3;
     
-    // Calculate offset based on current step (swapped directions)
+    // Calculate offset based on current step with smooth animation
     let offsetX = 0;
+    const animationProgress = (Date.now() % 2000) / 2000; // 2 second cycle
+    
     if (step === 0) {
-      offsetX = faceSize * 0.3; // Changed from -faceSize * 0.3 (now moves right)
+      // Smooth right movement
+      offsetX = faceSize * 0.3 * Math.sin(animationProgress * Math.PI);
     } else if (step === 1) {
-      offsetX = -faceSize * 0.3; // Changed from faceSize * 0.3 (now moves left)
+      // Smooth left movement
+      offsetX = -faceSize * 0.3 * Math.sin(animationProgress * Math.PI);
     }
 
-    // Draw face outline
+    // Draw face outline with gradient
+    const gradient = ctx.createLinearGradient(
+      centerX + offsetX - faceSize * 0.5,
+      centerY - faceSize * 0.7,
+      centerX + offsetX + faceSize * 0.5,
+      centerY + faceSize * 0.7
+    );
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.4)');
+
     ctx.beginPath();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 3;
     ctx.ellipse(centerX + offsetX, centerY, faceSize * 0.5, faceSize * 0.7, 0, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Draw eyes
+    // Draw eyes with blinking animation
     const eyeSize = faceSize * 0.1;
     const eyeOffsetY = faceSize * 0.15;
     const eyeOffsetX = faceSize * 0.2;
+    const blinkProgress = Math.sin(animationProgress * Math.PI * 2);
+    const eyeHeight = eyeSize * (1 - Math.abs(blinkProgress) * 0.8);
 
     // Left eye
     ctx.beginPath();
-    ctx.arc(centerX - eyeOffsetX + offsetX, centerY - eyeOffsetY, eyeSize, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.ellipse(
+      centerX - eyeOffsetX + offsetX,
+      centerY - eyeOffsetY,
+      eyeSize,
+      eyeHeight,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
 
     // Right eye
     ctx.beginPath();
-    ctx.arc(centerX + eyeOffsetX + offsetX, centerY - eyeOffsetY, eyeSize, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.ellipse(
+      centerX + eyeOffsetX + offsetX,
+      centerY - eyeOffsetY,
+      eyeSize,
+      eyeHeight,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
 
-    // Draw nose
+    // Draw pupils with subtle movement
+    const pupilOffset = Math.sin(animationProgress * Math.PI * 4) * 2;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    
+    // Left pupil
     ctx.beginPath();
-    ctx.moveTo(centerX + offsetX, centerY - eyeOffsetY);
-    ctx.lineTo(centerX + offsetX, centerY + eyeOffsetY);
-    ctx.stroke();
+    ctx.arc(
+      centerX - eyeOffsetX + offsetX + pupilOffset,
+      centerY - eyeOffsetY,
+      eyeSize * 0.4,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
 
-    // Draw mouth
+    // Right pupil
     ctx.beginPath();
-    ctx.arc(centerX + offsetX, centerY + eyeOffsetY * 1.5, faceSize * 0.2, 0, Math.PI);
+    ctx.arc(
+      centerX + eyeOffsetX + offsetX + pupilOffset,
+      centerY - eyeOffsetY,
+      eyeSize * 0.4,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+
+    // Draw nose with subtle movement
+    const noseOffset = Math.sin(animationProgress * Math.PI * 2) * 2;
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.moveTo(centerX + offsetX + noseOffset, centerY - eyeOffsetY);
+    ctx.lineTo(centerX + offsetX + noseOffset, centerY + eyeOffsetY);
     ctx.stroke();
 
-    // Draw arrow (swapped directions)
+    // Draw mouth with dynamic expression
+    const mouthWidth = faceSize * 0.4;
+    const mouthHeight = faceSize * 0.15;
+    const mouthOffset = Math.sin(animationProgress * Math.PI * 2) * 3;
+    
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.ellipse(
+      centerX + offsetX,
+      centerY + eyeOffsetY * 1.5 + mouthOffset,
+      mouthWidth,
+      mouthHeight,
+      0,
+      0,
+      Math.PI
+    );
+    ctx.stroke();
+
+    // Draw arrow with pulsing effect
     const arrowSize = faceSize * 0.4;
     const arrowOffset = faceSize * 0.8;
+    const pulseScale = 1 + Math.sin(animationProgress * Math.PI * 2) * 0.1;
     
     ctx.beginPath();
     if (step === 0) {
-      // Right arrow (changed from left)
+      // Right arrow
       ctx.moveTo(centerX - arrowOffset, centerY);
-      ctx.lineTo(centerX - arrowOffset + arrowSize, centerY - arrowSize/2);
-      ctx.lineTo(centerX - arrowOffset + arrowSize, centerY + arrowSize/2);
-      ctx.closePath();
+      ctx.lineTo(centerX - arrowOffset + arrowSize * pulseScale, centerY - arrowSize/2 * pulseScale);
+      ctx.lineTo(centerX - arrowOffset + arrowSize * pulseScale, centerY + arrowSize/2 * pulseScale);
     } else if (step === 1) {
-      // Left arrow (changed from right)
+      // Left arrow
       ctx.moveTo(centerX + arrowOffset, centerY);
-      ctx.lineTo(centerX + arrowOffset - arrowSize, centerY - arrowSize/2);
-      ctx.lineTo(centerX + arrowOffset - arrowSize, centerY + arrowSize/2);
-      ctx.closePath();
+      ctx.lineTo(centerX + arrowOffset - arrowSize * pulseScale, centerY - arrowSize/2 * pulseScale);
+      ctx.lineTo(centerX + arrowOffset - arrowSize * pulseScale, centerY + arrowSize/2 * pulseScale);
     }
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.fill();
+
+    // Add subtle face rotation based on movement
+    const rotationAngle = offsetX * 0.02;
+    ctx.save();
+    ctx.translate(centerX + offsetX, centerY);
+    ctx.rotate(rotationAngle);
+    ctx.translate(-(centerX + offsetX), -centerY);
+    ctx.restore();
   };
 
   // Update onResults to include guide face
