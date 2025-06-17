@@ -77,7 +77,7 @@ export default function Navbar() {
               <Link href="/matches" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">Matches</Link>
               <Link href="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">Messages</Link>
               <Link href="/kundli" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">Kundli Generator</Link>
-              <Link href="/ai-registration" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">AI personalization</Link>
+              <Link href="/ai-personalization" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">AI personalization</Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -122,7 +122,7 @@ export default function Navbar() {
           <Link href="/matches" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Matches</Link>
           <Link href="/messages" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Messages</Link>
           <Link href="/kundli" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Kundli Generator</Link>
-          <Link href="/ai-registration" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">AI personalization</Link>
+          <Link href="/ai-personalization" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">AI personalization</Link>
           {isAuthenticated ? (
             <>
               <Link href="/profile" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">

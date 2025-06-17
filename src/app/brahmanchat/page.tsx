@@ -76,7 +76,7 @@ export default function BrahamandChatPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => window.location.href = '/ai-registration'}
+                onClick={() => window.location.href = '/ai-personalization'}
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

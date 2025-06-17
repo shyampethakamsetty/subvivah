@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  distDir: 'build-temp',
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
