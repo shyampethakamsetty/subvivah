@@ -392,7 +392,7 @@ function AuthenticatedSearch() {
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
                   {profiles.map((profile) => (
-                    <div key={profile.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div key={profile.id} className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden hover:bg-white/15 transition-colors">
                       <div className="relative h-48">
                         {profile.photos?.[0] ? (
                           <Image
@@ -402,28 +402,28 @@ function AuthenticatedSearch() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                          <div className="h-full bg-gradient-to-br from-purple-900/50 to-indigo-900/50 flex items-center justify-center">
                             <div className="text-center">
-                              <div className="w-20 h-20 rounded-full bg-white/80 flex items-center justify-center mx-auto mb-3">
-                                <span className="text-2xl font-bold text-purple-600">
+                              <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
+                                <span className="text-2xl font-bold text-purple-200">
                                   {profile.user?.firstName?.[0] || ''}{profile.user?.lastName?.[0] || ''}
                                 </span>
                               </div>
-                              <p className="text-gray-600 text-sm">No photo available</p>
+                              <p className="text-purple-200 text-sm">No photo available</p>
                             </div>
                           </div>
                         )}
                       </div>
                       <div className="p-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-white mb-1">
                           {profile.user?.firstName || ''} {profile.user?.lastName || ''}
                         </h3>
-                        <p className="text-gray-600">{profile.age} years</p>
-                        <p className="text-gray-600">{profile.location}</p>
-                        <p className="text-gray-600">{profile.profession}</p>
+                        <p className="text-purple-200">{profile.age} years</p>
+                        <p className="text-purple-200">{profile.location}</p>
+                        <p className="text-purple-200">{profile.profession}</p>
                         <Link
                           href={`/profile/${profile.id}`}
-                          className="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+                          className="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors w-full text-center"
                         >
                           View Profile
                         </Link>

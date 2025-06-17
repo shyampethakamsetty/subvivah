@@ -64,13 +64,6 @@ export default function DatingPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [userId, setUserId] = useState<string | null>(null);
-  const [preferences, setPreferences] = useState({
-    minAge: 18,
-    maxAge: 40,
-    gender: 'any',
-    location: '',
-    interests: [] as string[],
-  });
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [tableType, setTableType] = useState('');
@@ -151,28 +144,6 @@ export default function DatingPage() {
       console.error('Error fetching profiles:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const savePreferences = async () => {
-    if (!userId) return;
-    try {
-      const response = await fetch('/api/dating', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          ...preferences,
-        }),
-      });
-
-      if (response.ok) {
-        fetchProfiles(userId);
-      }
-    } catch (error) {
-      console.error('Error saving preferences:', error);
     }
   };
 
@@ -326,147 +297,119 @@ export default function DatingPage() {
             <p className="mt-4 text-purple-200">Loading...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Preferences Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6 sticky top-4">
-                <h2 className="text-xl font-semibold text-white mb-4">Your Preferences</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-purple-200 mb-1">Age Range</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="number"
-                        value={preferences.minAge}
-                        onChange={(e) => setPreferences({ ...preferences, minAge: parseInt(e.target.value) })}
-                        className="w-20 rounded-md border-purple-500/30 shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white/5 text-white placeholder-purple-200/50"
+          <div className="space-y-12">
+            {/* Profiles Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {profiles.map((profile) => (
+                <div key={profile.id} className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden">
+                  <div className="relative h-48">
+                    {profile.photos?.[0] ? (
+                      <Image
+                        src={profile.photos[0].url}
+                        alt={`${profile.firstName} ${profile.lastName}`}
+                        fill
+                        className="object-cover"
                       />
-                      <span className="text-purple-200">to</span>
-                      <input
-                        type="number"
-                        value={preferences.maxAge}
-                        onChange={(e) => setPreferences({ ...preferences, maxAge: parseInt(e.target.value) })}
-                        className="w-20 rounded-md border-purple-500/30 shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white/5 text-white placeholder-purple-200/50"
-                />
-              </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-purple-200 mb-1">Gender</label>
-                    <select
-                      value={preferences.gender}
-                      onChange={(e) => setPreferences({ ...preferences, gender: e.target.value })}
-                      className="w-full rounded-md border-purple-500/30 shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white/5 text-white"
-                    >
-                      <option value="any">Any</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-purple-200 mb-1">Location</label>
-                    <input
-                      type="text"
-                      value={preferences.location}
-                      onChange={(e) => setPreferences({ ...preferences, location: e.target.value })}
-                      className="w-full rounded-md border-purple-500/30 shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white/5 text-white placeholder-purple-200/50"
-                      placeholder="Enter location"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-purple-200 mb-1">Interests</label>
-                    <input
-                      type="text"
-                      value={preferences.interests.join(', ')}
-                      onChange={(e) => setPreferences({ ...preferences, interests: e.target.value.split(',').map(i => i.trim()) })}
-                      className="w-full rounded-md border-purple-500/30 shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white/5 text-white placeholder-purple-200/50"
-                      placeholder="Enter interests (comma separated)"
-                    />
-                </div>
-
-                  <button
-                    onClick={savePreferences}
-                    className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                  >
-                    Update Preferences
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="lg:col-span-3">
-              {/* Restaurant Section */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">Featured Dating Venues</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
-                  {restaurants.map((restaurant) => (
-                    <div
-                      key={restaurant.id}
-                      className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden cursor-pointer"
-                      onClick={() => handleRestaurantClick(restaurant)}
-                    >
-                      <div className="relative h-48 md:h-64">
-                        <Image
-                          src={restaurant.imageUrl}
-                          alt={restaurant.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold text-white mb-1">{restaurant.name}</h3>
-                        <p className="text-purple-200 text-sm mb-1">{restaurant.location}</p>
-                        <div className="flex items-center gap-1 mb-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-purple-200 text-sm">{restaurant.rating}</span>
+                    ) : (
+                      <div className="h-full bg-gradient-to-br from-purple-900/50 to-indigo-900/50 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
+                            <span className="text-2xl font-bold text-purple-200">
+                              {profile.firstName?.[0] || ''}{profile.lastName?.[0] || ''}
+                            </span>
+                          </div>
+                          <p className="text-purple-200 text-sm">No photo available</p>
                         </div>
-                        <p className="text-purple-200 text-sm mb-2">{restaurant.ambiance} • {restaurant.cuisine}</p>
-                        <p className="text-purple-200 text-sm mb-3">{restaurant.priceRange}</p>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedRestaurant(restaurant);
-                            setShowBookingPopup(true);
-                          }}
-                          className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors text-sm"
-                        >
-                          Book a Table
-                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-white mb-1">
+                      {profile.firstName} {profile.lastName}
+                    </h3>
+                    <p className="text-purple-200">{profile.age} years</p>
+                    <p className="text-purple-200">{profile.location}</p>
+                    <div className="mt-4">
+                      <Link
+                        href={`/profile/${profile.id}`}
+                        className="block w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors text-center"
+                      >
+                        View Profile
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Restaurant Section */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-white mb-6">Featured Dating Venues</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {restaurants.map((restaurant) => (
+                  <div
+                    key={restaurant.id}
+                    className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden cursor-pointer group"
+                    onClick={() => handleRestaurantClick(restaurant)}
+                  >
+                    <div className="relative h-48 md:h-64">
+                      <Image
+                        src={restaurant.imageUrl}
+                        alt={restaurant.name}
+                        fill
+                        className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-white mb-1">{restaurant.name}</h3>
+                      <p className="text-purple-200 text-sm mb-1">{restaurant.location}</p>
+                      <div className="flex items-center gap-1 mb-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-purple-200 text-sm">{restaurant.rating}</span>
+                      </div>
+                      <p className="text-purple-200 text-sm mb-2">{restaurant.ambiance} • {restaurant.cuisine}</p>
+                      <p className="text-purple-200 text-sm mb-3">{restaurant.priceRange}</p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRestaurant(restaurant);
+                          setShowBookingPopup(true);
+                        }}
+                        className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                      >
+                        Book a Table
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-                </div>
-        </div>
 
-        {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-6 flex justify-center">
-                  <nav className="flex items-center space-x-2">
-          <button
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-                      className="px-3 py-1 rounded-md border border-purple-500 text-purple-200 hover:bg-purple-500/20 disabled:opacity-50"
-          >
-            Previous
-          </button>
-                    <span className="text-purple-200">
-            Page {page} of {totalPages}
-          </span>
-          <button
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-                      className="px-3 py-1 rounded-md border border-purple-500 text-purple-200 hover:bg-purple-500/20 disabled:opacity-50"
-          >
-            Next
-          </button>
-                  </nav>
-                </div>
-              )}
-            </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-center">
+                <nav className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="px-3 py-1 rounded-md border border-purple-500 text-purple-200 hover:bg-purple-500/20 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-purple-200">
+                    Page {page} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="px-3 py-1 rounded-md border border-purple-500 text-purple-200 hover:bg-purple-500/20 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </nav>
+              </div>
+            )}
           </div>
         )}
 
@@ -634,7 +577,7 @@ export default function DatingPage() {
                         </option>
                       ))}
                     </select>
-        </div>
+                  </div>
 
                   <div>
                     <label className="block text-xs font-medium text-purple-200 mb-1">Special Requests</label>
