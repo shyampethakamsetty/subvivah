@@ -228,6 +228,8 @@ interface ModernSelectProps {
   skipOption?: boolean;
   onSkip?: () => void;
   placeholder?: string;
+  variant?: 'default' | 'minimal' | 'glass';
+  required?: boolean;
 }
 
 export const ModernSelect: React.FC<ModernSelectProps> = ({
@@ -241,9 +243,23 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
   skipOption,
   onSkip,
   placeholder = 'Select option',
+  variant = 'glass',
+  required = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const hasValue = value.length > 0;
+
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'minimal':
+        return 'bg-white/25 border-b-2 border-white/50 rounded-none focus:border-pink-500 shadow-sm';
+      case 'default':
+        return 'bg-white/30 border border-white/50 rounded-lg focus:border-pink-500 shadow-md';
+      case 'glass':
+      default:
+        return 'bg-white/35 border border-purple-500/60 rounded-xl focus:border-pink-500 shadow-lg shadow-purple-500/10';
+    }
+  };
 
   return (
     <div className="relative w-full">
@@ -254,9 +270,9 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           className={`
             w-full px-4 py-4 pr-12 text-left text-white
-            bg-white/35 border border-purple-500/60 rounded-xl shadow-lg shadow-purple-500/10
-            focus:ring-2 focus:ring-pink-500/50 focus:outline-none focus:border-pink-500
             transition-all duration-300 ease-in-out
+            focus:ring-2 focus:ring-pink-500/50 focus:outline-none
+            ${getVariantStyles()}
             ${error ? 'border-red-400 focus:border-red-400 bg-red-500/10' : ''}
             ${success ? 'border-green-400 focus:border-green-400 bg-green-500/10' : ''}
             ${icon ? 'pl-12' : ''}

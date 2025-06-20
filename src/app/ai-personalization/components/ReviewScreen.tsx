@@ -9,17 +9,13 @@ import { FaUser, FaGraduationCap, FaBriefcase, FaHome, FaHeart, FaLightbulb } fr
 interface ReviewScreenProps {
   onNext: (data: any) => void;
   onBack: () => void;
-  profileData: any;
-  interviewResponses: any;
-  personalityPreferences: any;
+  formData: any;
 }
 
 const ReviewScreen: React.FC<ReviewScreenProps> = ({
   onNext,
   onBack,
-  profileData,
-  interviewResponses,
-  personalityPreferences,
+  formData,
 }) => {
   const { language } = useLanguage();
   const [review, setReview] = useState<any>(null);
@@ -33,9 +29,7 @@ const ReviewScreen: React.FC<ReviewScreenProps> = ({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            profileData,
-            interviewResponses,
-            personalityPreferences,
+            formData,
             language
           }),
         });
@@ -55,7 +49,7 @@ const ReviewScreen: React.FC<ReviewScreenProps> = ({
     }
 
     generateReview();
-  }, [profileData, interviewResponses, personalityPreferences, language]);
+  }, [formData, language]);
 
   const TEXT = {
     hi: {
