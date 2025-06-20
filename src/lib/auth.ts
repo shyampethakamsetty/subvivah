@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from './prisma';
 import { compare } from 'bcryptjs';
+import { verify } from 'jsonwebtoken';
 
 declare module 'next-auth' {
   interface Session {
@@ -89,4 +90,14 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
-}; 
+};
+
+// JWT token verification function for API routes
+export async function verifyToken(token: string): Promise<any> {
+  try {
+    const decoded = verify(token, process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'your-secret-key');
+    return decoded;
+  } catch (error) {
+    return null;
+  }
+} 
