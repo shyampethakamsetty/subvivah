@@ -7,14 +7,18 @@ import SpeakingAvatar from './SpeakingAvatar';
 interface PersonalityPreferencesScreenProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  initialData?: any;
 }
 
 const PersonalityPreferencesScreen: React.FC<PersonalityPreferencesScreenProps> = ({
   onNext,
   onBack,
+  initialData,
 }) => {
   const { language } = useLanguage();
-  const [selectedPreferences, setSelectedPreferences] = useState<Record<string, string>>({});
+  const [selectedPreferences, setSelectedPreferences] = useState<Record<string, string>>(
+    initialData?.personalityPreferences || {}
+  );
 
   const preferences = [
     {
