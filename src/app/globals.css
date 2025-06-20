@@ -27,24 +27,37 @@ body {
 
 /* Add styles for input fields */
 input, select, textarea {
-  color: #0c0c0c !important;
-  background-color: #F8F8F8 !important;
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 input::placeholder, select::placeholder, textarea::placeholder {
-  color: #030303 !important;
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
   input, select, textarea {
-    color: #0b0b0b !important;
-    background-color: #fefafa !important;
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
   }
   
   input::placeholder, select::placeholder, textarea::placeholder {
-    color: #060606 !important;
+    color: rgba(255, 255, 255, 0.5) !important;
   }
+}
+
+/* --- Login Modal Custom Styles --- */
+.login-modal input {
+  color: #000 !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.5) !important;
+}
+
+.login-modal input::placeholder {
+  color: #666 !important;
 }
 
 /* --- Edit Profile Modal Custom Styles --- */

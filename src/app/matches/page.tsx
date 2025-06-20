@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Sparkles, Heart, Star, MapPin, GraduationCap, Briefcase } from 'lucide-react';
+import { Sparkles, Heart, Star, MapPin, GraduationCap, Briefcase, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import StaticMatches from '@/components/StaticMatches';
 
@@ -330,12 +330,19 @@ export default function MatchesPage() {
                       ))}
                     </div>
                   </div>
-                  <div className="flex justify-center mt-6 sm:mt-8">
+                  <div className="flex gap-3 justify-center mt-6 sm:mt-8">
                     <Link
                       href={`/matches/matched-profile?userId=${matches[0]?.profile?.userId}`}
-                      className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-purple-600 text-white rounded-lg text-center hover:bg-purple-700 transition-colors font-medium text-sm sm:text-base"
+                      className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-purple-600 text-white rounded-lg text-center hover:bg-purple-700 transition-colors font-medium text-sm sm:text-base"
                     >
                       View Full Profile
+                    </Link>
+                    <Link
+                      href={`/messages?userId=${matches[0]?.profile?.userId}`}
+                      className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg text-center hover:from-pink-600 hover:to-purple-600 transition-colors font-medium text-sm sm:text-base flex items-center justify-center gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                      Message
                     </Link>
                   </div>
                 </div>
@@ -385,12 +392,19 @@ export default function MatchesPage() {
                     </span>
                   ))}
                 </div>
-                <div className="flex justify-center mt-4 sm:mt-6">
+                <div className="flex gap-3 justify-center mt-4 sm:mt-6">
                   <Link
                     href={`/matches/matched-profile?userId=${match?.profile?.userId}`}
-                    className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg text-center hover:bg-purple-700 transition-colors font-medium text-sm sm:text-base"
+                    className="flex-1 px-4 py-2.5 bg-purple-600 text-white rounded-lg text-center hover:bg-purple-700 transition-colors font-medium text-sm sm:text-base"
                   >
                     View Full Profile
+                  </Link>
+                  <Link
+                    href={`/messages?userId=${match?.profile?.userId}`}
+                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg text-center hover:from-pink-600 hover:to-purple-600 transition-colors font-medium text-sm sm:text-base flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Message
                   </Link>
                 </div>
               </div>
