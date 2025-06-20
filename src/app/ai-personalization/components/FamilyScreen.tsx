@@ -52,6 +52,20 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
       className="w-full max-w-2xl mx-auto p-4"
     >
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 shadow-xl">
+        {/* Optional Step Header */}
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-sm mb-2">
+            <span>⭐</span>
+            <span>{language === 'hi' ? 'वैकल्पिक चरण' : 'Optional Step'}</span>
+          </div>
+          <p className="text-purple-200 text-sm">
+            {language === 'hi' 
+              ? 'यह चरण वैकल्पिक है। आप चाहें तो इसे छोड़ सकते हैं।'
+              : 'This step is optional. You can skip it if you prefer.'
+            }
+          </p>
+        </div>
+        
         <SpeakingAvatar text={avatarText[language]} size="md" />
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -207,7 +221,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
             </motion.div>
           )}
 
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-between items-center mt-6">
             <motion.button
               type="button"
               onClick={onBack}
@@ -218,15 +232,28 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
               {language === 'hi' ? 'वापस' : 'Back'}
             </motion.button>
 
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-colors text-sm"
-              disabled={!family.type}
-            >
-              {language === 'hi' ? 'अगला' : 'Next'}
-            </motion.button>
+            <div className="flex gap-3">
+              <motion.button
+                type="button"
+                onClick={() => onNext({})}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 bg-yellow-500/20 text-yellow-300 rounded-lg hover:bg-yellow-500/30 transition-colors text-sm flex items-center gap-2"
+              >
+                <span>⏭️</span>
+                {language === 'hi' ? 'छोड़ें' : 'Skip'}
+              </motion.button>
+
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-colors text-sm"
+                disabled={!family.type}
+              >
+                {language === 'hi' ? 'अगला' : 'Next'}
+              </motion.button>
+            </div>
           </div>
         </form>
       </div>

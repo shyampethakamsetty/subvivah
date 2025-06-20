@@ -35,7 +35,7 @@ export default function WelcomeScreen({ onNext, onBack }: WelcomeScreenProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="flex flex-col items-center justify-center min-h-[70vh] relative"
+      className="flex flex-col items-center justify-center min-h-[70vh] relative max-w-4xl mx-auto px-4"
     >
       {/* Language Switch Button */}
       <button
@@ -51,9 +51,34 @@ export default function WelcomeScreen({ onNext, onBack }: WelcomeScreenProps) {
         {t.title}
       </h1>
       
-      <p className="text-xl text-purple-200 text-center mb-8 max-w-2xl">
+      <p className="text-xl text-purple-200 text-center mb-4 max-w-2xl">
         {t.description}
       </p>
+
+      {/* Time Estimate and Features */}
+      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-md">
+        <h3 className="text-lg font-semibold text-white mb-4 text-center">
+          {language === 'hi' ? 'आपको क्या मिलेगा' : 'What you\'ll get'}
+        </h3>
+        <div className="space-y-3 text-sm text-purple-200">
+          <div className="flex items-center gap-3">
+            <span className="text-pink-400">⏰</span>
+            <span>{language === 'hi' ? '~15 मिनट में पूरा करें' : '~15 minutes to complete'}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-pink-400">⏭️</span>
+            <span>{language === 'hi' ? 'वैकल्पिक चरणों को छोड़ें' : 'Skip optional steps'}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-pink-400">💾</span>
+            <span>{language === 'hi' ? 'ऑटो-सेव सुरक्षा' : 'Auto-save protection'}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-pink-400">🤖</span>
+            <span>{language === 'hi' ? 'AI-संचालित मैचिंग' : 'AI-powered matching'}</span>
+          </div>
+        </div>
+      </div>
 
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -63,6 +88,22 @@ export default function WelcomeScreen({ onNext, onBack }: WelcomeScreenProps) {
       >
         {t.begin}
       </motion.button>
+
+      {/* Trust Indicators */}
+      <div className="mt-6 flex items-center gap-6 text-sm text-purple-300">
+        <div className="flex items-center gap-2">
+          <span>🔒</span>
+          <span>{language === 'hi' ? 'सुरक्षित डेटा' : 'Secure Data'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span>✨</span>
+          <span>{language === 'hi' ? 'स्मार्ट सुझाव' : 'Smart Suggestions'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span>💝</span>
+          <span>{language === 'hi' ? 'बेहतर मैच' : 'Better Matches'}</span>
+        </div>
+      </div>
     </motion.div>
   );
 } 

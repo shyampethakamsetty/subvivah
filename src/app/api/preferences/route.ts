@@ -166,4 +166,99 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const data = await request.json();
+    const {
+      userId,
+      ageFrom,
+      ageTo,
+      heightFrom,
+      heightTo,
+      maritalStatus,
+      religion,
+      caste,
+      education,
+      occupation,
+      location,
+      income
+    } = data;
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Verify user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Validate preferences
+    const validationErrors = validatePreferences(data);
+    if (validationErrors.length > 0) {
+      return NextResponse.json(
+        { error: validationErrors.join(', ') },
+        { status: 400 }
+      );
+    }
+
+    try {
+      const preferences = await prisma.preferences.upsert({
+        where: { userId },
+        update: {
+          ageFrom,
+          ageTo,
+          heightFrom,
+          heightTo,
+          maritalStatus,
+          religion,
+          caste,
+          education,
+          occupation,
+          location,
+          income
+        },
+        create: {
+          userId,
+          ageFrom,
+          ageTo,
+          heightFrom,
+          heightTo,
+          maritalStatus,
+          religion,
+          caste,
+          education,
+          occupation,
+          location,
+          income
+        }
+      });
+
+      return NextResponse.json(preferences);
+    } catch (error) {
+      console.error('Database error:', error);
+      return NextResponse.json(
+        { error: 'Failed to update preferences' },
+        { status: 500 }
+      );
+    }
+  } catch (error) {
+    console.error('API error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 } 
