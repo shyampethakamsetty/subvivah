@@ -66,7 +66,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
         />
 
         {/* Modal Content */}
-        <div className="relative transform overflow-hidden rounded-xl bg-white px-4 sm:px-6 pb-6 pt-5 text-left shadow-xl transition-all w-[95%] sm:w-full sm:max-w-md z-[60]">
+        <div className="relative transform overflow-hidden rounded-xl bg-white px-4 sm:px-6 pb-6 pt-5 text-left shadow-xl transition-all w-[95%] sm:w-full sm:max-w-md z-[60] login-modal">
           {/* Close Button */}
             <button
               onClick={onClose}
@@ -126,7 +126,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                      className="appearance-none block w-full pl-10 px-3 py-2 border border-black/50 rounded-lg bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                       placeholder="Enter your email"
                     />
                   </div>
@@ -148,7 +148,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                       required
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                      className="appearance-none block w-full pl-10 px-3 py-2 border border-black/50 rounded-lg bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                       placeholder="Enter your password"
                     />
                   </div>
@@ -160,7 +160,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-black/50 rounded"
                     />
                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600">
                       Remember me

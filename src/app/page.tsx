@@ -285,7 +285,7 @@ export default function Home() {
       </section>
 
       {/* AI-Powered Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-red-50 to-white relative overflow-hidden">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/pattern-bg.svg')] opacity-5"></div>
         <div className="max-w-7xl mx-auto relative">
           <motion.div
@@ -295,10 +295,10 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-24"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold text-red-900 mb-6">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
               Next-Gen AI Matchmaking
-          </h2>
-            <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto">
+            </h2>
+            <p className="text-xl sm:text-2xl text-purple-200 max-w-3xl mx-auto">
               Experience the Future of Matrimony with Our Advanced AI Technology
             </p>
           </motion.div>
