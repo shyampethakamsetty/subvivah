@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { verify } from 'jsonwebtoken';
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { verifyToken } from '@/lib/auth';
+import { Prisma } from '@prisma/client';
 
 interface ProfileFilter {
   height?: { gte?: string; lte?: string };
@@ -45,29 +46,25 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    // Get the current user's ID from the token
-    const cookie = request.headers.get('cookie') || '';
-    const match = cookie.match(/token=([^;]+)/);
-    const token = match ? match[1] : null;
+    const { searchParams } = new URL(request.url);
     
-    if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    // Get token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let decoded: any;
-    try {
-      decoded = verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    } catch {
+    const token = authHeader.substring(7);
+    const decoded = await verifyToken(token);
+    if (!decoded) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    
-    // Get all search parameters
+    // Get search parameters
     const ageMin = parseInt(searchParams.get('ageMin') || '18');
-    const ageMax = parseInt(searchParams.get('ageMax') || '70');
-    const heightMin = searchParams.get('heightMin') || '';
-    const heightMax = searchParams.get('heightMax') || '';
+    const ageMax = parseInt(searchParams.get('ageMax') || '65');
+    const heightMin = searchParams.get('heightMin');
+    const heightMax = searchParams.get('heightMax');
     const maritalStatus = searchParams.get('maritalStatus');
     const religion = searchParams.get('religion');
     const caste = searchParams.get('caste');
@@ -84,26 +81,24 @@ export async function GET(request: Request) {
     const maxBirthDate = new Date(today.getFullYear() - ageMin, today.getMonth(), today.getDate());
     const minBirthDate = new Date(today.getFullYear() - ageMax, today.getMonth(), today.getDate());
 
-    // Build where clause with more lenient filtering
-    const where: UserFilter = {
-      AND: [
-        // Basic user filters
-        {
-          id: {
-            not: decoded.userId // Exclude current user
-          }
-        },
-        {
-          dob: {
-            lte: maxBirthDate,
-            gte: minBirthDate
-          }
+    // Build where clause using Prisma types
+    const whereConditions: Prisma.UserWhereInput[] = [
+      // Basic user filters
+      {
+        id: {
+          not: decoded.userId // Exclude current user
         }
-      ]
-    };
+      },
+      {
+        dob: {
+          lte: maxBirthDate,
+          gte: minBirthDate
+        }
+      }
+    ];
 
     // Add optional filters only if they are provided
-    const profileFilters: ProfileFilter[] = [];
+    const profileFilters: Prisma.ProfileWhereInput[] = [];
 
     // Add height range filters
     if (heightMin) {
@@ -189,19 +184,23 @@ export async function GET(request: Request) {
 
     // Add profile filters if any exist
     if (profileFilters.length > 0) {
-      where.AND.push({
+      whereConditions.push({
         profile: {
           AND: profileFilters
         }
       });
     } else {
       // If no profile filters, just ensure profile exists
-      where.AND.push({
+      whereConditions.push({
         profile: {
           isNot: null
         }
       });
     }
+
+    const where: Prisma.UserWhereInput = {
+      AND: whereConditions
+    };
 
     // Get total count for pagination
     const total = await prisma.user.count({ where });
