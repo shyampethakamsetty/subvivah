@@ -40,7 +40,6 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
     // Check if speech synthesis is available and allowed
     const checkSpeechSynthesisAvailability = () => {
       if (!window.speechSynthesis) {
-        console.error('Speech synthesis not supported');
         setVoiceError(true);
         return false;
       }
@@ -52,9 +51,8 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
         window.speechSynthesis.cancel();
         return true;
       } catch (error) {
-        console.error('Speech synthesis not allowed:', error);
+        // Silently handle permission issues
         setIsPermissionGranted(false);
-        setVoiceError(true);
         return false;
       }
     };
@@ -144,9 +142,9 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
       };
     }, [isMounted, language, isPermissionGranted]);
 
-    // Enhanced speech synthesis with better error handling and cleanup
+    // Auto-speak when text changes with better error handling
     useEffect(() => {
-      if (!isMounted || !text || !femaleVoice || !voiceReady || !isPermissionGranted) return;
+      if (!isMounted || !text || !femaleVoice || !voiceReady) return;
       
       isStoppedRef.current = false;
       window.speechSynthesis.cancel();
@@ -160,21 +158,14 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
 
         // Add error handling for speech synthesis
         speech.onerror = (event) => {
-          console.error('Speech synthesis error:', event);
-          
-          // Handle specific error types
+          // Silently handle not-allowed errors to prevent console spam
           if (event.error === 'not-allowed') {
             setIsPermissionGranted(false);
+            setVoiceError(false); // Don't show error for permission issues
+          } else {
+            console.error('Speech synthesis error:', event);
             setVoiceError(true);
-            // Try to recover by checking permissions again
-            setTimeout(() => {
-              if (checkSpeechSynthesisAvailability()) {
-                setIsPermissionGranted(true);
-                setVoiceError(false);
-              }
-            }, 1000);
           }
-          
           setIsSpeaking(false);
           onSpeakEnd?.();
         };
@@ -182,6 +173,7 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
         speech.onstart = () => {
           setIsSpeaking(true);
           setVoiceError(false);
+          setIsPermissionGranted(true);
         };
 
         speech.onend = () => {
@@ -195,15 +187,19 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
           window.speechSynthesis.cancel();
         }
 
-        // Add a small delay before speaking to ensure proper initialization
+        // Try to speak, but handle failures gracefully
         setTimeout(() => {
           if (!isStoppedRef.current) {
-            window.speechSynthesis.speak(speech);
+            try {
+              window.speechSynthesis.speak(speech);
+            } catch (error) {
+              // Silently fail if speech is not allowed
+              setIsSpeaking(false);
+            }
           }
         }, 100);
       } catch (error) {
-        console.error('Speech synthesis initialization error:', error);
-        setVoiceError(true);
+        // Silently handle initialization errors
         setIsSpeaking(false);
         onSpeakEnd?.();
       }
@@ -216,7 +212,7 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
         }
         window.speechSynthesis.cancel();
       };
-    }, [text, femaleVoice, isMounted, voiceReady, onSpeakEnd, isPermissionGranted]);
+    }, [text, femaleVoice, isMounted, voiceReady, onSpeakEnd]);
 
     // Expose enhanced stopSpeaking method
     useImperativeHandle(ref, () => ({
@@ -363,30 +359,40 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
             <path d="M55 160 Q 80 170, 100 165 Q 120 170, 145 160 Q 150 200, 50 200 Q 55 160, 55 160" fill="url(#sareeBlouse)" opacity="0.85" />
           </svg>
         </div>
-        {/* Speaking Indicator */}
-        {voiceError && (
-          <div className="text-red-500 text-sm mt-2">
-            {!isPermissionGranted 
-              ? "Please allow speech synthesis in your browser settings and refresh the page."
-              : "Unable to load voice. Please check your browser's speech settings."}
+        
+        {/* Stop Button - Only show when speaking */}
+        {isSpeaking && (
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (isStoppedRef.current) return;
+                isStoppedRef.current = true;
+                window.speechSynthesis.cancel();
+                setIsSpeaking(false);
+                onStopSpeaking?.();
+              }}
+              className="bg-red-600/80 backdrop-blur-sm border border-red-500/30 rounded-full p-2 shadow hover:bg-red-500/80 transition-colors"
+              title="Stop speaking"
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
+              </svg>
+            </button>
+            
+            <span className="text-purple-200 text-sm">
+              Speaking... (click to stop)
+            </span>
           </div>
         )}
-        {showStopButton && isSpeaking && (
-          <button
-            type="button"
-            onClick={() => {
-              if (isStoppedRef.current) return;
-              isStoppedRef.current = true;
-              window.speechSynthesis.cancel();
-              setIsSpeaking(false);
-            }}
-            className="absolute top-2 right-2 bg-white border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100"
-            title="Stop speaking"
-          >
-            <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
-            </svg>
-          </button>
+
+        {/* Error Message */}
+        {voiceError && (
+          <div className="text-red-400 text-xs mt-2 text-center max-w-xs">
+            {!isPermissionGranted 
+              ? "Speech not available. Please check browser settings."
+              : "Voice loading failed. Try refreshing the page."}
+          </div>
         )}
       </div>
     );
