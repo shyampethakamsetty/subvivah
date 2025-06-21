@@ -85,7 +85,7 @@ export default function StaticSearch() {
                   </span>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-900/90 to-transparent">
-                  <h3 className="text-lg font-semibold text-white">{profile.name}</h3>
+                <h3 className="text-lg font-semibold text-white">{profile.name}</h3>
                   <p className="text-purple-200 text-sm">
                     {profile.age} years • {profile.location}
                   </p>

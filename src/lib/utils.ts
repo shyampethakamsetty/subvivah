@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
-}
+} 
 
 // Height conversion utilities
 export function convertHeightToStandardFormat(height: string): number {

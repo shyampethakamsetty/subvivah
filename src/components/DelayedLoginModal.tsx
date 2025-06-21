@@ -25,7 +25,16 @@ export default function DelayedLoginModal() {
       try {
         const response = await fetch('/api/auth/me');
         const data = await response.json();
-        setIsAuthenticated(response.ok && data.user);
+        
+        if (response.ok && data.isAuthenticated && data.user) {
+          setIsAuthenticated(true);
+          // Clear any existing login popup function
+          if (window.showLoginPopup) {
+            window.showLoginPopup = undefined;
+          }
+        } else {
+          setIsAuthenticated(false);
+        }
       } catch (error) {
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
@@ -56,6 +65,12 @@ export default function DelayedLoginModal() {
           }
         };
       }
+    } else if (isAuthenticated) {
+      // Clear any existing login popup function when authenticated
+      if (window.showLoginPopup) {
+        window.showLoginPopup = undefined;
+      }
+      setShowModal(false);
     }
 
     return () => {
