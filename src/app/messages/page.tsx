@@ -28,11 +28,9 @@ interface Conversation {
 }
 
 function MessagesContent() {
-  const searchParams = useSearchParams();
-  const userId = searchParams?.get('userId');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [sending, setSending] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -40,7 +38,9 @@ function MessagesContent() {
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [editContent, setEditContent] = useState('');
   const [showConversationList, setShowConversationList] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -66,11 +66,11 @@ function MessagesContent() {
 
   // Handle userId from URL parameter
   useEffect(() => {
-    if (userId) {
+    if (searchParams?.get('userId')) {
       // Fetch user details and start conversation
-      fetchUserAndStartConversation(userId);
+      fetchUserAndStartConversation(searchParams.get('userId')!);
     }
-  }, [userId]);
+  }, [searchParams]);
 
   const fetchUserAndStartConversation = async (userId: string) => {
     try {
@@ -110,7 +110,18 @@ function MessagesContent() {
       const response = await fetch(`/api/messages?conversationId=${conversationId}`);
       if (!response.ok) throw new Error('Failed to fetch messages');
       const data = await response.json();
-      setMessages(data.messages);
+      
+      // Only update if messages have actually changed to prevent unnecessary re-renders
+      setMessages(prevMessages => {
+        const newMessages = data.messages || [];
+        
+        // Check if messages are actually different
+        if (JSON.stringify(prevMessages.map((m: Message) => m.id)) === JSON.stringify(newMessages.map((m: Message) => m.id))) {
+          return prevMessages;
+        }
+        
+        return newMessages;
+      });
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -129,14 +140,18 @@ function MessagesContent() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation || !currentUserId) return; // Ensure currentUserId exists
+    if (!newMessage.trim() || !selectedConversation || !currentUserId || sending) return;
 
     const messageContent = newMessage.trim();
-    setNewMessage(''); // Clear input immediately
+    const tempId = `temp-${Date.now()}-${Math.random()}`;
+    
+    // Set sending state and clear input immediately for better UX
+    setSending(true);
+    setNewMessage('');
 
-    // Create a temporary message object that's guaranteed to be from current user
-    const tempMessage: Message = {
-      id: `temp-${Date.now()}`,
+    // Create optimistic message
+    const optimisticMessage: Message = {
+      id: tempId,
       content: messageContent,
       createdAt: new Date().toISOString(),
       senderId: currentUserId,
@@ -144,17 +159,28 @@ function MessagesContent() {
       isRead: false
     };
 
-    // Add message to state synchronously to ensure immediate UI update
-    const updatedMessages = [...messages, tempMessage];
-    setMessages(updatedMessages);
+    // Add message optimistically with React's functional update
+    setMessages(prevMessages => {
+      // Prevent duplicate messages
+      const messageExists = prevMessages.some(msg => 
+        msg.content === messageContent && 
+        msg.senderId === currentUserId && 
+        Math.abs(new Date(msg.createdAt).getTime() - new Date().getTime()) < 1000
+      );
+      
+      if (messageExists) return prevMessages;
+      
+      return [...prevMessages, optimisticMessage];
+    });
 
-    // Update the conversation list immediately
+    // Update conversation list optimistically
     const updatedConversation = {
       ...selectedConversation,
       lastMessage: messageContent,
       lastMessageTime: new Date().toISOString(),
       unreadCount: 0
     };
+    
     setConversations(prev => 
       [updatedConversation, ...prev.filter(c => c.id !== selectedConversation.id)]
     );
@@ -171,25 +197,40 @@ function MessagesContent() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to send message');
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
       
-      const sentMessage = await response.json();
+      const { message: serverMessage } = await response.json();
       
-      // Update the message in place while preserving order
-      setMessages(prev => prev.map(msg => 
-        msg.id === tempMessage.id ? {
-          ...sentMessage,
-          senderId: currentUserId, // Ensure sender ID remains consistent
-          createdAt: tempMessage.createdAt // Preserve timestamp for order
-        } : msg
-      ));
+      // Replace optimistic message with server message
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === tempId 
+            ? {
+                ...serverMessage,
+                // Preserve the optimistic timestamp to maintain order
+                createdAt: optimisticMessage.createdAt
+              }
+            : msg
+        )
+      );
+      
     } catch (error) {
       console.error('Error sending message:', error);
-      // Remove the temporary message if sending failed
-      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
-      // Restore the message in the input field
+      
+      // Remove failed message and restore input
+      setMessages(prevMessages => 
+        prevMessages.filter(msg => msg.id !== tempId)
+      );
+      
+      // Restore message in input field
       setNewMessage(messageContent);
-      alert('Failed to send message. Please try again.');
+      
+      // Show user-friendly error
+      alert('Failed to send message. Please check your connection and try again.');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -278,7 +319,8 @@ function MessagesContent() {
   useEffect(() => {
     if (!loading && isAuthenticated) {
       fetchConversations();
-      const interval = setInterval(fetchConversations, 10000);
+      // Reduced frequency to prevent conflicts
+      const interval = setInterval(fetchConversations, 30000); // 30 seconds instead of 10
       return () => clearInterval(interval);
     }
   }, [loading, isAuthenticated]);
@@ -286,13 +328,24 @@ function MessagesContent() {
   useEffect(() => {
     if (selectedConversation && isAuthenticated) {
       fetchMessages(selectedConversation.id);
-      const interval = setInterval(() => fetchMessages(selectedConversation.id), 5000);
+      // Reduced frequency and added delay to prevent conflicts with sending
+      const interval = setInterval(() => {
+        // Only fetch if not currently sending a message
+        if (!newMessage.trim()) {
+          fetchMessages(selectedConversation.id);
+        }
+      }, 15000); // 15 seconds instead of 5
       return () => clearInterval(interval);
     }
   }, [selectedConversation, isAuthenticated]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Small delay to ensure DOM is updated before scrolling
+    const scrollTimeout = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    
+    return () => clearTimeout(scrollTimeout);
   }, [messages]);
 
   const handleConversationSelect = (conversation: Conversation) => {
@@ -473,15 +526,26 @@ function MessagesContent() {
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage(e);
+                          }
+                        }}
                         placeholder="Type a message..."
-                      className="flex-1 bg-purple-800 text-white placeholder-purple-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 bg-purple-800 text-white placeholder-purple-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        disabled={sending}
                       />
                       <button
                         type="submit"
-                      disabled={!newMessage.trim()}
-                      className="bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={!newMessage.trim() || sending}
+                        className="bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                      <Send className="w-5 h-5" />
+                        {sending ? (
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Send className="w-5 h-5" />
+                        )}
                       </button>
                   </div>
                 </form>

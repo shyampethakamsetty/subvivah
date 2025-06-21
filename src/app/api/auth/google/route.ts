@@ -86,8 +86,19 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log('Setting authentication cookie');
+    console.log('Setting authentication cookies');
+    // Set JWT token cookie
     response.cookies.set('token', jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      domain: process.env.NODE_ENV === 'production' ? '.subvivah.com' : undefined,
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+
+    // Store Google token for later revocation
+    response.cookies.set('google_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

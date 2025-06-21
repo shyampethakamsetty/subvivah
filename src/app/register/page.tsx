@@ -172,12 +172,31 @@ export default function Register() {
   const isNextButtonDisabled = loading || (step === 1 && passwordError !== '');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-6 sm:py-12">
+      <div className="max-w-3xl mx-auto px-4">
         <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg border border-white/20">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Progress Steps */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
+              {/* Mobile Progress Indicator */}
+              <div className="sm:hidden flex flex-col items-center mb-4">
+                <div className="text-white text-lg font-semibold mb-2">Step {step} of 5</div>
+                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-pink-600 rounded-full transition-all duration-300"
+                    style={{ width: `${(step / 5) * 100}%` }}
+                  />
+                </div>
+                <div className="text-purple-200 text-sm mt-2">
+                  {step === 1 && 'Basic Info'}
+                  {step === 2 && 'Personal'}
+                  {step === 3 && 'Professional'}
+                  {step === 4 && 'Family'}
+                  {step === 5 && 'Horoscope'}
+                </div>
+              </div>
+
+              {/* Desktop Progress Steps */}
               <div className="hidden sm:flex items-center justify-between">
                 {[1, 2, 3, 4, 5].map((stepNumber) => (
                   <div key={stepNumber} className="flex items-center">
@@ -210,11 +229,11 @@ export default function Register() {
             <form onSubmit={handleSubmit}>
               {/* Step 1: Basic Information */}
               {step === 1 && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-white">Basic Information</h2>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="firstName" className="block text-sm font-medium text-purple-200 mb-1">
+                <div className="space-y-4 sm:space-y-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-white text-center sm:text-left">Basic Information</h2>
+                  <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
+                      <label htmlFor="firstName" className="block text-sm font-medium text-purple-200 mb-1.5">
                         First Name
                       </label>
                       <input
@@ -223,12 +242,12 @@ export default function Register() {
                         id="firstName"
                         value={formData.firstName}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm"
+                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="lastName" className="block text-sm font-medium text-purple-200 mb-1">
+                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
+                      <label htmlFor="lastName" className="block text-sm font-medium text-purple-200 mb-1.5">
                         Last Name
                       </label>
                       <input
@@ -237,12 +256,12 @@ export default function Register() {
                         id="lastName"
                         value={formData.lastName}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm"
+                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="email" className="block text-sm font-medium text-purple-200 mb-1">
+                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
+                      <label htmlFor="email" className="block text-sm font-medium text-purple-200 mb-1.5">
                         Email
                       </label>
                       <input
@@ -251,12 +270,12 @@ export default function Register() {
                         id="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm"
+                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors col-span-2">
-                      <label htmlFor="password" className="block text-sm font-medium text-purple-200 mb-1">
+                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
+                      <label htmlFor="password" className="block text-sm font-medium text-purple-200 mb-1.5">
                         Password
                       </label>
                       <input
@@ -267,14 +286,14 @@ export default function Register() {
                         onChange={handleChange}
                         className={`mt-1 block w-full rounded-md bg-white/10 border shadow-sm focus:ring-pink-500 ${
                           passwordError ? 'border-red-500 focus:border-red-500' : 'border-purple-300/20 focus:border-pink-500'
-                        } text-white placeholder-purple-200/50`}
+                        } text-white placeholder-purple-200/50 text-base sm:text-sm`}
                         required
                       />
                       
                       {/* Password Requirements Checklist */}
                       <div className="mt-3 space-y-2">
                         <p className="text-sm font-medium text-purple-200">Password must contain:</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 gap-2">
                           <div className={`flex items-center gap-2 text-sm ${
                             passwordRequirements.length ? 'text-green-400' : 'text-gray-400'
                           }`}>
@@ -334,8 +353,8 @@ export default function Register() {
                         </div>
                       </div>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-purple-200 mb-1">
+                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
+                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-purple-200 mb-1.5">
                         Confirm Password
                       </label>
                       <input
@@ -344,12 +363,12 @@ export default function Register() {
                         id="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm"
+                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="dateOfBirth" className="block text-sm font-medium text-purple-200">
+                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
+                      <label htmlFor="dateOfBirth" className="block text-sm font-medium text-purple-200 mb-1.5">
                         Date of Birth
                       </label>
                       <input
@@ -358,7 +377,7 @@ export default function Register() {
                         id="dateOfBirth"
                         value={formData.dateOfBirth}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500 text-base sm:text-sm"
                         required
                       />
                     </div>

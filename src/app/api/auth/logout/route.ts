@@ -1,12 +1,57 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { verify } from 'jsonwebtoken';
+import { prisma } from '@/lib/db';
+import { OAuth2Client } from 'google-auth-library';
 
-export async function POST() {
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export async function POST(request: Request) {
   try {
-    // Clear the authentication token
-    cookies().delete('token');
+    const cookieStore = cookies();
+    const token = cookieStore.get('token');
+
+    // If there's a token, try to get user info to check if it's a Google user
+    if (token) {
+      try {
+        const decoded = verify(token.value, process.env.JWT_SECRET || 'your-secret-key') as { userId: string };
+        const user = await prisma.user.findUnique({
+          where: { id: decoded.userId },
+          select: { email: true, password: true }
+        });
+
+        // If user exists and has no password, they're a Google user
+        if (user && !user.password) {
+          try {
+            // Attempt to revoke any existing Google tokens
+            const googleToken = cookieStore.get('google_token');
+            if (googleToken) {
+              await googleClient.revokeToken(googleToken.value);
+              cookieStore.delete('google_token');
+            }
+          } catch (error) {
+            console.error('Error revoking Google token:', error);
+            // Continue with logout even if Google token revocation fails
+          }
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        // Continue with logout even if token decoding fails
+      }
+    }
+
+    // Clear all auth-related cookies
+    cookieStore.delete('token');
+    cookieStore.delete('google_token');
     
-    return NextResponse.json({ success: true });
+    // Send response with cleared cookies
+    const response = NextResponse.json({ success: true });
+    
+    // Ensure cookies are properly cleared in the response
+    response.cookies.delete('token');
+    response.cookies.delete('google_token');
+
+    return response;
   } catch (error) {
     console.error('Logout error:', error);
     return NextResponse.json(

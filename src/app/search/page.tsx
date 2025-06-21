@@ -96,7 +96,6 @@ function SearchPageContent() {
     maritalStatus: '',
     education: '',
     occupation: '',
-    annualIncome: '',
     workLocation: ''
   });
   const [users, setUsers] = useState<SearchUser[]>([]);
@@ -178,7 +177,6 @@ function SearchPageContent() {
       maritalStatus: '',
       education: '',
       occupation: '',
-      annualIncome: '',
       workLocation: ''
     });
     setActiveFilters([]);
@@ -429,53 +427,28 @@ function SearchPageContent() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-white">Occupation</label>
-                <select
+                <label htmlFor="occupation" className="block text-sm font-medium text-white">Occupation</label>
+                <input
+                  type="text"
                   name="occupation"
+                  id="occupation"
                   value={searchParams.occupation}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
-                >
-                  <option value="">Any</option>
-                  <option value="private_sector">Private Sector</option>
-                  <option value="government">Government/Public Sector</option>
-                  <option value="business">Business/Self Employed</option>
-                  <option value="doctor">Doctor</option>
-                  <option value="engineer">Engineer</option>
-                  <option value="teacher">Teacher</option>
-                </select>
+                  placeholder="Enter occupation"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-white">Annual Income</label>
-                <select
-                  name="annualIncome"
-                  value={searchParams.annualIncome}
-                    onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
-                >
-                  <option value="">Any</option>
-                  <option value="0-3">Upto 3 Lakhs</option>
-                  <option value="3-5">3-5 Lakhs</option>
-                  <option value="5-7">5-7 Lakhs</option>
-                  <option value="7-10">7-10 Lakhs</option>
-                  <option value="10-15">10-15 Lakhs</option>
-                  <option value="15-20">15-20 Lakhs</option>
-                  <option value="20-30">20-30 Lakhs</option>
-                  <option value="30-50">30-50 Lakhs</option>
-                  <option value="50+">50+ Lakhs</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-white">Work Location</label>
+                <label htmlFor="workLocation" className="block text-sm font-medium text-white">Work Location</label>
                 <input
                   type="text"
                   name="workLocation"
+                  id="workLocation"
                   value={searchParams.workLocation}
                   onChange={handleFilterChange}
                   placeholder="Enter city"
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
                 />
               </div>
             </div>
