@@ -10,10 +10,6 @@ import Link from 'next/link';
 import FaceVerification from '@/components/FaceVerification';
 import dynamicImport from 'next/dynamic';
 
-// Add export configuration
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 // Dynamically import FaceVerification with no SSR
 const FaceVerificationNoSSR = dynamicImport(() => import('@/components/FaceVerification'), {
   ssr: false
