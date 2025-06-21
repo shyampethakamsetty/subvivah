@@ -129,23 +129,24 @@ function MessagesContent() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation) return;
+    if (!newMessage.trim() || !selectedConversation || !currentUserId) return; // Ensure currentUserId exists
 
     const messageContent = newMessage.trim();
     setNewMessage(''); // Clear input immediately
 
-    // Create a temporary message object with current timestamp
-    const tempMessage = {
+    // Create a temporary message object that's guaranteed to be from current user
+    const tempMessage: Message = {
       id: `temp-${Date.now()}`,
       content: messageContent,
       createdAt: new Date().toISOString(),
-      senderId: 'current-user',
+      senderId: currentUserId,
       receiverId: selectedConversation.id,
       isRead: false
     };
 
-    // Immediately update the UI with the new message
-    setMessages(prev => [...prev, tempMessage]);
+    // Add message to state synchronously to ensure immediate UI update
+    const updatedMessages = [...messages, tempMessage];
+    setMessages(updatedMessages);
 
     // Update the conversation list immediately
     const updatedConversation = {
@@ -174,12 +175,12 @@ function MessagesContent() {
       
       const sentMessage = await response.json();
       
-      // Update the message in place without removing it
+      // Update the message in place while preserving order
       setMessages(prev => prev.map(msg => 
         msg.id === tempMessage.id ? {
           ...sentMessage,
-          // Preserve the original timestamp to maintain order
-          createdAt: tempMessage.createdAt
+          senderId: currentUserId, // Ensure sender ID remains consistent
+          createdAt: tempMessage.createdAt // Preserve timestamp for order
         } : msg
       ));
     } catch (error) {
@@ -304,6 +305,11 @@ function MessagesContent() {
     // Don't clear selected conversation to preserve state
   };
 
+  // Update message rendering to be more strict about alignment
+  const isOwnMessage = (message: Message) => {
+    return message.senderId === currentUserId;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
@@ -419,12 +425,12 @@ function MessagesContent() {
                       <div
                         key={message.id}
                         className={`flex flex-col mb-4 ${
-                          message.senderId === currentUserId ? 'items-end' : 'items-start'
+                          isOwnMessage(message) ? 'items-end' : 'items-start'
                         }`}
                       >
                         <div
                           className={`max-w-[80%] md:max-w-[70%] rounded-lg p-3 ${
-                            message.senderId === currentUserId
+                            isOwnMessage(message)
                               ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white ml-auto'
                               : 'bg-white/10 text-white'
                           }`}

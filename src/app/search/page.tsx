@@ -318,7 +318,7 @@ function SearchPageContent() {
                     name="heightMin"
                     value={searchParams.heightMin}
                     onChange={handleFilterChange}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                   >
                     <option value="">Min Height</option>
                     {heightOptions.map(option => (
@@ -331,7 +331,7 @@ function SearchPageContent() {
                     name="heightMax"
                     value={searchParams.heightMax}
                     onChange={handleFilterChange}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                   >
                     <option value="">Max Height</option>
                     {heightOptions.map(option => (
@@ -349,7 +349,7 @@ function SearchPageContent() {
                   name="maritalStatus"
                   value={searchParams.maritalStatus}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                 >
                   <option value="">Any</option>
                   <option value="never_married">Never Married</option>
@@ -365,7 +365,7 @@ function SearchPageContent() {
                   name="religion"
                   value={searchParams.religion}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                 >
                   <option value="">Any</option>
                   <option value="hindu">Hindu</option>
@@ -395,7 +395,7 @@ function SearchPageContent() {
                   name="motherTongue"
                   value={searchParams.motherTongue}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                 >
                   <option value="">Any</option>
                   <option value="hindi">Hindi</option>
@@ -417,7 +417,7 @@ function SearchPageContent() {
                   name="education"
                   value={searchParams.education}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                 >
                   <option value="">Any</option>
                   <option value="high_school">High School</option>
@@ -434,7 +434,7 @@ function SearchPageContent() {
                   name="occupation"
                   value={searchParams.occupation}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                 >
                   <option value="">Any</option>
                   <option value="private_sector">Private Sector</option>
@@ -452,7 +452,7 @@ function SearchPageContent() {
                   name="annualIncome"
                   value={searchParams.annualIncome}
                     onChange={handleFilterChange}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                 >
                   <option value="">Any</option>
                   <option value="0-3">Upto 3 Lakhs</option>
