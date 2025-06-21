@@ -32,6 +32,7 @@ function MessagesContent() {
   const userId = searchParams?.get('userId');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -40,6 +41,28 @@ function MessagesContent() {
   const [editContent, setEditContent] = useState('');
   const [showConversationList, setShowConversationList] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        setIsAuthenticated(data.isAuthenticated);
+        
+        if (data.isAuthenticated && data.user) {
+          setCurrentUserId(data.user.id);
+          fetchConversations();
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // Handle userId from URL parameter
   useEffect(() => {
@@ -252,33 +275,6 @@ function MessagesContent() {
   };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        const data = await response.json();
-        setIsAuthenticated(data.isAuthenticated);
-        
-        if (!data.isAuthenticated) {
-          // Show login popup after 4 seconds
-          const timer = setTimeout(() => {
-            if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-              (window as any).showLoginPopup();
-            }
-          }, 4000);
-          return () => clearTimeout(timer);
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  useEffect(() => {
     if (!loading && isAuthenticated) {
       fetchConversations();
       const interval = setInterval(fetchConversations, 10000);
@@ -422,62 +418,43 @@ function MessagesContent() {
                     {messages.map((message) => (
                       <div
                         key={message.id}
-                      className={`flex flex-col mb-4 ${
-                        message.senderId === 'current-user' ? 'items-end' : 'items-start'
-                      }`}
-                      >
-                        <div
-                        className={`max-w-[80%] md:max-w-[70%] rounded-lg p-3 ${
-                          message.senderId === 'current-user'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-white/10 text-white'
+                        className={`flex flex-col mb-4 ${
+                          message.senderId === currentUserId ? 'items-end' : 'items-start'
                         }`}
                       >
-                        {editingMessage?.id === message.id ? (
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={editContent}
-                              onChange={(e) => setEditContent(e.target.value)}
-                              className="flex-1 bg-white/10 rounded px-2 py-1 text-white"
-                              autoFocus
-                            />
-                            <button
-                              onClick={() => handleEditMessage(message.id, editContent)}
-                              className="text-xs text-white/80 hover:text-white"
-                            >
-                              Save
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                          <p className="break-words">{message.content}</p>
-                            <div className="flex items-center justify-end gap-2 mt-1">
-                              <span className="text-xs text-white/60">
-                            {formatMessageTime(message.createdAt)}
-                          </span>
-                              {message.senderId === 'current-user' && (
-                                <div className="flex items-center gap-1">
-                                  <button
-                                    onClick={() => {
-                                      setEditingMessage(message);
-                                      setEditContent(message.content);
-                                    }}
-                                    className="text-white/60 hover:text-white transition-colors"
-                                  >
-                                    <Pencil className="w-3 h-3" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteMessage(message.id)}
-                                    className="text-white/60 hover:text-white transition-colors"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              )}
+                        <div
+                          className={`max-w-[80%] md:max-w-[70%] rounded-lg p-3 ${
+                            message.senderId === currentUserId
+                              ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white ml-auto'
+                              : 'bg-white/10 text-white'
+                          }`}
+                        >
+                          {editingMessage?.id === message.id ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                                className="flex-1 bg-white/10 rounded px-2 py-1 text-white"
+                                autoFocus
+                              />
+                              <button
+                                onClick={() => handleEditMessage(message.id, editContent)}
+                                className="text-xs text-white/80 hover:text-white"
+                              >
+                                Save
+                              </button>
                             </div>
-                          </>
-                        )}
+                          ) : (
+                            <>
+                              <p className="break-words">{message.content}</p>
+                              <div className="flex items-center justify-end gap-2 mt-1">
+                                <span className="text-xs text-white/60">
+                                  {formatMessageTime(message.createdAt)}
+                                </span>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     ))}

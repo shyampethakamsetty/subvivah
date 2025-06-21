@@ -55,7 +55,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // Get search parameters
     const ageMin = parseInt(searchParams.get('ageMin') || '18');
     const ageMax = parseInt(searchParams.get('ageMax') || '65');
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
             },
             AND: [
               {
-                height: {
+        height: {
                   not: {
                     equals: ""
                   }
@@ -141,14 +141,14 @@ export async function GET(request: Request) {
             },
             AND: [
               {
-                height: {
+        height: {
                   not: {
                     equals: ""
                   }
                 }
               }
             ]
-          }
+        }
         ]
       });
     }

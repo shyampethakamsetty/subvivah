@@ -44,8 +44,17 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
       if (onSuccess) {
         onSuccess();
       }
-      // Refresh and redirect to profile
-      window.location.href = '/profile';
+      
+      // Wait a moment for the cookie to be set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Refresh the page to update auth state
+      window.location.reload();
+      
+      // After reload, redirect to profile
+      setTimeout(() => {
+        window.location.href = '/profile';
+      }, 100);
     } catch (error) {
       console.error('Login error:', error);
       alert(error instanceof Error ? error.message : 'Login failed. Please try again.');

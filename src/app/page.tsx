@@ -23,7 +23,12 @@ import {
   Bot,
   Smile,
   PersonStanding,
-  Hourglass
+  Hourglass,
+  ShieldCheck,
+  UserCheck,
+  Star,
+  MessageSquare,
+  Target
 } from 'lucide-react';
 
 export default function Home() {
@@ -33,7 +38,7 @@ export default function Home() {
   const aiInterviewLottieRef = useRef<LottieRefCurrentProps>(null);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {/* Chatbot */}
       <Chatbot />
 
@@ -41,7 +46,7 @@ export default function Home() {
       <DailySuggestionBubble />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8">
+      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 bg-white">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -277,16 +282,15 @@ export default function Home() {
               </div>
               <div className="mt-4">
                 <h3 className="text-xl font-semibold text-gray-900">Joyous Celebrations</h3>
-                <p className="mt-2 text-gray-600">Sharing happiness with family and loved ones</p>
+                <p className="mt-2 text-gray-600">Celebrating the union of two souls in love and harmony</p>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* AI-Powered Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/pattern-bg.svg')] opacity-5"></div>
+      {/* Next-Gen AI Matchmaking Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -295,17 +299,17 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-24"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
               Next-Gen AI Matchmaking
             </h2>
-            <p className="text-xl sm:text-2xl text-purple-200 max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto">
               Experience the Future of Matrimony with Our Advanced AI Technology
             </p>
           </motion.div>
 
           {/* Main AI Features */}
           <div className="space-y-32">
-            {/* Smart Match AI - keep looping */}
+            {/* Smart Match AI */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -433,7 +437,7 @@ export default function Home() {
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center mt-1">
-                        <Zap className="w-4 h-4 text-orange-600" />
+                        <Star className="w-4 h-4 text-orange-600" />
                       </div>
                       <div>
                         <h4 className="text-lg font-semibold text-gray-900 mb-1">Instant Compatibility</h4>
@@ -447,10 +451,10 @@ export default function Home() {
                       <div>
                         <h4 className="text-lg font-semibold text-gray-900 mb-1">Detailed Analysis</h4>
                         <p className="text-gray-600">Get comprehensive insights about your match.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -501,9 +505,8 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-            </div>
+          </div>
 
-          {/* Call to Action */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -552,7 +555,7 @@ export default function Home() {
                   <div className="flex items-center gap-3 text-purple-600">
                     <MessageSquareText className="w-6 h-6" />
                     <span className="text-lg font-medium">AI Interview</span>
-              </div>
+                  </div>
                 </motion.div>
               </motion.div>
             </div>
