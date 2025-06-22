@@ -75,7 +75,10 @@ export default function AIRegistration() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-pink-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-pink-900 relative pb-32">
+      {/* Ensure complete background coverage */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-purple-800 to-pink-900 -z-10 h-full min-h-screen"></div>
+      <div className="absolute top-0 left-0 w-full min-h-full bg-gradient-to-br from-purple-900/80 to-pink-900/80 -z-20"></div>
       {/* Progress Header - Show on all screens except Welcome */}
       {currentStep > 0 && (
         <div className="max-w-4xl mx-auto pt-4 px-4">

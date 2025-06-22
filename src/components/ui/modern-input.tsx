@@ -51,12 +51,12 @@ export const ModernInput: React.FC<ModernInputProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'minimal':
-        return 'bg-white/25 border-b-2 border-white/50 rounded-none focus:border-pink-500 shadow-sm';
+        return 'bg-indigo-900/40 border-b-2 border-purple-500/50 rounded-none focus:border-pink-500 shadow-sm';
       case 'default':
-        return 'bg-white/30 border border-white/50 rounded-lg focus:border-pink-500 shadow-md';
+        return 'bg-indigo-900/50 border border-purple-500/50 rounded-lg focus:border-pink-500 shadow-md';
       case 'glass':
       default:
-        return 'bg-white/35 border border-purple-500/60 rounded-xl focus:border-pink-500 shadow-lg shadow-purple-500/10';
+        return 'bg-indigo-900/40 border border-purple-500/60 rounded-xl focus:border-pink-500 shadow-lg shadow-purple-500/10';
     }
   };
 
@@ -80,15 +80,16 @@ export const ModernInput: React.FC<ModernInputProps> = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={`
-            w-full px-4 py-4 pr-12 text-white placeholder-transparent
+            w-full px-4 pt-6 pb-2 pr-12 text-white placeholder-transparent
             transition-all duration-300 ease-in-out
             focus:ring-2 focus:ring-pink-500/50 focus:outline-none
             ${getVariantStyles()}
             ${error ? 'border-red-400 focus:border-red-400 bg-red-500/10' : ''}
             ${success ? 'border-green-400 focus:border-green-400 bg-green-500/10' : ''}
             ${icon ? 'pl-12' : ''}
-            group-hover:shadow-xl group-hover:shadow-purple-500/20 group-hover:bg-white/45
+            group-hover:shadow-xl group-hover:shadow-purple-500/20 group-hover:bg-indigo-900/50
           `}
+          placeholder=" "
           maxLength={maxLength}
           {...props}
         />
@@ -97,7 +98,8 @@ export const ModernInput: React.FC<ModernInputProps> = ({
         <motion.label
           initial={false}
           animate={{
-            top: shouldFloat ? '0.5rem' : '1rem',
+            top: shouldFloat ? '0.5rem' : '50%',
+            y: shouldFloat ? '0' : '-50%',
             fontSize: shouldFloat ? '0.75rem' : '1rem',
             color: isFocused 
               ? '#ec4899'  // pink-500
@@ -105,10 +107,12 @@ export const ModernInput: React.FC<ModernInputProps> = ({
                 ? '#f87171'  // red-400
                 : success 
                   ? '#4ade80'  // green-400
-                  : '#d8b4fe'  // purple-300
+                  : shouldFloat 
+                    ? '#d8b4fe'  // purple-300 when floated
+                    : '#a1a1aa'  // zinc-400 when placeholder
           }}
           transition={{ duration: 0.2, ease: 'easeInOut' }}
-          className="absolute left-4 pointer-events-none font-medium"
+          className={`absolute pointer-events-none font-medium select-none ${icon ? 'left-12' : 'left-4'}`}
           style={{ transformOrigin: 'left center' }}
         >
           {label}
@@ -195,7 +199,7 @@ export const ModernInput: React.FC<ModernInputProps> = ({
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className="absolute z-50 w-full mt-1 bg-white/50 border border-purple-500/70 rounded-lg shadow-2xl shadow-black/20 max-h-40 overflow-y-auto"
+            className="absolute z-50 w-full mt-1 bg-indigo-900/95 backdrop-blur-sm border border-purple-500/70 rounded-lg shadow-2xl shadow-black/50 max-h-40 overflow-y-auto"
           >
             {suggestions.slice(0, 5).map((suggestion, index) => (
               <button
@@ -252,12 +256,12 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'minimal':
-        return 'bg-white/25 border-b-2 border-white/50 rounded-none focus:border-pink-500 shadow-sm';
+        return 'bg-indigo-900/40 border-b-2 border-purple-500/50 rounded-none focus:border-pink-500 shadow-sm';
       case 'default':
-        return 'bg-white/30 border border-white/50 rounded-lg focus:border-pink-500 shadow-md';
+        return 'bg-indigo-900/50 border border-purple-500/50 rounded-lg focus:border-pink-500 shadow-md';
       case 'glass':
       default:
-        return 'bg-white/35 border border-purple-500/60 rounded-xl focus:border-pink-500 shadow-lg shadow-purple-500/10';
+        return 'bg-indigo-900/40 border border-purple-500/60 rounded-xl focus:border-pink-500 shadow-lg shadow-purple-500/10';
     }
   };
 
@@ -269,24 +273,25 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={`
-            w-full px-4 py-4 pr-12 text-left text-white
+            w-full px-4 pt-6 pb-2 pr-12 text-left text-white
             transition-all duration-300 ease-in-out
             focus:ring-2 focus:ring-pink-500/50 focus:outline-none
             ${getVariantStyles()}
             ${error ? 'border-red-400 focus:border-red-400 bg-red-500/10' : ''}
             ${success ? 'border-green-400 focus:border-green-400 bg-green-500/10' : ''}
             ${icon ? 'pl-12' : ''}
-            hover:shadow-xl hover:shadow-purple-500/20 hover:bg-white/45
+            hover:shadow-xl hover:shadow-purple-500/20 hover:bg-indigo-900/50
           `}
         >
-          {hasValue ? options.find(opt => opt.value === value)?.label : placeholder}
+          {hasValue ? options.find(opt => opt.value === value)?.label : ''}
         </button>
 
         {/* Floating Label */}
         <motion.label
           initial={false}
           animate={{
-            top: hasValue || isOpen ? '0.5rem' : '1rem',
+            top: hasValue || isOpen ? '0.5rem' : '50%',
+            y: hasValue || isOpen ? '0' : '-50%',
             fontSize: hasValue || isOpen ? '0.75rem' : '1rem',
             color: isOpen 
               ? '#ec4899'  // pink-500
@@ -294,10 +299,12 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
                 ? '#f87171'  // red-400
                 : success 
                   ? '#4ade80'  // green-400
-                  : '#d8b4fe'  // purple-300
+                  : hasValue || isOpen
+                    ? '#d8b4fe'  // purple-300 when floated
+                    : '#a1a1aa'  // zinc-400 when placeholder
           }}
           transition={{ duration: 0.2, ease: 'easeInOut' }}
-          className="absolute left-4 pointer-events-none font-medium"
+          className={`absolute pointer-events-none font-medium select-none ${icon ? 'left-12' : 'left-4'}`}
           style={{ transformOrigin: 'left center' }}
         >
           {label}
@@ -330,7 +337,7 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className="absolute z-50 w-full mt-1 bg-white/50 border border-purple-500/70 rounded-lg shadow-2xl shadow-black/20 max-h-60 overflow-y-auto"
+            className="absolute z-50 w-full mt-1 bg-indigo-950/95 backdrop-blur-sm border border-purple-500/70 rounded-lg shadow-2xl shadow-black/50 max-h-48 overflow-y-auto"
           >
             {options.map((option) => (
               <button
@@ -341,9 +348,9 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
                   setIsOpen(false);
                 }}
                 className={`
-                  w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors
+                  w-full px-4 py-3 text-left text-white hover:bg-purple-700/30 transition-colors
                   first:rounded-t-lg last:rounded-b-lg
-                  ${value === option.value ? 'bg-pink-500/20 text-pink-300' : ''}
+                  ${value === option.value ? 'bg-purple-600/50 text-white' : ''}
                 `}
               >
                 {option.label}

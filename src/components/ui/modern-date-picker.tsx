@@ -28,12 +28,12 @@ export const ModernDatePicker: React.FC<ModernDatePickerProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'minimal':
-        return 'bg-white/25 border-b-2 border-white/50 rounded-none focus:border-pink-500 shadow-sm';
+        return 'bg-indigo-900/40 border-b-2 border-purple-500/50 rounded-none focus:border-pink-500 shadow-sm';
       case 'default':
-        return 'bg-white/30 border border-white/50 rounded-lg focus:border-pink-500 shadow-md';
+        return 'bg-indigo-900/50 border border-purple-500/50 rounded-lg focus:border-pink-500 shadow-md';
       case 'glass':
       default:
-        return 'bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent';
+        return 'bg-indigo-900/40 border border-purple-500/60 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:contrast-100 [&::-webkit-datetime-edit]:text-white [&::-webkit-datetime-edit-fields-wrapper]:text-white [&::-webkit-datetime-edit-text]:text-purple-300';
     }
   };
 

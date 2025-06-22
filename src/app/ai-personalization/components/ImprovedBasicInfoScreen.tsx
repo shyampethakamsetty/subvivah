@@ -7,7 +7,7 @@ import SpeakingAvatar from '@/app/ai-personalization/components/SpeakingAvatar';
 import { ModernInput, ModernSelect } from '@/components/ui/modern-input';
 import { ModernDatePicker } from '@/components/ui/modern-date-picker';
 import { ModernLocationInput } from '@/components/ui/modern-location-input';
-import { Calendar, MapPin, User, Sparkles, Save, Home } from 'lucide-react';
+import { Calendar, MapPin, User } from 'lucide-react';
 
 interface ImprovedBasicInfoScreenProps {
   onNext: (data: any) => void;
@@ -45,8 +45,6 @@ const ImprovedBasicInfoScreen: React.FC<ImprovedBasicInfoScreenProps> = ({
         fullName: 'वही नाम दर्ज करें जो आपके दस्तावेजों में है',
         location: 'आप वर्तमान में कहाँ रहते हैं',
       },
-      smartFill: 'स्मार्ट फिल करें',
-      saveExit: 'सेव करें और बाहर निकलें',
       next: 'अगला',
       back: 'वापस',
       errors: {
@@ -65,8 +63,6 @@ const ImprovedBasicInfoScreen: React.FC<ImprovedBasicInfoScreenProps> = ({
         fullName: 'Enter the name as it appears on your documents',
         location: 'Where do you currently live',
       },
-      smartFill: 'Smart Fill',
-      saveExit: 'Save & Exit',
       next: 'Next',
       back: 'Back',
       errors: {
@@ -120,31 +116,7 @@ const ImprovedBasicInfoScreen: React.FC<ImprovedBasicInfoScreenProps> = ({
     setIsLoading(false);
   };
 
-  const handleSmartFill = async () => {
-    setIsLoading(true);
-    
-    // Simulate smart fill from user's existing data or social profiles
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Example smart fill logic
-    const smartData = {
-      fullName: 'John Doe', // This would come from API/ML
-      location: 'Mumbai, India',
-      // Don't auto-fill sensitive data like DOB
-    };
 
-    setFormData(prev => ({
-      ...prev,
-      ...smartData,
-    }));
-    
-    setIsLoading(false);
-  };
-
-  const handleSaveAndExit = () => {
-    // Just navigate to home without saving
-    window.location.href = '/';
-  };
 
   const avatarText = {
     hi: 'आइए आपकी बुनियादी जानकारी से शुरुआत करते हैं। यह केवल कुछ मिनट लेगा।',
@@ -171,7 +143,6 @@ const ImprovedBasicInfoScreen: React.FC<ImprovedBasicInfoScreenProps> = ({
             label={t.fullName}
             value={formData.fullName}
             onChange={(value) => setFormData(prev => ({ ...prev, fullName: value }))}
-            placeholder={t.fullName}
             icon={<User className="w-5 h-5" />}
             error={errors.fullName}
             helpText={t.helpTexts.fullName}
@@ -194,7 +165,6 @@ const ImprovedBasicInfoScreen: React.FC<ImprovedBasicInfoScreenProps> = ({
             label={t.location}
             value={formData.location}
             onChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
-            placeholder={t.location}
             error={errors.location}
             helpText={t.helpTexts.location}
             variant="glass"
@@ -202,30 +172,7 @@ const ImprovedBasicInfoScreen: React.FC<ImprovedBasicInfoScreenProps> = ({
             required
           />
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
-            <motion.button
-              type="button"
-              onClick={handleSmartFill}
-              disabled={isLoading}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-full font-semibold hover:from-blue-500 hover:to-cyan-500 transition-colors disabled:opacity-50"
-            >
-              <Sparkles className="w-4 h-4" />
-              {t.smartFill}
-            </motion.button>
 
-            <motion.button
-              type="button"
-              onClick={handleSaveAndExit}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full font-semibold hover:from-gray-500 hover:to-gray-600 transition-colors"
-            >
-              <Home className="w-4 h-4" />
-              {t.saveExit}
-            </motion.button>
-          </div>
 
           <div className="flex gap-4 pt-4">
             <motion.button

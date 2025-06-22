@@ -30,14 +30,18 @@ export default function Navbar() {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include',
       });
       
       if (response.ok) {
         setIsAuthenticated(false);
         setMobileMenuOpen(false);
-        router.push('/');
-        // Force a complete page reload
-        window.location.href = '/';
+        
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
+      } else {
+        console.error('Logout failed:', await response.json());
       }
     } catch (error) {
       console.error('Logout error:', error);

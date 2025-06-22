@@ -222,7 +222,7 @@ const PersonalizedInterview: React.FC<PersonalizedInterviewProps> = ({
             <textarea
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              placeholder={t.placeholder}
+  
               className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-white/50 focus:outline-none focus:border-pink-500 transition-colors resize-none pr-20"
             />
             <div className="absolute bottom-4 right-4">

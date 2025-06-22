@@ -252,7 +252,7 @@ const KundliResult: React.FC = () => {
   }
 
   return (
-    <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-500/30 relative overflow-hidden">
+    <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-500/30 relative overflow-hidden mt-14 mb-14">
       <div className="absolute top-0 left-0 w-full h-full bg-[url('https://images.pexels.com/photos/998641/pexels-photo-998641.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')] opacity-5 bg-cover bg-center"></div>
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-6">

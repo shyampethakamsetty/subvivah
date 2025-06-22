@@ -92,7 +92,7 @@ export default function SummaryScreen({ onBack, formData }: SummaryScreenProps) 
             className="w-full h-48 sm:h-64 px-3 sm:px-4 py-2 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-purple-300 text-sm sm:text-base"
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            placeholder="Your profile summary will appear here..."
+  
           />
         </div>
 

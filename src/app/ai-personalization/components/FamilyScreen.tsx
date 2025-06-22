@@ -106,7 +106,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.fatherName}
                     onChange={(e) => setFamily(prev => ({ ...prev, fatherName: e.target.value }))}
-                    placeholder={language === 'hi' ? 'पिता का नाम' : 'Father\'s name'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -120,7 +120,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.fatherOccupation}
                     onChange={(e) => setFamily(prev => ({ ...prev, fatherOccupation: e.target.value }))}
-                    placeholder={language === 'hi' ? 'पिता का व्यवसाय' : 'Father\'s occupation'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -137,7 +137,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.motherName}
                     onChange={(e) => setFamily(prev => ({ ...prev, motherName: e.target.value }))}
-                    placeholder={language === 'hi' ? 'माता का नाम' : 'Mother\'s name'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -151,7 +151,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.motherOccupation}
                     onChange={(e) => setFamily(prev => ({ ...prev, motherOccupation: e.target.value }))}
-                    placeholder={language === 'hi' ? 'माता का व्यवसाय' : 'Mother\'s occupation'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -168,7 +168,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.siblings}
                     onChange={(e) => setFamily(prev => ({ ...prev, siblings: e.target.value }))}
-                    placeholder={language === 'hi' ? 'भाई-बहन की संख्या' : 'Number of siblings'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -182,7 +182,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.nativePlace}
                     onChange={(e) => setFamily(prev => ({ ...prev, nativePlace: e.target.value }))}
-                    placeholder={language === 'hi' ? 'मूल निवास स्थान' : 'Native place'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -199,7 +199,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.familyIncome}
                     onChange={(e) => setFamily(prev => ({ ...prev, familyIncome: e.target.value }))}
-                    placeholder={language === 'hi' ? 'वार्षिक पारिवारिक आय' : 'Annual family income'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -213,7 +213,7 @@ const FamilyScreen: React.FC<FamilyScreenProps> = ({ onNext, onBack, initialData
                     type="text"
                     value={family.familyValues}
                     onChange={(e) => setFamily(prev => ({ ...prev, familyValues: e.target.value }))}
-                    placeholder={language === 'hi' ? 'पारिवारिक मूल्य' : 'Family values'}
+        
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>

@@ -53,12 +53,12 @@ export const ModernLocationInput: React.FC<ModernLocationInputProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'minimal':
-        return 'bg-white/25 border-b-2 border-white/50 rounded-none focus:border-pink-500 shadow-sm';
+        return 'bg-indigo-900/40 border-b-2 border-purple-500/50 rounded-none focus:border-pink-500 shadow-sm';
       case 'default':
-        return 'bg-white/30 border border-white/50 rounded-lg focus:border-pink-500 shadow-md';
+        return 'bg-indigo-900/50 border border-purple-500/50 rounded-lg focus:border-pink-500 shadow-md';
       case 'glass':
       default:
-        return 'bg-white/35 border border-purple-500/60 rounded-xl focus:border-pink-500 shadow-lg shadow-purple-500/10';
+        return 'bg-indigo-900/40 border border-purple-500/60 rounded-xl focus:border-pink-500 shadow-lg shadow-purple-500/10';
     }
   };
 
@@ -213,15 +213,15 @@ export const ModernLocationInput: React.FC<ModernLocationInputProps> = ({
             }
           }}
           onBlur={() => setIsFocused(false)}
-          placeholder={placeholder}
+          placeholder=" "
           className={`
-            w-full px-4 py-4 pr-12 pl-12 text-white placeholder-transparent
+            w-full px-4 pt-6 pb-2 pr-12 pl-12 text-white placeholder-transparent
             transition-all duration-300 ease-in-out
             focus:ring-2 focus:ring-pink-500/50 focus:outline-none
             ${getVariantStyles()}
             ${error ? 'border-red-400 focus:border-red-400 bg-red-500/10' : ''}
             ${success ? 'border-green-400 focus:border-green-400 bg-green-500/10' : ''}
-            hover:shadow-xl hover:shadow-purple-500/20 hover:bg-white/45
+            hover:shadow-xl hover:shadow-purple-500/20 hover:bg-indigo-900/50
           `}
           required={required}
           autoComplete="off"
@@ -231,7 +231,8 @@ export const ModernLocationInput: React.FC<ModernLocationInputProps> = ({
         <motion.label
           initial={false}
           animate={{
-            top: shouldFloat ? '0.5rem' : '1rem',
+            top: shouldFloat ? '0.5rem' : '50%',
+            y: shouldFloat ? '0' : '-50%',
             fontSize: shouldFloat ? '0.75rem' : '1rem',
             color: isFocused 
               ? '#ec4899'  // pink-500
@@ -239,10 +240,12 @@ export const ModernLocationInput: React.FC<ModernLocationInputProps> = ({
                 ? '#f87171'  // red-400
                 : success 
                   ? '#4ade80'  // green-400
-                  : '#d8b4fe'  // purple-300
+                  : shouldFloat 
+                    ? '#d8b4fe'  // purple-300 when floated
+                    : '#a1a1aa'  // zinc-400 when placeholder
           }}
           transition={{ duration: 0.2, ease: 'easeInOut' }}
-          className="absolute left-12 pointer-events-none font-medium"
+          className="absolute left-12 pointer-events-none font-medium select-none"
           style={{ transformOrigin: 'left center' }}
         >
           {label}
@@ -278,9 +281,11 @@ export const ModernLocationInput: React.FC<ModernLocationInputProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -5, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute z-50 w-full mt-1 bg-white/50 border border-purple-500/70 rounded-xl shadow-2xl shadow-black/30 overflow-hidden"
+            className="absolute z-50 w-full mt-1 bg-indigo-950/95 backdrop-blur-sm border border-purple-500/70 rounded-xl shadow-2xl shadow-black/50 overflow-hidden"
           >
-            <div className="max-h-60 overflow-y-auto">
+            {/* Solid background overlay for complete coverage */}
+            <div className="absolute inset-0 bg-indigo-950/80 rounded-xl"></div>
+            <div className="relative z-10 max-h-60 overflow-y-auto">
               {suggestions.map((suggestion, index) => (
                 <motion.button
                   key={`${suggestion.lat}-${suggestion.lon}`}
@@ -290,32 +295,32 @@ export const ModernLocationInput: React.FC<ModernLocationInputProps> = ({
                   className={`
                     w-full px-4 py-3 text-left transition-colors flex items-center gap-3
                     ${selectedIndex === index 
-                      ? 'bg-white/20 text-white' 
-                      : 'text-purple-100 hover:bg-white/10'
+                      ? 'bg-purple-600/50 text-white' 
+                      : 'text-white hover:bg-purple-700/30'
                     }
-                    ${index === 0 ? '' : 'border-t border-white/10'}
+                    ${index === 0 ? '' : 'border-t border-purple-500/30'}
                   `}
                 >
                   <span className="text-lg">
                     {getSuggestionIcon(suggestion.type)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">
+                    <div className="text-sm font-medium truncate text-white">
                       {formatSuggestionText(suggestion.display_name)}
                     </div>
-                    <div className="text-xs text-purple-300 capitalize">
+                    <div className="text-xs text-purple-200 capitalize">
                       {suggestion.type}
                     </div>
                   </div>
                 </motion.button>
-              ))}
+                              ))}
             </div>
             
             {/* Loading State */}
             {loading && (
-              <div className="px-4 py-3 text-center text-purple-300 text-sm border-t border-white/10">
+              <div className="relative z-10 px-4 py-3 text-center text-white text-sm border-t border-purple-500/30">
                 <div className="flex items-center justify-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin text-purple-300" />
                   Searching locations...
                 </div>
               </div>

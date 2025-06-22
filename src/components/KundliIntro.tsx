@@ -3,7 +3,7 @@ import { Moon, Sun, Stars } from 'lucide-react';
 
 const KundliIntro: React.FC = () => {
   return (
-    <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-500/30 mb-8">
+    <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-500/30 mb-8 mt-8">
       <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
         <Stars className="text-amber-300" size={20} />
         <span>What is a Birth Chart?</span>

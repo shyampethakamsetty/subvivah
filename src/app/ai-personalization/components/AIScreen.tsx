@@ -137,7 +137,7 @@ export default function AIScreen({ onNext, onBack, userData }: AIScreenProps) {
           <div className="flex items-center gap-2">
             <textarea
               className="w-full h-24 sm:h-32 px-3 sm:px-4 py-2 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-purple-300 text-sm sm:text-base"
-              placeholder="Type or speak your answer here..."
+
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
             />
