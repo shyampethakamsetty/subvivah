@@ -93,7 +93,7 @@ const WorkExperienceScreen: React.FC<WorkExperienceScreenProps> = ({ onNext, onB
                     type="text"
                     value={experience.company}
                     onChange={(e) => setExperience(prev => ({ ...prev, company: e.target.value }))}
-                    placeholder={language === 'hi' ? 'कंपनी का नाम' : 'Company name'}
+      
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -107,7 +107,7 @@ const WorkExperienceScreen: React.FC<WorkExperienceScreenProps> = ({ onNext, onB
                     type="text"
                     value={experience.position}
                     onChange={(e) => setExperience(prev => ({ ...prev, position: e.target.value }))}
-                    placeholder={language === 'hi' ? 'पद का नाम' : 'Position title'}
+      
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -124,7 +124,7 @@ const WorkExperienceScreen: React.FC<WorkExperienceScreenProps> = ({ onNext, onB
                     type="text"
                     value={experience.location}
                     onChange={(e) => setExperience(prev => ({ ...prev, location: e.target.value }))}
-                    placeholder={language === 'hi' ? 'शहर, देश' : 'City, Country'}
+      
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -138,7 +138,7 @@ const WorkExperienceScreen: React.FC<WorkExperienceScreenProps> = ({ onNext, onB
                     type="text"
                     value={experience.salary}
                     onChange={(e) => setExperience(prev => ({ ...prev, salary: e.target.value }))}
-                    placeholder={language === 'hi' ? 'वार्षिक वेतन' : 'Annual salary'}
+      
                     className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
@@ -182,7 +182,7 @@ const WorkExperienceScreen: React.FC<WorkExperienceScreenProps> = ({ onNext, onB
                 <textarea
                   value={experience.achievements}
                   onChange={(e) => setExperience(prev => ({ ...prev, achievements: e.target.value }))}
-                  placeholder={language === 'hi' ? 'अपनी प्रमुख उपलब्धियां लिखें' : 'List your key achievements'}
+      
                   rows={3}
                   className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                 />

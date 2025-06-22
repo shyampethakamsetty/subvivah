@@ -125,7 +125,7 @@ const EducationScreen: React.FC<EducationScreenProps> = ({ onNext, onBack, initi
               value: degree.value,
               label: degree.label[language]
             }))}
-            placeholder={`${language === 'hi' ? 'अपनी डिग्री चुनें' : 'Select your degree'}`}
+
             icon={<GraduationCap className="w-5 h-5" />}
             error={errors.degree}
             variant="glass"
@@ -136,7 +136,7 @@ const EducationScreen: React.FC<EducationScreenProps> = ({ onNext, onBack, initi
             label={t.institution}
             value={education.institution}
             onChange={(value) => setEducation(prev => ({ ...prev, institution: value }))}
-            placeholder={t.institution}
+
             icon={<School className="w-5 h-5" />}
             error={errors.institution}
             variant="glass"
@@ -151,7 +151,7 @@ const EducationScreen: React.FC<EducationScreenProps> = ({ onNext, onBack, initi
               value: year.toString(),
               label: year.toString()
             }))}
-            placeholder={`${language === 'hi' ? 'वर्ष चुनें' : 'Select year'}`}
+
             icon={<Calendar className="w-5 h-5" />}
             error={errors.yearOfCompletion}
             variant="glass"

@@ -157,7 +157,7 @@ const PersonalizedInterviewLLM: React.FC<PersonalizedInterviewLLMProps> = ({
                 <textarea
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="Type your answer here..."
+        
                   className="w-full h-32 bg-white/5 border border-white/20 rounded-lg p-4 text-white placeholder-white/50 focus:outline-none focus:border-pink-500/50 resize-none"
                 />
                 <div className="absolute bottom-4 right-4 flex space-x-2">

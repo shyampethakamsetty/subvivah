@@ -47,9 +47,15 @@ export async function POST(request: Request) {
     // Send response with cleared cookies
     const response = NextResponse.json({ success: true });
     
-    // Ensure cookies are properly cleared in the response
-    response.cookies.delete('token');
-    response.cookies.delete('google_token');
+    // Ensure cookies are properly cleared in the response with the same options
+    const cookieOptions = {
+      domain: process.env.NODE_ENV === 'production' ? '.subvivah.com' : undefined,
+      path: '/',
+      maxAge: 0
+    };
+
+    response.cookies.set('token', '', cookieOptions);
+    response.cookies.set('google_token', '', cookieOptions);
 
     return response;
   } catch (error) {

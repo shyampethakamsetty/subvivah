@@ -67,14 +67,14 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
             <div className="grid grid-cols-2 gap-4">
               <input
                 type="number"
-                placeholder={language === 'hi' ? 'न्यूनतम आयु' : 'Min Age'}
+  
                 className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 min="18"
                 max="100"
               />
               <input
                 type="number"
-                placeholder={language === 'hi' ? 'अधिकतम आयु' : 'Max Age'}
+  
                 className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 min="18"
                 max="100"
@@ -112,7 +112,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
                 type="text"
                 value={preferences.occupation}
                 onChange={(e) => setPreferences(prev => ({ ...prev, occupation: e.target.value }))}
-                placeholder={language === 'hi' ? 'पसंदीदा व्यवसाय' : 'Preferred occupation'}
+    
                 className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
@@ -129,7 +129,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
                 type="text"
                 value={preferences.location}
                 onChange={(e) => setPreferences(prev => ({ ...prev, location: e.target.value }))}
-                placeholder={language === 'hi' ? 'पसंदीदा स्थान' : 'Preferred location'}
+    
                 className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
@@ -143,7 +143,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
                 type="text"
                 value={preferences.income}
                 onChange={(e) => setPreferences(prev => ({ ...prev, income: e.target.value }))}
-                placeholder={language === 'hi' ? 'न्यूनतम आय' : 'Minimum income'}
+    
                 className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
@@ -179,7 +179,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
                 type="text"
                 value={preferences.lifestyle}
                 onChange={(e) => setPreferences(prev => ({ ...prev, lifestyle: e.target.value }))}
-                placeholder={language === 'hi' ? 'पसंदीदा जीवनशैली' : 'Preferred lifestyle'}
+    
                 className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
@@ -194,7 +194,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
             <textarea
               value={preferences.values}
               onChange={(e) => setPreferences(prev => ({ ...prev, values: e.target.value }))}
-              placeholder={language === 'hi' ? 'महत्वपूर्ण मूल्य और अपेक्षाएं' : 'Important values and expectations'}
+  
               rows={3}
               className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
             />
