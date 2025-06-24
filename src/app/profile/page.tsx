@@ -22,7 +22,7 @@ interface User {
   lastName: string;
   gender: string;
   isVerified: boolean;
-  photos?: { url: string; caption?: string; isProfile?: boolean }[];
+  photos?: { url: string; isProfile?: boolean }[];
   profile?: {
     height?: number;
     weight?: number;
@@ -76,7 +76,6 @@ function ProfilePage() {
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string } | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [caption, setCaption] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [isGeneratingBio, setIsGeneratingBio] = useState(false);
@@ -255,35 +254,26 @@ function ProfilePage() {
     try {
       const formData = new FormData();
       formData.append('file', uploadFile);
-      formData.append('caption', caption);
-      formData.append('isProfile', 'true');
       const response = await fetch('/api/photos/upload', {
         method: 'POST',
         body: formData,
       });
-      
-      const data = await response.json();
-      
       if (response.ok) {
         setUploadStatus('success');
         // Refresh user data to get the new photo
         const userResponse = await fetch('/api/auth/me');
         if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setUser(userData.user);
+          const data = await userResponse.json();
+          setUser(data.user);
         }
         setIsUploadModalOpen(false);
         setUploadFile(null);
-        setCaption('');
       } else {
         setUploadStatus('error');
-        console.error('Upload failed:', data.error);
-        alert(data.error || 'Failed to upload photo. Please try again.');
       }
     } catch (error) {
       setUploadStatus('error');
       console.error('Error uploading photo:', error);
-      alert('An error occurred while uploading the photo. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -1011,19 +1001,6 @@ function ProfilePage() {
                     />
                   </label>
                 )}
-              </div>
-
-              <div>
-                  <label className="block text-sm font-medium text-purple-200 mb-1.5">
-                  Caption
-                </label>
-                <textarea
-                  value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
-                    className="w-full rounded-lg bg-slate-900/50 border-purple-500/30 text-purple-100 placeholder-purple-300/30 shadow-inner focus:border-purple-500 focus:ring focus:ring-purple-500/20 focus:ring-opacity-50 transition-all duration-200"
-                  rows={3}
-                  placeholder="Add a caption to your photo..."
-                />
               </div>
 
               {uploadStatus === 'uploading' && (

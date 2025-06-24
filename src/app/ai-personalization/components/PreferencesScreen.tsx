@@ -92,7 +92,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
               <select
                 value={preferences.education}
                 onChange={(e) => setPreferences(prev => ({ ...prev, education: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white [&>option]:text-slate-900 placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
                 <option value="">{language === 'hi' ? 'शिक्षा चुनें' : 'Select education'}</option>
                 {educationLevels.map((level) => (
@@ -159,7 +159,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ onNext, onBack, i
               <select
                 value={preferences.familyType}
                 onChange={(e) => setPreferences(prev => ({ ...prev, familyType: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white [&>option]:text-slate-900 placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
                 <option value="">{language === 'hi' ? 'परिवार का प्रकार चुनें' : 'Select family type'}</option>
                 {familyTypes.map((type) => (

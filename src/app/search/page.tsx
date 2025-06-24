@@ -82,6 +82,15 @@ const heightOptions = [
   { value: "196", label: "6'5\" (196 cm)" }
 ];
 
+const maritalStatusOptions = [
+  { value: "", label: "Any" },
+  { value: "never_married", label: "Never Married" },
+  { value: "divorced", label: "Divorced" },
+  { value: "widowed", label: "Widowed" },
+  { value: "awaiting_divorce", label: "Awaiting Divorce" },
+  { value: "separated", label: "Separated" }
+];
+
 function SearchPageContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -349,11 +358,11 @@ function SearchPageContent() {
                   onChange={handleFilterChange}
                   className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white [&>option]:bg-indigo-950 [&>option]:text-white"
                 >
-                  <option value="">Any</option>
-                  <option value="never_married">Never Married</option>
-                  <option value="divorced">Divorced</option>
-                  <option value="widowed">Widowed</option>
-                  <option value="awaiting_divorce">Awaiting Divorce</option>
+                  {maritalStatusOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
