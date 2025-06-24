@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { convertHeightToStandardFormat, heightToDisplayFormat } from '@/lib/utils';
+import { convertHeightToStandardFormat, heightToDisplayFormat, formatMaritalStatus, formatMotherTongue } from '@/lib/utils';
 
 type UserWithProfile = Prisma.UserGetPayload<{
   include: {
@@ -98,25 +98,33 @@ export async function GET(request: Request) {
     // Add height range filters using standardized values
     if (heightMinCm) {
       profileFilters.push({
+        height: {
+          not: {
+            equals: ""
+          }
+        },
         OR: [
-          // Match exact format (e.g., "175")
+          // For values stored in cm format
           {
             height: {
-              gte: heightMinCm
+              gte: heightMinCm,
+              not: {
+                contains: "'"
+              }
             }
           },
-          // Match feet-inches format converted to cm
+          // For values stored in feet/inches format
           {
             height: {
               contains: "'",
-              not: null
+              not: {
+                equals: ""
+              }
             },
             AND: [
               {
-        height: {
-                  not: {
-                    equals: ""
-                  }
+                height: {
+                  not: null
                 }
               }
             ]
@@ -124,31 +132,40 @@ export async function GET(request: Request) {
         ]
       });
     }
+
     if (heightMaxCm) {
       profileFilters.push({
+        height: {
+          not: {
+            equals: ""
+          }
+        },
         OR: [
-          // Match exact format (e.g., "175")
+          // For values stored in cm format
           {
             height: {
-              lte: heightMaxCm
+              lte: heightMaxCm,
+              not: {
+                contains: "'"
+              }
             }
           },
-          // Match feet-inches format converted to cm
+          // For values stored in feet/inches format
           {
             height: {
               contains: "'",
-              not: null
+              not: {
+                equals: ""
+              }
             },
             AND: [
               {
-        height: {
-                  not: {
-                    equals: ""
-                  }
+                height: {
+                  not: null
                 }
               }
             ]
-        }
+          }
         ]
       });
     }
@@ -157,7 +174,7 @@ export async function GET(request: Request) {
     if (maritalStatus) {
       profileFilters.push({
         maritalStatus: {
-          equals: maritalStatus,
+          equals: maritalStatus.toLowerCase(),
           mode: 'insensitive'
         }
       });
@@ -181,7 +198,7 @@ export async function GET(request: Request) {
     if (motherTongue) {
       profileFilters.push({
         motherTongue: {
-          equals: motherTongue,
+          equals: motherTongue.toLowerCase(),
           mode: 'insensitive'
         }
       });
@@ -261,7 +278,7 @@ export async function GET(request: Request) {
       take: limit
     });
 
-    // Transform users to response format with formatted height
+    // Transform users to response format with formatted values
     const transformedUsers: SearchResponse[] = users.map(user => ({
       id: user.id,
       userId: user.id,
@@ -269,10 +286,10 @@ export async function GET(request: Request) {
       lastName: user.lastName,
       age: calculateAge(user.dob),
       height: user.profile?.height ? heightToDisplayFormat(user.profile.height) : null,
-      maritalStatus: user.profile?.maritalStatus || null,
+      maritalStatus: user.profile?.maritalStatus ? formatMaritalStatus(user.profile.maritalStatus) : null,
       religion: user.profile?.religion || null,
       caste: user.profile?.caste || null,
-      motherTongue: user.profile?.motherTongue || null,
+      motherTongue: user.profile?.motherTongue ? formatMotherTongue(user.profile.motherTongue) : null,
       education: user.profile?.education || null,
       occupation: user.profile?.occupation || null,
       annualIncome: user.profile?.annualIncome || null,
@@ -303,9 +320,10 @@ export async function GET(request: Request) {
 
 function calculateAge(dob: Date): number {
   const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const m = today.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+  const birthDate = new Date(dob);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
   return age;

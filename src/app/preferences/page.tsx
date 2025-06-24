@@ -127,8 +127,15 @@ function PreferencesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-md z-0" />
+        <div className="relative z-10 flex flex-col items-center">
+          <svg className="animate-spin h-14 w-14 text-purple-300 mb-4" viewBox="0 0 50 50">
+            <circle className="opacity-20" cx="25" cy="25" r="20" stroke="currentColor" strokeWidth="5" fill="none" />
+            <circle className="opacity-70" cx="25" cy="25" r="20" stroke="currentColor" strokeWidth="5" fill="none" strokeDasharray="31.4 94.2" />
+          </svg>
+          <span className="text-purple-200 text-lg font-medium animate-pulse">Loading preferences...</span>
+        </div>
       </div>
     );
   }
@@ -138,10 +145,10 @@ function PreferencesPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="min-h-screen bg-gradient-to-br from-purple-600 to-pink-500 py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-12 px-4 sm:px-6 lg:px-8"
     >
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+        <div className="bg-slate-950/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-purple-500/20">
           <h1 className="text-2xl font-bold text-white mb-6">Partner Preferences</h1>
           
           {error && (
@@ -169,14 +176,14 @@ function PreferencesPage() {
                     type="number"
                     value={preferences.ageFrom || ''}
                     onChange={(e) => setPreferences({ ...preferences, ageFrom: parseInt(e.target.value) || null })}
-                    className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                     placeholder="From"
                   />
                   <input
                     type="number"
                     value={preferences.ageTo || ''}
                     onChange={(e) => setPreferences({ ...preferences, ageTo: parseInt(e.target.value) || null })}
-                    className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                     placeholder="To"
                   />
                 </div>
@@ -193,15 +200,15 @@ function PreferencesPage() {
                     type="text"
                     value={preferences.heightFrom || ''}
                     onChange={(e) => setPreferences({ ...preferences, heightFrom: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="From (e.g., 5'6)"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    placeholder="From (e.g., 155 cm)"
                   />
                   <input
                     type="text"
                     value={preferences.heightTo || ''}
                     onChange={(e) => setPreferences({ ...preferences, heightTo: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="To (e.g., 6'0)"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    placeholder="To (e.g., 180 cm)"
                   />
                 </div>
               </div>
@@ -216,13 +223,13 @@ function PreferencesPage() {
               <select
                 value={preferences.maritalStatus || ''}
                 onChange={(e) => setPreferences({ ...preferences, maritalStatus: e.target.value })}
-                className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
               >
-                <option value="">Select marital status</option>
-                <option value="never_married">Never Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
-                <option value="awaiting_divorce">Awaiting Divorce</option>
+                <option value="" className="bg-slate-900 text-white">Select marital status</option>
+                <option value="never_married" className="bg-slate-900 text-white">Never Married</option>
+                <option value="divorced" className="bg-slate-900 text-white">Divorced</option>
+                <option value="widowed" className="bg-slate-900 text-white">Widowed</option>
+                <option value="awaiting_divorce" className="bg-slate-900 text-white">Awaiting Divorce</option>
               </select>
             </div>
 
@@ -236,16 +243,16 @@ function PreferencesPage() {
                 <select
                   value={preferences.religion || ''}
                   onChange={(e) => setPreferences({ ...preferences, religion: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 >
-                  <option value="">Select Religion</option>
-                  <option value="hindu">Hindu</option>
-                  <option value="muslim">Muslim</option>
-                  <option value="christian">Christian</option>
-                  <option value="sikh">Sikh</option>
-                  <option value="jain">Jain</option>
-                  <option value="buddhist">Buddhist</option>
-                  <option value="other">Other</option>
+                  <option value="" className="bg-slate-900 text-white">Select Religion</option>
+                  <option value="hindu" className="bg-slate-900 text-white">Hindu</option>
+                  <option value="muslim" className="bg-slate-900 text-white">Muslim</option>
+                  <option value="christian" className="bg-slate-900 text-white">Christian</option>
+                  <option value="sikh" className="bg-slate-900 text-white">Sikh</option>
+                  <option value="jain" className="bg-slate-900 text-white">Jain</option>
+                  <option value="buddhist" className="bg-slate-900 text-white">Buddhist</option>
+                  <option value="other" className="bg-slate-900 text-white">Other</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -257,7 +264,7 @@ function PreferencesPage() {
                   type="text"
                   value={preferences.caste || ''}
                   onChange={(e) => setPreferences({ ...preferences, caste: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   placeholder="Enter preferred caste"
                 />
               </div>
@@ -273,14 +280,14 @@ function PreferencesPage() {
                 <select
                   value={preferences.education || ''}
                   onChange={(e) => setPreferences({ ...preferences, education: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 >
-                  <option value="">Select Education</option>
-                  <option value="high_school">High School</option>
-                  <option value="bachelors">Bachelor's Degree</option>
-                  <option value="masters">Master's Degree</option>
-                  <option value="phd">PhD</option>
-                  <option value="other">Other</option>
+                  <option value="" className="bg-slate-900 text-white">Select Education</option>
+                  <option value="high_school" className="bg-slate-900 text-white">High School</option>
+                  <option value="bachelors" className="bg-slate-900 text-white">Bachelor's Degree</option>
+                  <option value="masters" className="bg-slate-900 text-white">Master's Degree</option>
+                  <option value="phd" className="bg-slate-900 text-white">PhD</option>
+                  <option value="other" className="bg-slate-900 text-white">Other</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -292,7 +299,7 @@ function PreferencesPage() {
                   type="text"
                   value={preferences.occupation || ''}
                   onChange={(e) => setPreferences({ ...preferences, occupation: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   placeholder="Enter preferred occupation"
                 />
               </div>
@@ -309,7 +316,7 @@ function PreferencesPage() {
                   type="text"
                   value={preferences.location || ''}
                   onChange={(e) => setPreferences({ ...preferences, location: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   placeholder="Enter preferred location"
                 />
               </div>
@@ -322,7 +329,7 @@ function PreferencesPage() {
                   type="text"
                   value={preferences.income || ''}
                   onChange={(e) => setPreferences({ ...preferences, income: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   placeholder="Enter minimum income"
                 />
               </div>
@@ -334,7 +341,7 @@ function PreferencesPage() {
                 disabled={saving}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving...' : 'Save Preferences'}
               </motion.button>

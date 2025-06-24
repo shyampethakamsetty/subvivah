@@ -8,7 +8,6 @@ import { Camera, X, ChevronLeft, ChevronRight, Upload, Trash2, Heart } from 'luc
 
 interface Photo {
   url: string;
-  caption?: string;
   isProfile?: boolean;
 }
 
@@ -25,7 +24,6 @@ function PhotoGalleryPage() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [caption, setCaption] = useState('');
   const [uploading, setUploading] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [likedPhotos, setLikedPhotos] = useState<Set<number>>(new Set());
@@ -87,7 +85,6 @@ function PhotoGalleryPage() {
     try {
       const formData = new FormData();
       formData.append('file', uploadFile);
-      formData.append('caption', caption);
       const response = await fetch('/api/photos/upload', {
         method: 'POST',
         body: formData,
@@ -102,7 +99,6 @@ function PhotoGalleryPage() {
         }
         setIsUploadModalOpen(false);
         setUploadFile(null);
-        setCaption('');
       } else {
         setUploadStatus('error');
       }
@@ -274,10 +270,6 @@ function PhotoGalleryPage() {
                     sizes="300px"
                   />
                 </div>
-                {/* Caption */}
-                <div className="p-2 text-center bg-gradient-to-t from-purple-900/90 to-purple-900/60 backdrop-blur-sm">
-                  <p className="text-sm text-purple-200 truncate min-h-[1.5em]">{photo.caption || <span className='text-purple-300/50'>No caption</span>}</p>
-                </div>
               </div>
             ))}
           </div>
@@ -370,12 +362,6 @@ function PhotoGalleryPage() {
               >
                 <Heart className={`w-8 h-8 transition-transform ${likedPhotos.has(selectedPhotoIndex) ? 'scale-110 fill-pink-500' : ''}`} fill={likedPhotos.has(selectedPhotoIndex) ? '#ec4899' : 'none'} />
               </button>
-              {/* Caption - always visible, styled, wrapped */}
-              <div className="w-full text-center px-2">
-                <p className="text-lg text-gray-800 font-medium min-h-[2em] break-words whitespace-pre-line bg-gradient-to-t from-white/80 to-transparent rounded-lg py-2 px-3 shadow-sm inline-block">
-                  {photos[selectedPhotoIndex].caption || <span className="text-gray-400">No caption</span>}
-                </p>
-              </div>
               {/* Photo Counter */}
               <div className="mt-2 text-sm text-gray-400">{selectedPhotoIndex + 1} / {photos.length}</div>
               {/* Delete Button */}
@@ -438,18 +424,6 @@ function PhotoGalleryPage() {
                       />
                     </label>
                   )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Caption
-                  </label>
-                  <textarea
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                    rows={3}
-                    placeholder="Add a caption to your photo..."
-                  />
                 </div>
                 <button
                   onClick={handleUpload}
