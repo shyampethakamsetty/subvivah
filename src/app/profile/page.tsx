@@ -643,11 +643,6 @@ function ProfilePage() {
                     height={150}
                     className="w-full h-full object-cover"
                   />
-                  {photo.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                      <p className="text-white text-xs truncate">{photo.caption}</p>
-                    </div>
-                  )}
                 </div>
               ))}
               {(!user?.photos || user.photos.length < 3) && (
