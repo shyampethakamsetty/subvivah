@@ -100,4 +100,21 @@ export async function verifyToken(token: string): Promise<any> {
   } catch (error) {
     return null;
   }
-} 
+}
+
+// Standardized cookie configuration
+export const cookieConfig = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  path: '/',
+  domain: process.env.NODE_ENV === 'production' ? '.subvivah.com' : undefined,
+  maxAge: 7 * 24 * 60 * 60 // 7 days
+};
+
+// Cookie configuration for clearing cookies
+export const clearCookieConfig = {
+  ...cookieConfig,
+  maxAge: 0,
+  expires: new Date(0)
+}; 
