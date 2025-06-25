@@ -15,6 +15,7 @@ export default function DelayedLoginModal() {
   const [showModal, setShowModal] = useState(false);
   const [hasShownInitialPopup, setHasShownInitialPopup] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const pathname = usePathname();
   const isRegisterPage = pathname === '/register';
   const isLoginPage = pathname === '/login';
@@ -38,6 +39,8 @@ export default function DelayedLoginModal() {
       } catch (error) {
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
+      } finally {
+        setAuthChecked(true);
       }
     };
 
@@ -45,32 +48,29 @@ export default function DelayedLoginModal() {
   }, []);
 
   useEffect(() => {
-    // Don't initialize popup on register or login pages or if authenticated
-    if (!isRegisterPage && !isLoginPage && !isAuthenticated) {
-      window.showLoginPopup = () => {
+    // Only proceed if auth check is complete and user is not authenticated
+    if (!authChecked || isAuthenticated || isRegisterPage || isLoginPage) {
+      return;
+    }
+
+    // Initialize showLoginPopup function
+    window.showLoginPopup = () => {
+      setShowModal(true);
+    };
+
+    // Show initial popup after 3 seconds if not shown before
+    if (!hasShownInitialPopup) {
+      const timer = setTimeout(() => {
         setShowModal(true);
+        setHasShownInitialPopup(true);
+      }, 3000);
+
+      return () => {
+        clearTimeout(timer);
+        if (window.showLoginPopup) {
+          window.showLoginPopup = undefined;
+        }
       };
-
-      // Show initial popup after 3 seconds if not shown before
-      if (!hasShownInitialPopup) {
-        const timer = setTimeout(() => {
-          setShowModal(true);
-          setHasShownInitialPopup(true);
-        }, 3000);
-
-        return () => {
-          clearTimeout(timer);
-          if (window.showLoginPopup) {
-            window.showLoginPopup = undefined;
-          }
-        };
-      }
-    } else if (isAuthenticated) {
-      // Clear any existing login popup function when authenticated
-      if (window.showLoginPopup) {
-        window.showLoginPopup = undefined;
-      }
-      setShowModal(false);
     }
 
     return () => {
@@ -79,22 +79,15 @@ export default function DelayedLoginModal() {
         window.showLoginPopup = undefined;
       }
     };
-  }, [isRegisterPage, isLoginPage, hasShownInitialPopup, isAuthenticated]);
+  }, [isRegisterPage, isLoginPage, hasShownInitialPopup, isAuthenticated, authChecked]);
 
   // Reset hasShownInitialPopup when pathname changes
   useEffect(() => {
     setHasShownInitialPopup(false);
   }, [pathname]);
 
-  // Ensure showLoginPopup is always available except on register/login pages and for authenticated users
-  if (typeof window !== 'undefined' && !window.showLoginPopup && !isRegisterPage && !isLoginPage && !isAuthenticated) {
-    window.showLoginPopup = () => {
-      setShowModal(true);
-    };
-  }
-
   // Don't render anything on register or login pages or if authenticated
-  if (isRegisterPage || isLoginPage || isAuthenticated) {
+  if (isRegisterPage || isLoginPage || isAuthenticated || !authChecked) {
     return null;
   }
 
