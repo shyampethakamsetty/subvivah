@@ -62,6 +62,7 @@ const getCompatibilityCaption = (score: number, criteria: string[]) => {
 };
 
 const DailySuggestionBubble = () => {
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
@@ -74,7 +75,13 @@ const DailySuggestionBubble = () => {
   const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     const fetchMatchedProfile = async () => {
+      if (!mounted) return; // Early return if not mounted
+      
       try {
         setLoading(true);
         setError(null);
@@ -148,7 +155,7 @@ const DailySuggestionBubble = () => {
     };
 
     fetchMatchedProfile();
-  }, [router]);
+  }, [mounted, router]); // Added mounted to dependencies
 
   const togglePopup = () => {
     if (isOpen) {
@@ -171,15 +178,8 @@ const DailySuggestionBubble = () => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  if (loading) {
-    return null;
-  }
-
-  if (error) {
-    return null;
-  }
-
-  if (!matchedProfile) {
+  // If not mounted or loading or has error or no profile, render nothing
+  if (!mounted || loading || error || !matchedProfile) {
     return null;
   }
 
