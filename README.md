@@ -1,41 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Subvivah.com
 
-
-#############################################################################
-
-
+A Next.js-based matrimonial platform with advanced features including AI-powered matchmaking and Google authentication.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
+
+### Environment Setup
+
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd subvivah.com
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Create a `.env.local` file in the root directory with the following variables:
+```env
+# Authentication
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
+
+# Database
+DATABASE_URL=your_database_url
+
+# Other configurations
+NODE_ENV=development
+```
+
+### Google Authentication Setup
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to Credentials > Create Credentials > OAuth 2.0 Client ID
+5. Configure the OAuth consent screen
+6. Add the following authorized redirect URIs:
+   - For local development: `http://localhost:3000/api/auth/google`
+   - For production: 
+     - `https://subvivah.com/api/auth/google`
+     - `https://www.subvivah.com/api/auth/google`
+7. Copy the Client ID and Client Secret to your `.env.local` file
+
+### Development Server
+
+Run the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+subvivah.com/
+├── src/
+│   ├── app/          # Next.js app router pages
+│   ├── components/   # Reusable components
+│   ├── lib/         # Utility functions and configurations
+│   └── types/       # TypeScript type definitions
+├── public/          # Static assets
+└── prisma/         # Database schema and migrations
+```
+
+## Features
+
+- Google Authentication
+- AI-Powered Matchmaking
+- Profile Management
+- Real-time Chat
+- Horoscope Matching
+- Face Verification
+- Premium Membership
+
+## Deployment
+
+The application is configured for deployment on various platforms:
+
+### Production Deployment
+
+1. Build the application:
+```bash
+npm run build
+# or
+yarn build
+```
+
+2. Start the production server:
+```bash
+npm run start:prod
+# or
+yarn start:prod
+```
+
+Make sure to set the appropriate environment variables in your production environment.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about the technologies used:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [NextAuth.js](https://next-auth.js.org/) - Authentication
+- [Prisma](https://www.prisma.io/docs) - Database ORM
+- [TailwindCSS](https://tailwindcss.com/docs) - Styling
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Contributing
 
-## Deploy on Vercel
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details

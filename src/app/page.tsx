@@ -1,16 +1,10 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Image from "next/image";
 import Link from "next/link";
-import Chatbot from "@/components/Chatbot";
-import DailySuggestionBubble from "@/components/DailySuggestionBubble";
-import { motion } from "framer-motion";
-import Lottie, { LottieRefCurrentProps } from "lottie-react";
-import securityAnimation from "../../public/animations/sec.json";
-import matchmakingAnimation from "../../public/animations/matchmaking.json";
-import kundliAnimation from "../../public/animations/kundli.json";
-import aiInterviewAnimation from "../../public/animations/ai-interview.json";
 import { useRef } from "react";
+import { motion } from "framer-motion";
 import { 
   Brain, 
   Fingerprint, 
@@ -31,11 +25,30 @@ import {
   Target
 } from 'lucide-react';
 
+// Dynamically import components that use browser APIs
+const Chatbot = dynamic(() => import("@/components/Chatbot"), {
+  ssr: false,
+});
+
+const DailySuggestionBubble = dynamic(() => import("@/components/DailySuggestionBubble"), {
+  ssr: false,
+});
+
+const LottieWrapper = dynamic(() => import("lottie-react"), {
+  ssr: false,
+});
+
+// Import animations
+import securityAnimation from "../../public/animations/sec.json";
+import matchmakingAnimation from "../../public/animations/matchmaking.json";
+import kundliAnimation from "../../public/animations/kundli.json";
+import aiInterviewAnimation from "../../public/animations/ai-interview.json";
+
 export default function Home() {
-  const securityLottieRef = useRef<LottieRefCurrentProps>(null);
-  const matchmakingLottieRef = useRef<LottieRefCurrentProps>(null);
-  const kundliLottieRef = useRef<LottieRefCurrentProps>(null);
-  const aiInterviewLottieRef = useRef<LottieRefCurrentProps>(null);
+  const securityLottieRef = useRef(null);
+  const matchmakingLottieRef = useRef(null);
+  const kundliLottieRef = useRef(null);
+  const aiInterviewLottieRef = useRef(null);
 
   return (
     <div className="min-h-screen bg-white">
@@ -320,8 +333,7 @@ export default function Home() {
               <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
                 <div className="w-full md:w-5/12">
                   <div className="relative h-64 md:h-80">
-                    <Lottie
-                      lottieRef={matchmakingLottieRef}
+                    <LottieWrapper
                       animationData={matchmakingAnimation}
                       loop={true}
                       autoplay={true}
@@ -368,17 +380,11 @@ export default function Home() {
               <div className="flex flex-col-reverse md:flex-row-reverse items-center gap-8 md:gap-12">
                 <div className="w-full md:w-5/12">
                   <div className="relative h-64 md:h-80">
-                    <Lottie
-                      lottieRef={securityLottieRef}
+                    <LottieWrapper
                       animationData={securityAnimation}
                       loop={true}
                       autoplay={true}
                       className="w-full h-full object-contain [transform:rotateY(180deg)]"
-                      onComplete={() => {
-                        if (securityLottieRef.current) {
-                          securityLottieRef.current.goToAndPlay(0);
-                        }
-                      }}
                     />
                   </div>
                 </div>
@@ -421,8 +427,7 @@ export default function Home() {
               <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
                 <div className="w-full md:w-5/12">
                   <div className="relative h-64 md:h-80">
-                    <Lottie
-                      lottieRef={kundliLottieRef}
+                    <LottieWrapper
                       animationData={kundliAnimation}
                       loop={true}
                       autoplay={true}
@@ -469,8 +474,7 @@ export default function Home() {
               <div className="flex flex-col-reverse md:flex-row-reverse items-center gap-8 md:gap-12">
                 <div className="w-full md:w-5/12">
                   <div className="relative h-64 md:h-80">
-                    <Lottie
-                      lottieRef={aiInterviewLottieRef}
+                    <LottieWrapper
                       animationData={aiInterviewAnimation}
                       loop={true}
                       autoplay={true}
