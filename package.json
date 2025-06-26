@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node server.js",
+    "start": "next start",
+    "clean": "rm -rf .next",
+    "build:clean": "npm run clean && npm run build",
+    "start:custom": "node server.js",
     "start:prod": "NODE_ENV=production node server.js",
     "lint": "next lint"
   },
