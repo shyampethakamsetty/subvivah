@@ -1,86 +1,95 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import LoginModal from './LoginModal';
 
 // Define the showLoginPopup function type globally
 declare global {
   interface Window {
-    showLoginPopup: () => void;
+    showLoginPopup?: () => void;
   }
 }
 
 export default function DelayedLoginModal() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [hasShownInitialPopup, setHasShownInitialPopup] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const redirectPath = searchParams?.get('redirect') || null;
+  const isRegisterPage = pathname === '/register';
+  const isLoginPage = pathname === '/login';
 
-  // Initialize showLoginPopup immediately
-  if (typeof window !== 'undefined') {
-    window.showLoginPopup = () => {
-      console.log('Login popup triggered'); // Add logging for debugging
-      setIsOpen(true);
-    };
-  }
-
+  // Check authentication status
   useEffect(() => {
-    // Ensure showLoginPopup is always available
-    if (typeof window !== 'undefined' && !window.showLoginPopup) {
-      window.showLoginPopup = () => {
-        console.log('Login popup triggered from useEffect'); // Add logging for debugging
-        setIsOpen(true);
-      };
-    }
-
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me');
         const data = await response.json();
-        setIsAuthenticated(data.isAuthenticated);
         
-        if (!data.isAuthenticated) {
-          // Check if current page requires authentication
-          const authRequiredPages = ['/matches', '/dating', '/brahmand-chat', '/messages', '/kundli'];
-          
-          // Show popup for homepage after 3 seconds
-          if (pathname === '/') {
-            console.log('Homepage detected, showing login popup after 3 seconds');
-            const timer = setTimeout(() => {
-              console.log('Showing login popup for homepage');
-              setIsOpen(true);
-            }, 3000);
-            return () => clearTimeout(timer);
+        if (response.ok && data.isAuthenticated && data.user) {
+          setIsAuthenticated(true);
+          // Clear any existing login popup function
+          if (window.showLoginPopup) {
+            window.showLoginPopup = undefined;
           }
-          
-          // Show popup immediately for auth-required pages
-          if (authRequiredPages.some(page => pathname?.startsWith(page))) {
-            console.log('Auth required page detected:', pathname);
-            const timer = setTimeout(() => {
-              console.log('Showing login popup for auth-required page');
-              setIsOpen(true);
-            }, 1000); // Reduced delay for better UX
-            return () => clearTimeout(timer);
-          }
+        } else {
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
+      } finally {
+        setAuthChecked(true);
       }
     };
 
-    // Run auth check on both initial load and route changes
     checkAuth();
-  }, [pathname]); // Add pathname as dependency to re-run on route changes
+  }, []);
 
-  const handleLoginSuccess = () => {
-    setIsOpen(false);
-    // Refresh and redirect to profile or specified redirect path
-    window.location.href = redirectPath || '/profile';
-  };
+  useEffect(() => {
+    // Only proceed if auth check is complete and user is not authenticated
+    if (!authChecked || isAuthenticated || isRegisterPage || isLoginPage) {
+      return;
+    }
 
-  return <LoginModal isOpen={isOpen} onClose={() => setIsOpen(false)} onSuccess={handleLoginSuccess} />;
+    // Initialize showLoginPopup function
+    window.showLoginPopup = () => {
+      setShowModal(true);
+    };
+
+    // Show initial popup after 3 seconds if not shown before
+    if (!hasShownInitialPopup) {
+      const timer = setTimeout(() => {
+        setShowModal(true);
+        setHasShownInitialPopup(true);
+      }, 3000);
+
+      return () => {
+        clearTimeout(timer);
+        if (window.showLoginPopup) {
+          window.showLoginPopup = undefined;
+        }
+      };
+    }
+
+    return () => {
+      // Cleanup
+      if (window.showLoginPopup) {
+        window.showLoginPopup = undefined;
+      }
+    };
+  }, [isRegisterPage, isLoginPage, hasShownInitialPopup, isAuthenticated, authChecked]);
+
+  // Reset hasShownInitialPopup when pathname changes
+  useEffect(() => {
+    setHasShownInitialPopup(false);
+  }, [pathname]);
+
+  // Don't render anything on register or login pages or if authenticated
+  if (isRegisterPage || isLoginPage || isAuthenticated || !authChecked) {
+    return null;
+  }
+
+  return showModal ? <LoginModal isOpen={showModal} onClose={() => setShowModal(false)} /> : null;
 } 

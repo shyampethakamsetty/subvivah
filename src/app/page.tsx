@@ -1,11 +1,57 @@
+'use client';
+
+import dynamic from 'next/dynamic';
 import Image from "next/image";
 import Link from "next/link";
-import Chatbot from "@/components/Chatbot";
-import DailySuggestionBubble from "@/components/DailySuggestionBubble";
+import { useRef } from "react";
+import { motion } from "framer-motion";
+import { 
+  Brain, 
+  Fingerprint, 
+  Sparkles, 
+  MessageSquareText, 
+  HeartHandshake, 
+  Telescope, 
+  Zap,
+  Lightbulb,
+  Bot,
+  Smile,
+  PersonStanding,
+  Hourglass,
+  ShieldCheck,
+  UserCheck,
+  Star,
+  MessageSquare,
+  Target
+} from 'lucide-react';
+
+// Dynamically import components that use browser APIs
+const Chatbot = dynamic(() => import("@/components/Chatbot"), {
+  ssr: false,
+});
+
+const DailySuggestionBubble = dynamic(() => import("@/components/DailySuggestionBubble"), {
+  ssr: false,
+});
+
+const LottieWrapper = dynamic(() => import("lottie-react"), {
+  ssr: false,
+});
+
+// Import animations
+import securityAnimation from "../../public/animations/sec.json";
+import matchmakingAnimation from "../../public/animations/matchmaking.json";
+import kundliAnimation from "../../public/animations/kundli.json";
+import aiInterviewAnimation from "../../public/animations/ai-interview.json";
 
 export default function Home() {
+  const securityLottieRef = useRef(null);
+  const matchmakingLottieRef = useRef(null);
+  const kundliLottieRef = useRef(null);
+  const aiInterviewLottieRef = useRef(null);
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {/* Chatbot */}
       <Chatbot />
 
@@ -13,8 +59,13 @@ export default function Home() {
       <DailySuggestionBubble />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 bg-white">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="absolute inset-0 overflow-hidden"
+        >
           <div className="relative w-full h-full">
             <Image
               src="/images/home-bg.jpg"
@@ -31,19 +82,86 @@ export default function Home() {
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-black/30 to-gray-900/60"></div>
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+        </motion.div>
+        <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24 flex flex-col items-center justify-between min-h-screen">
+          <motion.div 
+            className="text-center"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.3,
+                  delayChildren: 0.8
+                }
+              }
+            }}
+          >
+            <motion.h1 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg"
+            >
               Find Your Perfect Match
-            </h1>
-            <p className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}>
+            </motion.h1>
+            <motion.p 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" 
+              style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}
+            >
               जहाँ रिश्ते दिल से बनते हैं
-            </p>
-            <p className="text-base sm:text-lg text-white mb-8">
+            </motion.p>
+            <motion.p 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="text-base sm:text-lg text-white mb-8"
+            >
               Join thousands of successful matches on शुभ विवाह. Create your profile today and start your journey to find your life partner.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            </motion.p>
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="flex flex-col sm:flex-row justify-center gap-4"
+            >
               <Link
                 href="/register"
                 className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto"
@@ -56,57 +174,28 @@ export default function Home() {
               >
                 Browse Profiles
               </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+            </motion.div>
+          </motion.div>
 
-      {/* Wedding Moments Gallery */}
-      <section className="py-12 px-2 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-red-50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-red-900 mb-4">
-            Beautiful Moments
-          </h2>
-          <p className="text-base sm:text-xl text-gray-600 text-center mb-8 sm:mb-12">
-            Celebrate the sacred bond of marriage with traditional values
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            <div className="relative h-56 sm:h-80 md:h-[400px] overflow-hidden rounded-lg shadow-xl">
-              <Image
-                src="/images/wedding-hands1.jpg"
-                alt="Traditional Indian wedding couple holding hands with mehndi"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-300"
-                quality={100}
-              />
-            </div>
-            <div className="relative h-56 sm:h-80 md:h-[400px] overflow-hidden rounded-lg shadow-xl">
-              <Image
-                src="/images/wedding-ceremony.jpg"
-                alt="Traditional Indian wedding ceremony with haldi ritual"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-300"
-                quality={100}
-              />
-            </div>
-            <div className="relative h-56 sm:h-80 md:h-[400px] overflow-hidden rounded-lg shadow-xl">
-              <Image
-                src="/images/wedding-hands2.jpg"
-                alt="Bride and groom holding hands with beautiful attire"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-300"
-                quality={100}
-              />
-            </div>
-          </div>
-          <div className="text-center mt-8 sm:mt-12">
-            <Link
-              href="/success-stories"
-              className="inline-flex items-center text-red-600 hover:text-red-700 font-semibold"
-            >
-              View Success Stories
-              <svg
-                className="ml-2 w-5 h-5"
+          {/* Scroll Indicator */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ 
+              opacity: [0, 1, 0],
+              y: [0, 10, 0]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut"
+            }}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center"
+          >
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-white text-sm font-medium tracking-wider">Scroll to Explore</p>
+              <svg 
+                className="w-6 h-6 text-white animate-bounce" 
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -115,169 +204,366 @@ export default function Home() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
                 />
               </svg>
-            </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Beautiful Memories Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Beautiful Memories</h2>
+            <p className="text-lg text-gray-600">Cherish the moments that last forever</p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* First Memory */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="relative group"
+            >
+              <div className="relative h-[350px] overflow-hidden rounded-lg">
+                <Image
+                  src="/images/wedding-hands1.jpg"
+                  alt="Wedding ceremony hands"
+                  fill
+                  className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-xl font-semibold text-gray-900">Sacred Traditions</h3>
+                <p className="mt-2 text-gray-600">Embracing our rich cultural heritage through meaningful ceremonies</p>
+              </div>
+            </motion.div>
+
+            {/* Second Memory */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="relative group"
+            >
+              <div className="relative h-[350px] overflow-hidden rounded-lg">
+                <Image
+                  src="/images/wedding-hands2.jpg"
+                  alt="Wedding ceremony"
+                  fill
+                  className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-xl font-semibold text-gray-900">Eternal Bonds</h3>
+                <p className="mt-2 text-gray-600">Creating timeless connections that last a lifetime</p>
+              </div>
+            </motion.div>
+
+            {/* Third Memory */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="relative group"
+            >
+              <div className="relative h-[350px] overflow-hidden rounded-lg">
+                <Image
+                  src="/images/wedding-ceremony.jpg"
+                  alt="Wedding ceremony"
+                  fill
+                  className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-xl font-semibold text-gray-900">Joyous Celebrations</h3>
+                <p className="mt-2 text-gray-600">Celebrating the union of two souls in love and harmony</p>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Featured Profiles */}
-      <section className="py-12 px-2 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-red-900 mb-8 sm:mb-12">
-            Featured Profiles
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {/* Profile 1 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-4 sm:p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-red-200 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-red-600">R</span>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-xl font-semibold text-gray-900">Rahul</h3>
-                    <p className="text-gray-600">28 years, Software Engineer</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">Bangalore, India</p>
-                <Link
-                  href="/profile/rahul"
-                  className="text-red-600 hover:text-red-700 font-medium"
-                >
-                  View Profile →
-                </Link>
-              </div>
-            </div>
+      {/* Next-Gen AI Matchmaking Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-24"
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              Next-Gen AI Matchmaking
+            </h2>
+            <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto">
+              Experience the Future of Matrimony with Our Advanced AI Technology
+            </p>
+          </motion.div>
 
-            {/* Profile 2 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-4 sm:p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-red-200 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-red-600">P</span>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-xl font-semibold text-gray-900">Priya</h3>
-                    <p className="text-gray-600">26 years, Doctor</p>
+          {/* Main AI Features */}
+          <div className="space-y-32">
+            {/* Smart Match AI */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative"
+            >
+              <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
+                <div className="w-full md:w-5/12">
+                  <div className="relative h-64 md:h-80">
+                    <LottieWrapper
+                      animationData={matchmakingAnimation}
+                      loop={true}
+                      autoplay={true}
+                      className="w-full h-full object-contain [transform:rotateY(180deg)]"
+                    />
                   </div>
                 </div>
-                <p className="text-gray-600 mb-4">Mumbai, India</p>
-                <Link
-                  href="/profile/priya"
-                  className="text-red-600 hover:text-red-700 font-medium"
-                >
-                  View Profile →
-                </Link>
+                <div className="w-full md:w-7/12">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                    Smart Match AI
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center mt-1">
+                        <Brain className="w-4 h-4 text-red-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Deep Learning Matches</h4>
+                        <p className="text-gray-600">Advanced AI analyzes preferences and behavior patterns.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center mt-1">
+                        <Sparkles className="w-4 h-4 text-red-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Personalized Recommendations</h4>
+                        <p className="text-gray-600">Get matches that align with your unique preferences.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Profile 3 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-4 sm:p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-red-200 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-red-600">A</span>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-xl font-semibold text-gray-900">Amit</h3>
-                    <p className="text-gray-600">30 years, Business Owner</p>
+            {/* AI Face Verification */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative mr-0 md:mr-12 md:text-right"
+            >
+              <div className="flex flex-col-reverse md:flex-row-reverse items-center gap-8 md:gap-12">
+                <div className="w-full md:w-5/12">
+                  <div className="relative h-64 md:h-80">
+                    <LottieWrapper
+                      animationData={securityAnimation}
+                      loop={true}
+                      autoplay={true}
+                      className="w-full h-full object-contain [transform:rotateY(180deg)]"
+                    />
                   </div>
                 </div>
-                <p className="text-gray-600 mb-4">Delhi, India</p>
-                <Link
-                  href="/profile/amit"
-                  className="text-red-600 hover:text-red-700 font-medium"
-                >
-                  View Profile →
-                </Link>
+                <div className="w-full md:w-7/12 md:pr-8">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                    Advanced Face Verification
+                  </h3>
+                  <div className="space-y-4 md:ml-auto">
+                    <div className="flex items-start gap-3 md:flex-row-reverse md:text-right">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mt-1">
+                        <Fingerprint className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Real-time Authentication</h4>
+                        <p className="text-gray-600">State-of-the-art facial recognition with 99.9% accuracy.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 md:flex-row-reverse md:text-right">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mt-1">
+                        <PersonStanding className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Liveness Detection</h4>
+                        <p className="text-gray-600">Advanced AI ensures all profile photos are genuine.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </motion.div>
+
+            {/* AI Kundli Analysis */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative"
+            >
+              <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
+                <div className="w-full md:w-5/12">
+                  <div className="relative h-64 md:h-80">
+                    <LottieWrapper
+                      animationData={kundliAnimation}
+                      loop={true}
+                      autoplay={true}
+                      className="w-full h-full object-contain [transform:rotateY(180deg)]"
+                    />
+                  </div>
+                </div>
+                <div className="w-full md:w-7/12">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                    AI Kundli Analysis
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center mt-1">
+                        <Star className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Instant Compatibility</h4>
+                        <p className="text-gray-600">Advanced astrological matching powered by AI.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center mt-1">
+                        <Bot className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Detailed Analysis</h4>
+                        <p className="text-gray-600">Get comprehensive insights about your match.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* AI Interview */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative mr-0 md:mr-12 md:text-right"
+            >
+              <div className="flex flex-col-reverse md:flex-row-reverse items-center gap-8 md:gap-12">
+                <div className="w-full md:w-5/12">
+                  <div className="relative h-64 md:h-80">
+                    <LottieWrapper
+                      animationData={aiInterviewAnimation}
+                      loop={true}
+                      autoplay={true}
+                      className="w-full h-full object-contain [transform:rotateY(180deg)]"
+                    />
+                  </div>
+                </div>
+                <div className="w-full md:w-7/12 md:pr-8">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                    AI Interview Experience
+                  </h3>
+                  <div className="space-y-4 md:ml-auto">
+                    <div className="flex items-start gap-3 md:flex-row-reverse md:text-right">
+                      <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center mt-1">
+                        <MessageSquareText className="w-4 h-4 text-teal-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Interactive Conversations</h4>
+                        <p className="text-gray-600">Natural dialogue with AI to understand your preferences.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 md:flex-row-reverse md:text-right">
+                      <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center mt-1">
+                        <Smile className="w-4 h-4 text-teal-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Personalized Experience</h4>
+                        <p className="text-gray-600">Tailored matching based on your responses.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-12 px-2 sm:px-6 lg:px-8 bg-red-50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-red-900 mb-12">
-            Why Choose Us
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mt-32 text-center relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-purple-500/5 to-red-500/5 rounded-3xl transform -skew-y-2"></div>
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-12 shadow-xl border border-red-100">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-4xl mx-auto"
+              >
+                <div className="flex items-center justify-center mb-6 space-x-3">
+                  <Sparkles className="w-8 h-8 text-red-500" />
+                  <Brain className="w-8 h-8 text-purple-500" />
+                  <HeartHandshake className="w-8 h-8 text-red-500" />
+                </div>
+                <h3 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-red-600 via-purple-600 to-red-600 text-transparent bg-clip-text mb-6">
+                  Experience the Magic of AI Matchmaking
+                </h3>
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.6 }}
+                  className="text-xl sm:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Verified Profiles
-              </h3>
-              <p className="text-gray-600">
-                All profiles are verified to ensure authenticity and safety.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  Let our intelligent algorithms understand your heart's desires and guide you to meaningful connections. Your perfect match awaits in our AI-curated journey to lasting love.
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.6 }}
+                  className="flex flex-wrap justify-center gap-8 mt-12"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Advanced Search
-              </h3>
-              <p className="text-gray-600">
-                Find your perfect match with our detailed search filters.
-              </p>
+                  <div className="flex items-center gap-3 text-purple-600">
+                    <Bot className="w-6 h-6" />
+                    <span className="text-lg font-medium">Smart Matching</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-red-600">
+                    <Fingerprint className="w-6 h-6" />
+                    <span className="text-lg font-medium">Verified Profiles</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-purple-600">
+                    <MessageSquareText className="w-6 h-6" />
+                    <span className="text-lg font-medium">AI Interview</span>
+                  </div>
+                </motion.div>
+              </motion.div>
             </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Secure Messaging
-              </h3>
-              <p className="text-gray-600">
-                Connect with matches through our secure messaging system.
-              </p>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>

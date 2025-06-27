@@ -2,18 +2,22 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
+import { cookieConfig } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
+    console.log('Starting login process');
     const { email, password } = await request.json();
 
     if (!email || !password) {
+      console.log('Missing email or password');
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
       );
     }
 
+    console.log('Finding user with email:', email);
     // Find user
     const user = await prisma.user.findUnique({
       where: { email },
@@ -25,6 +29,7 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
+      console.log('User not found with email:', email);
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -32,15 +37,18 @@ export async function POST(request: Request) {
     }
 
     // Verify password
+    console.log('Verifying password for user:', user.id);
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
+      console.log('Invalid password for user:', user.id);
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
+    console.log('Creating JWT token for user:', user.id);
     // Create JWT token
     const jwtToken = sign(
       { userId: user.id },
@@ -49,6 +57,7 @@ export async function POST(request: Request) {
     );
 
     // Update last login
+    console.log('Updating last login timestamp for user:', user.id);
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLogin: new Date() },
@@ -57,26 +66,24 @@ export async function POST(request: Request) {
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
+    console.log('Setting authentication cookie for user:', user.id);
     // Set cookie and return response
     const response = NextResponse.json({
       user: userWithoutPassword,
     });
 
-    response.cookies.set('token', jwtToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    });
+    response.cookies.set('token', jwtToken, cookieConfig);
 
+    console.log('Login process completed successfully for user:', user.id);
     return response;
   } catch (error) {
     console.error('Login error:', error);
-    // Add more detailed error logging
     if (error instanceof Error) {
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
     }
     return NextResponse.json(
       { 

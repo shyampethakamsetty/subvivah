@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import withAuth from '@/components/withAuth';
+import { motion } from 'framer-motion';
+import { Heart, GraduationCap, Briefcase, MapPin, DollarSign, Users, Ruler, Calendar } from 'lucide-react';
 
 interface Preferences {
   ageFrom: number | null;
@@ -125,117 +127,144 @@ function PreferencesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+      <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-md z-0" />
+        <div className="relative z-10 flex flex-col items-center">
+          <svg className="animate-spin h-14 w-14 text-purple-300 mb-4" viewBox="0 0 50 50">
+            <circle className="opacity-20" cx="25" cy="25" r="20" stroke="currentColor" strokeWidth="5" fill="none" />
+            <circle className="opacity-70" cx="25" cy="25" r="20" stroke="currentColor" strokeWidth="5" fill="none" strokeDasharray="31.4 94.2" />
+          </svg>
+          <span className="text-purple-200 text-lg font-medium animate-pulse">Loading preferences...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-12 px-4 sm:px-6 lg:px-8"
+    >
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Partner Preferences</h1>
+        <div className="bg-slate-950/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-purple-500/20">
+          <h1 className="text-2xl font-bold text-white mb-6">Partner Preferences</h1>
           
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-sm text-white">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm text-green-600">{success}</p>
+            <div className="mb-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <p className="text-sm text-white">{success}</p>
             </div>
           )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Age Range */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Age Range</label>
-                <div className="mt-1 grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <Calendar className="w-4 h-4" />
+                  <span>Age Range</span>
+                </label>
+                <div className="grid grid-cols-2 gap-4">
                   <input
                     type="number"
                     value={preferences.ageFrom || ''}
                     onChange={(e) => setPreferences({ ...preferences, ageFrom: parseInt(e.target.value) || null })}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                     placeholder="From"
                   />
                   <input
                     type="number"
                     value={preferences.ageTo || ''}
                     onChange={(e) => setPreferences({ ...preferences, ageTo: parseInt(e.target.value) || null })}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                     placeholder="To"
                   />
                 </div>
               </div>
 
               {/* Height Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Height Range</label>
-                <div className="mt-1 grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <Ruler className="w-4 h-4" />
+                  <span>Height Range</span>
+                </label>
+                <div className="grid grid-cols-2 gap-4">
                   <input
                     type="text"
                     value={preferences.heightFrom || ''}
                     onChange={(e) => setPreferences({ ...preferences, heightFrom: e.target.value })}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                    placeholder="From (e.g., 5'6)"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    placeholder="From (e.g., 155 cm)"
                   />
                   <input
                     type="text"
                     value={preferences.heightTo || ''}
                     onChange={(e) => setPreferences({ ...preferences, heightTo: e.target.value })}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                    placeholder="To (e.g., 6'0)"
+                    className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    placeholder="To (e.g., 180 cm)"
                   />
                 </div>
               </div>
             </div>
 
             {/* Marital Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Marital Status</label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-white/90 text-sm">
+                <Heart className="w-4 h-4" />
+                <span>Marital Status</span>
+              </label>
               <select
                 value={preferences.maritalStatus || ''}
                 onChange={(e) => setPreferences({ ...preferences, maritalStatus: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
               >
-                <option value="">Select marital status</option>
-                <option value="never_married">Never Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
-                <option value="awaiting_divorce">Awaiting Divorce</option>
+                <option value="" className="bg-slate-900 text-white">Select marital status</option>
+                <option value="never_married" className="bg-slate-900 text-white">Never Married</option>
+                <option value="divorced" className="bg-slate-900 text-white">Divorced</option>
+                <option value="widowed" className="bg-slate-900 text-white">Widowed</option>
+                <option value="awaiting_divorce" className="bg-slate-900 text-white">Awaiting Divorce</option>
               </select>
             </div>
 
             {/* Religion and Caste */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Religion</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <Users className="w-4 h-4" />
+                  <span>Religion</span>
+                </label>
                 <select
                   value={preferences.religion || ''}
                   onChange={(e) => setPreferences({ ...preferences, religion: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 >
-                  <option value="">Select Religion</option>
-                  <option value="hindu">Hindu</option>
-                  <option value="muslim">Muslim</option>
-                  <option value="christian">Christian</option>
-                  <option value="sikh">Sikh</option>
-                  <option value="jain">Jain</option>
-                  <option value="buddhist">Buddhist</option>
-                  <option value="other">Other</option>
+                  <option value="" className="bg-slate-900 text-white">Select Religion</option>
+                  <option value="hindu" className="bg-slate-900 text-white">Hindu</option>
+                  <option value="muslim" className="bg-slate-900 text-white">Muslim</option>
+                  <option value="christian" className="bg-slate-900 text-white">Christian</option>
+                  <option value="sikh" className="bg-slate-900 text-white">Sikh</option>
+                  <option value="jain" className="bg-slate-900 text-white">Jain</option>
+                  <option value="buddhist" className="bg-slate-900 text-white">Buddhist</option>
+                  <option value="other" className="bg-slate-900 text-white">Other</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Caste</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <Users className="w-4 h-4" />
+                  <span>Caste</span>
+                </label>
                 <input
                   type="text"
                   value={preferences.caste || ''}
                   onChange={(e) => setPreferences({ ...preferences, caste: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   placeholder="Enter preferred caste"
                 />
               </div>
@@ -243,40 +272,34 @@ function PreferencesPage() {
 
             {/* Education and Occupation */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Education</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <GraduationCap className="w-4 h-4" />
+                  <span>Education</span>
+                </label>
                 <select
                   value={preferences.education || ''}
                   onChange={(e) => setPreferences({ ...preferences, education: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 >
-                  <option value="">Select Education</option>
-                  <option value="B.Tech">B.Tech</option>
-                  <option value="MBBS">MBBS</option>
-                  <option value="B.Com">B.Com</option>
-                  <option value="BBA">BBA</option>
-                  <option value="MBA">MBA</option>
-                  <option value="MCA">MCA</option>
-                  <option value="B.Sc">B.Sc</option>
-                  <option value="M.Sc">M.Sc</option>
-                  <option value="Ph.D">Ph.D</option>
-                  <option value="CA">CA</option>
-                  <option value="LLB">LLB</option>
-                  <option value="B.Arch">B.Arch</option>
-                  <option value="BDS">BDS</option>
-                  <option value="B.Pharm">B.Pharm</option>
-                  <option value="M.Tech">M.Tech</option>
-                  <option value="high_school">High School</option>
-                  <option value="any">Any</option>
+                  <option value="" className="bg-slate-900 text-white">Select Education</option>
+                  <option value="high_school" className="bg-slate-900 text-white">High School</option>
+                  <option value="bachelors" className="bg-slate-900 text-white">Bachelor's Degree</option>
+                  <option value="masters" className="bg-slate-900 text-white">Master's Degree</option>
+                  <option value="phd" className="bg-slate-900 text-white">PhD</option>
+                  <option value="other" className="bg-slate-900 text-white">Other</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Occupation</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <Briefcase className="w-4 h-4" />
+                  <span>Occupation</span>
+                </label>
                 <input
                   type="text"
                   value={preferences.occupation || ''}
                   onChange={(e) => setPreferences({ ...preferences, occupation: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   placeholder="Enter preferred occupation"
                 />
               </div>
@@ -284,56 +307,49 @@ function PreferencesPage() {
 
             {/* Location and Income */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Work Location</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <MapPin className="w-4 h-4" />
+                  <span>Location</span>
+                </label>
                 <input
                   type="text"
                   value={preferences.location || ''}
                   onChange={(e) => setPreferences({ ...preferences, location: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                  placeholder="Enter preferred work location"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  placeholder="Enter preferred location"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Annual Income Range</label>
-                <select
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-white/90 text-sm">
+                  <DollarSign className="w-4 h-4" />
+                  <span>Income</span>
+                </label>
+                <input
+                  type="text"
                   value={preferences.income || ''}
                   onChange={(e) => setPreferences({ ...preferences, income: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                >
-                  <option value="">Select Income Range</option>
-                  <option value="0-3">Below 3 LPA</option>
-                  <option value="3-5">3-5 LPA</option>
-                  <option value="5-8">5-8 LPA</option>
-                  <option value="8-12">8-12 LPA</option>
-                  <option value="12-15">12-15 LPA</option>
-                  <option value="15-20">15-20 LPA</option>
-                  <option value="20+">Above 20 LPA</option>
-                </select>
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  placeholder="Enter minimum income"
+                />
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => router.push('/matches')}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
+            <div className="flex justify-end mt-6">
+              <motion.button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 disabled:opacity-50"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving...' : 'Save Preferences'}
-              </button>
+              </motion.button>
             </div>
           </form>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

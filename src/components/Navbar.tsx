@@ -30,14 +30,18 @@ export default function Navbar() {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include',
       });
       
       if (response.ok) {
         setIsAuthenticated(false);
         setMobileMenuOpen(false);
-        router.push('/');
-        // Force a complete page reload
-        window.location.href = '/';
+        
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
+      } else {
+        console.error('Logout failed:', await response.json());
       }
     } catch (error) {
       console.error('Logout error:', error);
@@ -77,7 +81,7 @@ export default function Navbar() {
               <Link href="/matches" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">Matches</Link>
               <Link href="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">Messages</Link>
               <Link href="/kundli" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">Kundli Generator</Link>
-              <Link href="/brahmand-chat" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">ब्रह्मांड AI chat</Link>
+              <Link href="/ai-personalization" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">AI personalization</Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -122,7 +126,7 @@ export default function Navbar() {
           <Link href="/matches" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Matches</Link>
           <Link href="/messages" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Messages</Link>
           <Link href="/kundli" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Kundli Generator</Link>
-          <Link href="/brahmand-chat" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">ब्रह्मांड AI chat</Link>
+          <Link href="/ai-personalization" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">AI personalization</Link>
           {isAuthenticated ? (
             <>
               <Link href="/profile" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">

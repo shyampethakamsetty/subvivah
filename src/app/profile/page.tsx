@@ -6,14 +6,23 @@ import withAuth from '@/components/withAuth';
 import Image from 'next/image';
 import PhotoUpload from '@/components/PhotoUpload';
 import { Camera, X, Wand2 } from 'lucide-react';
+import Link from 'next/link';
+import FaceVerification from '@/components/FaceVerification';
+import dynamicImport from 'next/dynamic';
+
+// Dynamically import FaceVerification with no SSR
+const FaceVerificationNoSSR = dynamicImport(() => import('@/components/FaceVerification'), {
+  ssr: false
+});
 
 interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
+  gender: string;
   isVerified: boolean;
-  photos?: { url: string; caption?: string; isProfile?: boolean }[];
+  photos?: { url: string; isProfile?: boolean }[];
   profile?: {
     height?: number;
     weight?: number;
@@ -67,10 +76,10 @@ function ProfilePage() {
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string } | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [caption, setCaption] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [isGeneratingBio, setIsGeneratingBio] = useState(false);
+  const [showFaceVerification, setShowFaceVerification] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -120,6 +129,19 @@ function ProfilePage() {
 
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    // Toggle body class for hiding navbar when modal is open
+    if (isEditing) {
+      document.body.classList.add('edit-profile-modal-open');
+    } else {
+      document.body.classList.remove('edit-profile-modal-open');
+    }
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('edit-profile-modal-open');
+    };
+  }, [isEditing]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -232,35 +254,26 @@ function ProfilePage() {
     try {
       const formData = new FormData();
       formData.append('file', uploadFile);
-      formData.append('caption', caption);
-      formData.append('isProfile', 'true');
       const response = await fetch('/api/photos/upload', {
         method: 'POST',
         body: formData,
       });
-      
-      const data = await response.json();
-      
       if (response.ok) {
         setUploadStatus('success');
         // Refresh user data to get the new photo
         const userResponse = await fetch('/api/auth/me');
         if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setUser(userData.user);
+          const data = await userResponse.json();
+          setUser(data.user);
         }
         setIsUploadModalOpen(false);
         setUploadFile(null);
-        setCaption('');
       } else {
         setUploadStatus('error');
-        console.error('Upload failed:', data.error);
-        alert(data.error || 'Failed to upload photo. Please try again.');
       }
     } catch (error) {
       setUploadStatus('error');
       console.error('Error uploading photo:', error);
-      alert('An error occurred while uploading the photo. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -321,6 +334,38 @@ function ProfilePage() {
     }
   };
 
+  const handleVerificationComplete = async (data: any) => {
+    console.log('Verification completed:', data);
+    
+    if (data.success && data.gender) {
+      try {
+        // Update user's gender in the database
+        const response = await fetch('/api/auth/update-gender', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            gender: data.gender,
+            confidence: data.confidence
+          }),
+        });
+
+        if (response.ok) {
+          // Update local user state
+          setUser(prev => prev ? { ...prev, gender: data.gender } : null);
+          console.log('✅ Gender updated successfully:', data.gender);
+        } else {
+          console.error('Failed to update gender in database');
+        }
+      } catch (error) {
+        console.error('Error updating gender:', error);
+      }
+    }
+    
+    setShowFaceVerification(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
@@ -347,6 +392,78 @@ function ProfilePage() {
       {/* Decorative floating user icon */}
       <div className="absolute top-4 right-8 animate-pulse text-amber-200 text-4xl z-10">👤</div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Face Verification Section */}
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-white/10 hover:bg-white/10 transition-colors">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-purple-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Face Verification</h3>
+                <p className="text-gray-300 text-sm">Verify your identity to increase your profile visibility</p>
+              </div>
+            </div>
+            {user.gender && user.gender !== 'unknown' && user.gender !== '' && user.gender !== 'Not Specified' ? (
+              <div className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600/20 border border-emerald-400/30 rounded-lg">
+                <svg
+                  className="w-5 h-5 text-emerald-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span className="text-emerald-300 font-medium">Verified</span>
+                <span className="text-emerald-400/80 text-sm">({user.gender})</span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowFaceVerification(true)}
+                className="px-6 py-2.5 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                Verify Now
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Profile Header */}
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-white/10 hover:bg-white/10 transition-colors">
           <div className="flex flex-col md:flex-row items-start gap-8">
@@ -526,11 +643,6 @@ function ProfilePage() {
                     height={150}
                     className="w-full h-full object-cover"
                   />
-                  {photo.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                      <p className="text-white text-xs truncate">{photo.caption}</p>
-                    </div>
-                  )}
                 </div>
               ))}
               {(!user?.photos || user.photos.length < 3) && (
@@ -571,11 +683,11 @@ function ProfilePage() {
 
         {/* Edit Form Modal */}
         {isEditing && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="edit-profile-modal fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="bg-gradient-to-br from-slate-950/95 via-purple-900/95 to-slate-950/95 backdrop-blur-lg rounded-2xl shadow-2xl p-6 w-full max-w-xl relative max-h-[90vh] overflow-y-auto border border-purple-400/30">
               {/* Enhanced close button */}
               <button
-                className="absolute -top-4 -right-4 p-3 rounded-full bg-purple-600 hover:bg-purple-700 transition-all duration-300 transform hover:scale-110 shadow-lg border-2 border-purple-400/30 group z-50"
+                className="close-btn absolute top-6 left-6 p-3 rounded-full bg-purple-600 hover:bg-purple-700 transition-all duration-300 transform hover:scale-110 shadow-lg border-2 border-purple-400/30 group z-50"
                 onClick={() => setIsEditing(false)}
               >
                 <X className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-300" />
@@ -592,8 +704,7 @@ function ProfilePage() {
                   {/* Personal Information Form */}
                   <div className="space-y-6">
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">person</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Personal Information
                       </h2>
                   <div className="space-y-4">
@@ -660,8 +771,7 @@ function ProfilePage() {
                     </div>
 
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">family_restroom</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Family Information
                       </h2>
                       <div className="space-y-4">
@@ -715,8 +825,7 @@ function ProfilePage() {
 
                   <div className="space-y-6">
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">work</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Professional Information
                       </h2>
                   <div className="space-y-4">
@@ -768,8 +877,7 @@ function ProfilePage() {
                     </div>
 
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">description</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         About Me
                       </h2>
                       <textarea
@@ -783,8 +891,7 @@ function ProfilePage() {
                     </div>
 
                     <div className="bg-slate-950/50 backdrop-blur-sm rounded-xl p-5 border border-purple-500/20 shadow-lg hover:shadow-purple-500/5 transition-all duration-300">
-                      <h2 className="text-lg font-semibold text-purple-100 mb-4 flex items-center">
-                        <span className="material-icons mr-2 text-purple-400">interests</span>
+                      <h2 className="text-lg font-semibold text-purple-100 mb-4">
                         Hobbies & Interests
                       </h2>
                       <input
@@ -891,19 +998,6 @@ function ProfilePage() {
                 )}
               </div>
 
-              <div>
-                  <label className="block text-sm font-medium text-purple-200 mb-1.5">
-                  Caption
-                </label>
-                <textarea
-                  value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
-                    className="w-full rounded-lg bg-slate-900/50 border-purple-500/30 text-purple-100 placeholder-purple-300/30 shadow-inner focus:border-purple-500 focus:ring focus:ring-purple-500/20 focus:ring-opacity-50 transition-all duration-200"
-                  rows={3}
-                  placeholder="Add a caption to your photo..."
-                />
-              </div>
-
               {uploadStatus === 'uploading' && (
                   <div className="text-center text-purple-300 my-2">Uploading...</div>
               )}
@@ -922,6 +1016,18 @@ function ProfilePage() {
                 {uploading ? 'Uploading...' : 'Upload Photo'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Face Verification Overlay */}
+      {showFaceVerification && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowFaceVerification(false)} />
+          <div className="relative z-10 w-full max-w-2xl">
+            <FaceVerificationNoSSR
+              onNext={handleVerificationComplete}
+            />
           </div>
         </div>
       )}

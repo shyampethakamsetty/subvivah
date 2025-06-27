@@ -2,8 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'subvivah',
-      script: 'node_modules/next/dist/bin/next',
-      args: 'start',
+      script: './server.js',
       cwd: './',
       instances: 1,
       autorestart: true,

@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
+  poweredByHeader: false,
+  distDir: '.next',
+  generateEtags: false,
   async headers() {
     return [
       {
