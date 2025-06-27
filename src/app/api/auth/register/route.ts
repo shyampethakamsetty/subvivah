@@ -10,7 +10,6 @@ export async function POST(request: Request) {
       lastName,
       email,
       password,
-      gender,
       dateOfBirth,
       // Profile data
       height,
@@ -44,7 +43,7 @@ export async function POST(request: Request) {
     } = data;
 
     // Validate required fields
-    if (!email || !password || !firstName || !lastName || !gender || !dateOfBirth) {
+    if (!email || !password || !firstName || !lastName || !dateOfBirth) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -73,7 +72,7 @@ export async function POST(request: Request) {
         password: hashedPassword,
         firstName,
         lastName,
-        gender,
+        gender: 'unknown',
         dob: new Date(dateOfBirth),
         isVerified: false,
         isActive: true,

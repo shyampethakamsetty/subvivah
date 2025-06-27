@@ -48,23 +48,34 @@ export default function withAuth<P extends { user?: User }>(
           const response = await fetch('/api/auth/me');
           const data = await response.json();
           
-          if (data.isAuthenticated && data.user) {
+          if (response.ok && data.isAuthenticated && data.user) {
             setIsAuthenticated(true);
             setUser(data.user);
+            // Clear any existing login popup
+            if (typeof window !== 'undefined' && window.showLoginPopup) {
+              window.showLoginPopup = undefined;
+            }
           } else {
             setIsAuthenticated(false);
             setUser(null);
-            // Instead of redirect, trigger login popup if available
-            if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-              (window as any).showLoginPopup();
+            // Only show login popup if not on login or register page
+            const pathname = window.location.pathname;
+            if (!pathname.includes('/login') && !pathname.includes('/register')) {
+              if (typeof window !== 'undefined' && typeof window.showLoginPopup === 'function') {
+                window.showLoginPopup();
+              }
             }
           }
         } catch (error) {
           console.error('Auth check error:', error);
           setIsAuthenticated(false);
           setUser(null);
-          if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-            (window as any).showLoginPopup();
+          // Only show login popup if not on login or register page
+          const pathname = window.location.pathname;
+          if (!pathname.includes('/login') && !pathname.includes('/register')) {
+            if (typeof window !== 'undefined' && typeof window.showLoginPopup === 'function') {
+              window.showLoginPopup();
+            }
           }
         } finally {
           setLoading(false);
@@ -91,10 +102,10 @@ export default function withAuth<P extends { user?: User }>(
       );
     }
 
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated) {
       return null;
     }
 
-    return <WrappedComponent {...(props as P)} user={user} />;
+    return <WrappedComponent {...(props as P)} user={user as User} />;
   };
 } 

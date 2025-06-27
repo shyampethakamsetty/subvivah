@@ -5,34 +5,31 @@ const fs = require('fs');
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
+const path = require('path');
 
+const dev = process.env.NODE_ENV !== 'production';
 const app = express();
+const nextApp = next({ dev });
+const handle = nextApp.getRequestHandler();
+
 const upload = multer({ dest: 'uploads/' });
 
 AWS.config.update({ region: 'us-west-2' });
 const rekognition = new AWS.Rekognition();
 
-// Removed the video verification endpoint
-// app.post('/api/upload-video', upload.single('video'), (req, res) => {
-//   const videoPath = req.file.path;
-
-//   // Here you would extract frames and use rekognition to verify
-//   // For simplicity, we'll just simulate a successful verification
-//   fs.unlinkSync(videoPath); // Clean up the uploaded file
-//   res.json({ message: 'Video uploaded and verified successfully!' });
-// });
-
-const dev = process.env.NODE_ENV !== 'production';
-const nextApp = next({ dev });
-const handle = nextApp.getRequestHandler();
-
-const PORT = 3001;
+const PORT = process.env.PORT || 3000;
 
 nextApp.prepare().then(() => {
-  // Handle Next.js requests
+  // Serve static files from the .next directory
+  app.use('/_next', express.static(path.join(__dirname, '.next')));
+
+  // Handle API routes
+  app.use('/api', express.json());
+
+  // Handle all other routes with Next.js
   app.all('*', (req, res) => {
     const parsedUrl = parse(req.url, true);
-    handle(req, res, parsedUrl);
+    return handle(req, res, parsedUrl);
   });
 
   // Create HTTP server
@@ -40,4 +37,7 @@ nextApp.prepare().then(() => {
     if (err) throw err;
     console.log(`> Ready on http://localhost:${PORT}`);
   });
+}).catch(err => {
+  console.error('Error starting server:', err);
+  process.exit(1);
 }); 

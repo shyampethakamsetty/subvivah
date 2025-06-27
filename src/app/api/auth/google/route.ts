@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
 import { prisma } from '@/lib/db';
 import { sign } from 'jsonwebtoken';
+import { cookieConfig } from '@/lib/auth';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -86,15 +87,12 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log('Setting authentication cookie');
-    response.cookies.set('token', jwtToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      domain: process.env.NODE_ENV === 'production' ? '.subvivah.com' : undefined,
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    });
+    console.log('Setting authentication cookies');
+    // Set JWT token cookie
+    response.cookies.set('token', jwtToken, cookieConfig);
+
+    // Store Google token for later revocation
+    response.cookies.set('google_token', token, cookieConfig);
 
     return response;
   } catch (error) {

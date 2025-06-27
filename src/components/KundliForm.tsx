@@ -104,7 +104,7 @@ const KundliForm: React.FC = () => {
   };
 
   return (
-    <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-500/30">
+    <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-500/30 mt-8 mb-8">
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
         <Sparkles className="text-amber-300" size={20} />
         <span>Enter Your Birth Details</span>
@@ -153,11 +153,11 @@ const KundliForm: React.FC = () => {
           </label>
           <select 
             name="gender" 
-            className="w-full p-3 rounded-lg bg-indigo-800/50 border border-purple-500/40 text-white placeholder:text-purple-300/60 focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+            className="w-full p-3 rounded-lg bg-indigo-800/50 border border-purple-500/40 text-white placeholder:text-purple-300/60 focus:outline-none focus:ring-2 focus:ring-purple-400/50 [&>option]:bg-indigo-900 [&>option]:text-white [&>option]:py-2"
           >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="male" className="bg-indigo-900 text-white">Male</option>
+            <option value="female" className="bg-indigo-900 text-white">Female</option>
+            <option value="other" className="bg-indigo-900 text-white">Other</option>
           </select>
         </div>
 
