@@ -108,7 +108,7 @@ export const cookieConfig = {
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
-  domain: process.env.NODE_ENV === 'production' ? '.subvivah.com' : undefined,
+  domain: process.env.NODE_ENV === 'production' ? 'subvivah.com' : undefined,
   maxAge: 7 * 24 * 60 * 60 // 7 days
 };
 

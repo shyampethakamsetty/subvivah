@@ -18,7 +18,9 @@ export async function GET(request: Request) {
 
     let decoded: any;
     try {
-      decoded = verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      decoded = verify(token, process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || '', {
+        algorithms: ['HS256']
+      });
     } catch (error) {
       console.error('Token verification failed:', error);
       return NextResponse.json({ isAuthenticated: false });
