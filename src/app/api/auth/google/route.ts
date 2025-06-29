@@ -73,8 +73,11 @@ export async function POST(request: Request) {
     // Create JWT token
     const jwtToken = sign(
       { userId: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '7d' }
+      process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || '',
+      { 
+        expiresIn: '7d',
+        algorithm: 'HS256'
+      }
     );
 
     // Set cookie

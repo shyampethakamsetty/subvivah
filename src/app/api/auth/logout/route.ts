@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     if (token) {
       console.log('Found existing token, attempting to decode');
       try {
-        const decoded = verify(token.value, process.env.JWT_SECRET || 'your-secret-key') as { userId: string };
+        const decoded = verify(token.value, process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || '') as { userId: string };
         console.log('Token decoded successfully, fetching user:', decoded.userId);
         
         const user = await prisma.user.findUnique({
@@ -53,19 +53,27 @@ export async function POST(request: Request) {
     
     console.log('Clearing cookies:', cookiesToClear);
     
-    // Clear all auth-related cookies with standardized config
+    // Clear all auth-related cookies with both domain configurations
     cookiesToClear.forEach(cookieName => {
-      if (cookieStore.has(cookieName)) {
-        console.log(`Clearing cookie: ${cookieName}`);
-        response.cookies.set(cookieName, '', clearCookieConfig);
+      // Clear with domain
+      response.cookies.set(cookieName, '', {
+        ...clearCookieConfig,
+        domain: process.env.NODE_ENV === 'production' ? 'subvivah.com' : undefined
+      });
+      
+      // Clear without domain
+      response.cookies.set(cookieName, '', {
+        ...clearCookieConfig,
+        domain: undefined
+      });
+      
+      // Clear with www subdomain in production
+      if (process.env.NODE_ENV === 'production') {
+        response.cookies.set(cookieName, '', {
+          ...clearCookieConfig,
+          domain: 'www.subvivah.com'
+        });
       }
-    });
-
-    // Also clear cookies without domain to handle any legacy cookies
-    const legacyConfig = { ...clearCookieConfig, domain: undefined };
-    cookiesToClear.forEach(cookieName => {
-      console.log(`Clearing legacy cookie: ${cookieName}`);
-      response.cookies.set(cookieName, '', legacyConfig);
     });
 
     console.log('Logout process completed successfully');
