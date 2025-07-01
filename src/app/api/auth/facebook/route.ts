@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { sign } from 'jsonwebtoken';
+import { signJwt } from '@/lib/jwt';
 
 export async function POST(request: Request) {
   try {
@@ -74,12 +75,8 @@ export async function POST(request: Request) {
       user = newUser;
     }
 
-    // Create JWT token
-    const jwtToken = sign(
-      { userId: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '7d' }
-    );
+    // Create JWT token using centralized utility
+    const jwtToken = signJwt({ userId: user.id });
 
     // Set cookie
     const res = NextResponse.json({
