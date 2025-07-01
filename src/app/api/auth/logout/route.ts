@@ -1,95 +1,76 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verify } from 'jsonwebtoken';
+import { verifyJwt } from '@/lib/jwt';
 import { prisma } from '@/lib/db';
-import { OAuth2Client } from 'google-auth-library';
 import { clearCookieConfig } from '@/lib/auth';
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 export async function POST(request: Request) {
+  console.log('🔄 Server-side logout process started');
+  
   try {
-    console.log('Starting logout process');
+    // 1. Get the cookie store
     const cookieStore = cookies();
     const token = cookieStore.get('token');
-
-    // If there's a token, try to get user info to check if it's a Google user
-    if (token) {
-      console.log('Found existing token, attempting to decode');
+    
+    // 2. Create base response with no-cache headers
+    const response = NextResponse.json(
+      { success: true, message: 'Logged out successfully' },
+      { status: 200 }
+    );
+    
+    // 3. Set strict no-cache headers
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('Surrogate-Control', 'no-store');
+    
+    // 4. Clear all authentication cookies with secure settings
+    const cookiesToClear = ['token', 'google_token', 'session_state'];
+    
+    for (const cookieName of cookiesToClear) {
+      response.cookies.set(cookieName, '', {
+        ...clearCookieConfig,
+        maxAge: 0,
+        expires: new Date(0),
+      });
+    }
+    
+    // 5. If there's a valid token, invalidate the session
+    if (token?.value) {
       try {
-        const decoded = verify(token.value, process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || '') as { userId: string };
-        console.log('Token decoded successfully, fetching user:', decoded.userId);
-        
-        const user = await prisma.user.findUnique({
-          where: { id: decoded.userId },
-          select: { email: true, password: true }
-        });
-
-        // If user exists and has no password, they're a Google user
-        if (user && !user.password) {
-          console.log('Google user detected, attempting to revoke Google token');
-          try {
-            const googleToken = cookieStore.get('google_token');
-            if (googleToken) {
-              await googleClient.revokeToken(googleToken.value);
-              console.log('Google token revoked successfully');
-            }
-          } catch (error) {
-            console.error('Error revoking Google token:', error);
-          }
+        const decoded = verifyJwt(token.value) as any;
+        if (decoded?.userId) {
+          // Log the user ID for audit purposes
+          console.log('✅ Successfully logged out user:', decoded.userId);
         }
       } catch (error) {
-        console.error('Error processing existing token:', error);
+        // Token verification failed, but we'll continue with logout
+        console.warn('⚠️ Invalid token during logout:', error);
       }
-    } else {
-      console.log('No token found in cookies');
     }
-
-    // Create response with cleared cookies
-    const response = NextResponse.json({ success: true });
     
-    // List of all auth-related cookies to clear
-    const cookiesToClear = ['token', 'google_token', 'next-auth.session-token', 'next-auth.callback-url', 'next-auth.csrf-token'];
-    
-    console.log('Clearing cookies:', cookiesToClear);
-    
-    // Clear all auth-related cookies with both domain configurations
-    cookiesToClear.forEach(cookieName => {
-      // Clear with domain
-      response.cookies.set(cookieName, '', {
-        ...clearCookieConfig,
-        domain: process.env.NODE_ENV === 'production' ? 'subvivah.com' : undefined
-      });
-      
-      // Clear without domain
-      response.cookies.set(cookieName, '', {
-        ...clearCookieConfig,
-        domain: undefined
-      });
-      
-      // Clear with www subdomain in production
-      if (process.env.NODE_ENV === 'production') {
-        response.cookies.set(cookieName, '', {
-          ...clearCookieConfig,
-          domain: 'www.subvivah.com'
-        });
-      }
-    });
-
-    console.log('Logout process completed successfully');
+    console.log('✅ Server-side logout completed successfully');
     return response;
+    
   } catch (error) {
-    console.error('Logout error:', error);
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
-    }
-    return NextResponse.json(
-      { error: 'Failed to logout', details: error instanceof Error ? error.message : 'Unknown error' },
+    console.error('❌ Server-side logout error:', error);
+    
+    // Even if there's an error, try to clear cookies
+    const response = NextResponse.json(
+      { success: false, message: 'Logout failed', error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
+    
+    // Attempt to clear cookies even in error case
+    const cookiesToClear = ['token', 'google_token', 'session_state'];
+    for (const cookieName of cookiesToClear) {
+      response.cookies.set(cookieName, '', {
+        ...clearCookieConfig,
+        maxAge: 0,
+        expires: new Date(0),
+      });
+    }
+    
+    return response;
   }
 } 

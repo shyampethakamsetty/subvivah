@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { sign } from 'jsonwebtoken';
+import { signJwt } from '@/lib/jwt';
 import { cookieConfig } from '@/lib/auth';
 
 export async function POST(request: Request) {
@@ -49,15 +49,8 @@ export async function POST(request: Request) {
     }
 
     console.log('Creating JWT token for user:', user.id);
-    // Create JWT token
-    const jwtToken = sign(
-      { userId: user.id },
-      process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || '',
-      { 
-        expiresIn: '7d',
-        algorithm: 'HS256'
-      }
-    );
+    // Create JWT token using centralized utility
+    const jwtToken = signJwt({ userId: user.id });
 
     // Update last login
     console.log('Updating last login timestamp for user:', user.id);

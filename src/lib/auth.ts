@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from './prisma';
 import { compare } from 'bcryptjs';
-import { verify } from 'jsonwebtoken';
+import { verifyJwt } from './jwt';
 
 declare module 'next-auth' {
   interface Session {
@@ -95,8 +95,7 @@ export const authOptions: NextAuthOptions = {
 // JWT token verification function for API routes
 export async function verifyToken(token: string): Promise<any> {
   try {
-    const decoded = verify(token, process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'your-secret-key');
-    return decoded;
+    return verifyJwt(token);
   } catch (error) {
     return null;
   }
@@ -108,7 +107,8 @@ export const cookieConfig = {
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
-  domain: process.env.NODE_ENV === 'production' ? 'subvivah.com' : undefined,
+  // Remove domain setting to let browser handle it automatically
+  // This prevents issues with www vs non-www domains
   maxAge: 7 * 24 * 60 * 60 // 7 days
 };
 

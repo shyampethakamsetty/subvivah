@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { verify } from 'jsonwebtoken';
+import { verifyJwt } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +18,8 @@ export async function GET(request: Request) {
 
     let decoded: any;
     try {
-      decoded = verify(token, process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || '', {
-        algorithms: ['HS256']
-      });
+      // Use centralized JWT verification
+      decoded = verifyJwt(token);
     } catch (error) {
       console.error('Token verification failed:', error);
       return NextResponse.json({ isAuthenticated: false });

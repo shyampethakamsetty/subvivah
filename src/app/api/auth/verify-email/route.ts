@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { sign, verify } from 'jsonwebtoken';
+import { signJwt, verifyJwt } from '@/lib/jwt';
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
@@ -22,12 +22,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate verification token
-    const verificationToken = sign(
-      { email },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '1h' }
-    );
+    // Generate verification token using centralized utility
+    const verificationToken = signJwt({ email }, { expiresIn: '1h' });
 
     // Save verification token to database
     await prisma.verificationToken.create({
@@ -75,8 +71,8 @@ export async function GET(request: Request) {
       );
     }
 
-    // Verify token
-    const decoded = verify(token, process.env.JWT_SECRET || 'your-secret-key') as { email: string };
+    // Verify token using centralized utility
+    const decoded = verifyJwt(token) as any;
     
     // Find and delete verification token
     const verificationToken = await prisma.verificationToken.findUnique({

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import GoogleLoginButton from '@/components/GoogleLoginButton';
 import { Heart, Mail, Lock, X, Sparkles } from 'lucide-react';
 
 interface LoginModalProps {
@@ -102,21 +101,6 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
 
           <div className="bg-white py-6 px-4 sm:rounded-lg sm:px-8">
             <div className="space-y-5">
-              {/* Google Login */}
-              <div className="min-h-[40px]">
-                <GoogleLoginButton onSuccess={onSuccess} />
-              </div>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-600">Or continue with email</span>
-                </div>
-              </div>
-
               {/* Login Form */}
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
