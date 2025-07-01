@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import formStyles from './register.module.css';
+import pageStyles from './page.module.css';
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -64,19 +66,22 @@ export default function Register() {
 
     setPasswordRequirements(requirements);
 
+    // Return only the missing requirements
+    const missingRequirements = [];
     if (!requirements.length) {
-      return 'Password must be at least 8 characters long';
+      missingRequirements.push('At least 8 characters');
     }
     if (!requirements.letter) {
-      return 'Password must contain at least one letter';
+      missingRequirements.push('At least one letter');
     }
     if (!requirements.number) {
-      return 'Password must contain at least one number';
+      missingRequirements.push('At least one number');
     }
     if (!requirements.special) {
-      return 'Password must contain at least one special character';
+      missingRequirements.push('At least one special character');
     }
-    return '';
+    
+    return missingRequirements.length > 0 ? missingRequirements.join(', ') : '';
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -171,23 +176,36 @@ export default function Register() {
 
   const isNextButtonDisabled = loading || (step === 1 && passwordError !== '');
 
+  // Cleanup function to prevent removeChild error
+  useEffect(() => {
+    return () => {
+      // Cleanup any potential event listeners or DOM elements
+      const root = document.getElementById('__next');
+      if (root) {
+        while (root.firstChild) {
+          root.removeChild(root.firstChild);
+        }
+      }
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-6 sm:py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg border border-white/20">
-          <div className="p-4 sm:p-6">
+    <div className={pageStyles.pageContainer}>
+      <div className={pageStyles.formWrapper}>
+        <div className={pageStyles.formCard}>
+          <div className={pageStyles.formContent}>
             {/* Progress Steps */}
             <div className="mb-6 sm:mb-8">
               {/* Mobile Progress Indicator */}
               <div className="sm:hidden flex flex-col items-center mb-4">
-                <div className="text-white text-lg font-semibold mb-2">Step {step} of 5</div>
-                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className={pageStyles.stepIndicator}>Step {step} of 5</div>
+                <div className={pageStyles.progressBar}>
                   <div 
-                    className="h-full bg-pink-600 rounded-full transition-all duration-300"
+                    className={pageStyles.progressFill}
                     style={{ width: `${(step / 5) * 100}%` }}
                   />
                 </div>
-                <div className="text-purple-200 text-sm mt-2">
+                <div className={pageStyles.stepText}>
                   {step === 1 && 'Basic Info'}
                   {step === 2 && 'Personal'}
                   {step === 3 && 'Professional'}
@@ -197,43 +215,50 @@ export default function Register() {
               </div>
 
               {/* Desktop Progress Steps */}
-              <div className="hidden sm:flex items-center justify-between">
+              <div className="hidden sm:grid grid-cols-5 gap-4">
                 {[1, 2, 3, 4, 5].map((stepNumber) => (
-                  <div key={stepNumber} className="flex items-center">
+                  <div
+                    key={stepNumber}
+                    className={`text-center ${
+                      step === stepNumber
+                        ? 'text-white'
+                        : step > stepNumber
+                        ? 'text-pink-400'
+                        : 'text-white/50'
+                    }`}
+                  >
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        stepNumber <= step ? 'bg-pink-600 text-white' : 'bg-white/10 text-gray-300'
+                      className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center text-sm border-2 mb-2 ${
+                        step === stepNumber
+                          ? 'border-pink-500 bg-pink-500/20 text-white'
+                          : step > stepNumber
+                          ? 'border-pink-400 bg-pink-400/20 text-pink-400'
+                          : 'border-white/30 bg-white/5 text-white/50'
                       }`}
                     >
                       {stepNumber}
                     </div>
-                    {stepNumber < 5 && (
-                      <div
-                        className={`h-1 w-20 ${
-                          stepNumber < step ? 'bg-pink-600' : 'bg-white/10'
-                        }`}
-                      />
-                    )}
+                    <div className={pageStyles.stepText}>
+                      {stepNumber === 1 && 'Basic Info'}
+                      {stepNumber === 2 && 'Personal'}
+                      {stepNumber === 3 && 'Professional'}
+                      {stepNumber === 4 && 'Family'}
+                      {stepNumber === 5 && 'Horoscope'}
+                    </div>
                   </div>
                 ))}
               </div>
-              <div className="hidden sm:flex justify-between mt-2 text-sm text-purple-200">
-                <span>Basic Info</span>
-                <span>Personal</span>
-                <span>Professional</span>
-                <span>Family</span>
-                <span>Horoscope</span>
-              </div>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            {/* Form Content */}
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Step 1: Basic Information */}
               {step === 1 && (
-                <div className="space-y-4 sm:space-y-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-white text-center sm:text-left">Basic Information</h2>
-                  <div className="grid grid-cols-1 gap-4 sm:gap-6">
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
-                      <label htmlFor="firstName" className="block text-sm font-medium text-purple-200 mb-1.5">
+                <div className="space-y-6">
+                  <h2 className={pageStyles.sectionTitleCenter}>Basic Information</h2>
+                  <div className={formStyles.formGrid}>
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="firstName" className={formStyles.formLabel}>
                         First Name
                       </label>
                       <input
@@ -242,12 +267,12 @@ export default function Register() {
                         id="firstName"
                         value={formData.firstName}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
-                      <label htmlFor="lastName" className="block text-sm font-medium text-purple-200 mb-1.5">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="lastName" className={formStyles.formLabel}>
                         Last Name
                       </label>
                       <input
@@ -256,12 +281,12 @@ export default function Register() {
                         id="lastName"
                         value={formData.lastName}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
-                      <label htmlFor="email" className="block text-sm font-medium text-purple-200 mb-1.5">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="email" className={formStyles.formLabel}>
                         Email
                       </label>
                       <input
@@ -270,12 +295,12 @@ export default function Register() {
                         id="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
-                      <label htmlFor="password" className="block text-sm font-medium text-purple-200 mb-1.5">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="password" className={formStyles.formLabel}>
                         Password
                       </label>
                       <input
@@ -284,77 +309,54 @@ export default function Register() {
                         id="password"
                         value={formData.password}
                         onChange={handleChange}
-                        className={`mt-1 block w-full rounded-md bg-white/10 border shadow-sm focus:ring-pink-500 ${
-                          passwordError ? 'border-red-500 focus:border-red-500' : 'border-purple-300/20 focus:border-pink-500'
-                        } text-white placeholder-purple-200/50 text-base sm:text-sm`}
+                        className={`${formStyles.formInput} ${
+                          passwordError ? formStyles.errorInput : ''
+                        }`}
                         required
                       />
                       
                       {/* Password Requirements Checklist */}
                       <div className="mt-3 space-y-2">
-                        <p className="text-sm font-medium text-purple-200">Password must contain:</p>
-                        <div className="grid grid-cols-1 gap-2">
-                          <div className={`flex items-center gap-2 text-sm ${
-                            passwordRequirements.length ? 'text-green-400' : 'text-gray-400'
-                          }`}>
-                            <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${
-                              passwordRequirements.length ? 'border-green-400 bg-green-400/20' : 'border-gray-500'
-                            }`}>
-                              {passwordRequirements.length && (
-                                <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                        {(!passwordRequirements.length || !passwordRequirements.letter || 
+                          !passwordRequirements.number || !passwordRequirements.special) && (
+                          <>
+                            <p className={formStyles.formLabel}>Password must contain:</p>
+                            <div className="grid grid-cols-1 gap-2">
+                              {!passwordRequirements.length && (
+                                <div className={`flex items-center gap-2 text-sm ${formStyles.invalidText}`}>
+                                  <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${formStyles.invalidBorder}`}>
+                                  </span>
+                                  At least 8 characters
+                                </div>
                               )}
-                            </span>
-                            At least 8 characters
-                          </div>
-                          <div className={`flex items-center gap-2 text-sm ${
-                            passwordRequirements.letter ? 'text-green-400' : 'text-gray-400'
-                          }`}>
-                            <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${
-                              passwordRequirements.letter ? 'border-green-400 bg-green-400/20' : 'border-gray-500'
-                            }`}>
-                              {passwordRequirements.letter && (
-                                <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                              {!passwordRequirements.letter && (
+                                <div className={`flex items-center gap-2 text-sm ${formStyles.invalidText}`}>
+                                  <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${formStyles.invalidBorder}`}>
+                                  </span>
+                                  At least one letter
+                                </div>
                               )}
-                            </span>
-                            At least one letter
-                          </div>
-                          <div className={`flex items-center gap-2 text-sm ${
-                            passwordRequirements.number ? 'text-green-400' : 'text-gray-400'
-                          }`}>
-                            <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${
-                              passwordRequirements.number ? 'border-green-400 bg-green-400/20' : 'border-gray-500'
-                            }`}>
-                              {passwordRequirements.number && (
-                                <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                              {!passwordRequirements.number && (
+                                <div className={`flex items-center gap-2 text-sm ${formStyles.invalidText}`}>
+                                  <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${formStyles.invalidBorder}`}>
+                                  </span>
+                                  At least one number
+                                </div>
                               )}
-                            </span>
-                            At least one number
-                          </div>
-                          <div className={`flex items-center gap-2 text-sm ${
-                            passwordRequirements.special ? 'text-green-400' : 'text-gray-400'
-                          }`}>
-                            <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${
-                              passwordRequirements.special ? 'border-green-400 bg-green-400/20' : 'border-gray-500'
-                            }`}>
-                              {passwordRequirements.special && (
-                                <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                              {!passwordRequirements.special && (
+                                <div className={`flex items-center gap-2 text-sm ${formStyles.invalidText}`}>
+                                  <span className={`flex-shrink-0 w-4 h-4 rounded-full border flex items-center justify-center ${formStyles.invalidBorder}`}>
+                                  </span>
+                                  At least one special character
+                                </div>
                               )}
-                            </span>
-                            At least one special character
-                          </div>
-                        </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-purple-200 mb-1.5">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="confirmPassword" className={formStyles.formLabel}>
                         Confirm Password
                       </label>
                       <input
@@ -363,12 +365,12 @@ export default function Register() {
                         id="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/10 border border-purple-300/20 text-white placeholder-purple-200/50 focus:border-pink-500 focus:ring-pink-500 shadow-sm text-base sm:text-sm"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 sm:p-4 hover:bg-white/10 transition-colors">
-                      <label htmlFor="dateOfBirth" className="block text-sm font-medium text-purple-200 mb-1.5">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="dateOfBirth" className={formStyles.formLabel}>
                         Date of Birth
                       </label>
                       <input
@@ -377,7 +379,7 @@ export default function Register() {
                         id="dateOfBirth"
                         value={formData.dateOfBirth}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500 text-base sm:text-sm"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
@@ -388,10 +390,10 @@ export default function Register() {
               {/* Step 2: Personal Details */}
               {step === 2 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-white">Personal Details</h2>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="height" className="block text-sm font-medium text-purple-200">
+                  <h2 className={pageStyles.sectionTitle}>Personal Details</h2>
+                  <div className={formStyles.formGrid}>
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="height" className={formStyles.formLabel}>
                         Height (cm)
                       </label>
                       <input
@@ -400,11 +402,11 @@ export default function Register() {
                         id="height"
                         value={formData.height}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="weight" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="weight" className={formStyles.formLabel}>
                         Weight (kg)
                       </label>
                       <input
@@ -413,11 +415,11 @@ export default function Register() {
                         id="weight"
                         value={formData.weight}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="maritalStatus" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="maritalStatus" className={formStyles.formLabel}>
                         Marital Status
                       </label>
                       <select
@@ -425,7 +427,7 @@ export default function Register() {
                         id="maritalStatus"
                         value={formData.maritalStatus}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formSelect}
                         required
                       >
                         <option value="">Select Status</option>
@@ -434,8 +436,8 @@ export default function Register() {
                         <option value="widowed">Widowed</option>
                       </select>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="religion" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="religion" className={formStyles.formLabel}>
                         Religion
                       </label>
                       <select
@@ -443,7 +445,7 @@ export default function Register() {
                         id="religion"
                         value={formData.religion}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formSelect}
                         required
                       >
                         <option value="">Select Religion</option>
@@ -456,8 +458,8 @@ export default function Register() {
                         <option value="other">Other</option>
                       </select>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="caste" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="caste" className={formStyles.formLabel}>
                         Caste
                       </label>
                       <input
@@ -466,11 +468,11 @@ export default function Register() {
                         id="caste"
                         value={formData.caste}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="motherTongue" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="motherTongue" className={formStyles.formLabel}>
                         Mother Tongue
                       </label>
                       <input
@@ -479,7 +481,7 @@ export default function Register() {
                         id="motherTongue"
                         value={formData.motherTongue}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
@@ -490,10 +492,10 @@ export default function Register() {
               {/* Step 3: Professional Details */}
               {step === 3 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-white">Professional Details</h2>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="education" className="block text-sm font-medium text-purple-200">
+                  <h2 className={pageStyles.sectionTitle}>Professional Details</h2>
+                  <div className={formStyles.formGrid}>
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="education" className={formStyles.formLabel}>
                         Education
                       </label>
                       <select
@@ -501,7 +503,7 @@ export default function Register() {
                         id="education"
                         value={formData.education}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formSelect}
                         required
                       >
                         <option value="">Select Education</option>
@@ -512,8 +514,8 @@ export default function Register() {
                         <option value="other">Other</option>
                       </select>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="occupation" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="occupation" className={formStyles.formLabel}>
                         Occupation
                       </label>
                       <input
@@ -522,12 +524,12 @@ export default function Register() {
                         id="occupation"
                         value={formData.occupation}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="annualIncome" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="annualIncome" className={formStyles.formLabel}>
                         Annual Income
                       </label>
                       <input
@@ -536,11 +538,11 @@ export default function Register() {
                         id="annualIncome"
                         value={formData.annualIncome}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="workLocation" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="workLocation" className={formStyles.formLabel}>
                         Work Location
                       </label>
                       <input
@@ -549,7 +551,7 @@ export default function Register() {
                         id="workLocation"
                         value={formData.workLocation}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
                   </div>
@@ -559,10 +561,10 @@ export default function Register() {
               {/* Step 4: Family Details */}
               {step === 4 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-white">Family Details</h2>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="fatherName" className="block text-sm font-medium text-purple-200">
+                  <h2 className={pageStyles.sectionTitle}>Family Details</h2>
+                  <div className={formStyles.formGrid}>
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="fatherName" className={formStyles.formLabel}>
                         Father's Name
                       </label>
                       <input
@@ -571,11 +573,11 @@ export default function Register() {
                         id="fatherName"
                         value={formData.fatherName}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="fatherOccupation" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="fatherOccupation" className={formStyles.formLabel}>
                         Father's Occupation
                       </label>
                       <input
@@ -584,11 +586,11 @@ export default function Register() {
                         id="fatherOccupation"
                         value={formData.fatherOccupation}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="motherName" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="motherName" className={formStyles.formLabel}>
                         Mother's Name
                       </label>
                       <input
@@ -597,11 +599,11 @@ export default function Register() {
                         id="motherName"
                         value={formData.motherName}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="motherOccupation" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="motherOccupation" className={formStyles.formLabel}>
                         Mother's Occupation
                       </label>
                       <input
@@ -610,11 +612,11 @@ export default function Register() {
                         id="motherOccupation"
                         value={formData.motherOccupation}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="siblings" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="siblings" className={formStyles.formLabel}>
                         Siblings
                       </label>
                       <input
@@ -623,7 +625,7 @@ export default function Register() {
                         id="siblings"
                         value={formData.siblings}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                       />
                     </div>
                   </div>
@@ -633,10 +635,10 @@ export default function Register() {
               {/* Step 5: Horoscope Details */}
               {step === 5 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-white">Horoscope & Kundli Details</h2>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="timeOfBirth" className="block text-sm font-medium text-purple-200">
+                  <h2 className={pageStyles.sectionTitle}>Horoscope & Kundli Details</h2>
+                  <div className={formStyles.formGrid}>
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="timeOfBirth" className={formStyles.formLabel}>
                         Time of Birth
                       </label>
                       <input
@@ -645,12 +647,12 @@ export default function Register() {
                         id="timeOfBirth"
                         value={formData.timeOfBirth}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white focus:ring-pink-500"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="placeOfBirth" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="placeOfBirth" className={formStyles.formLabel}>
                         Place of Birth
                       </label>
                       <input
@@ -659,12 +661,12 @@ export default function Register() {
                         id="placeOfBirth"
                         value={formData.placeOfBirth}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="rashi" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="rashi" className={formStyles.formLabel}>
                         Rashi (Moon Sign)
                       </label>
                       <select
@@ -672,7 +674,7 @@ export default function Register() {
                         id="rashi"
                         value={formData.rashi}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formSelect}
                         required
                       >
                         <option value="">Select Rashi</option>
@@ -690,8 +692,8 @@ export default function Register() {
                         <option value="pisces">Pisces</option>
                       </select>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="nakshatra" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="nakshatra" className={formStyles.formLabel}>
                         Nakshatra
                       </label>
                       <select
@@ -699,7 +701,7 @@ export default function Register() {
                         id="nakshatra"
                         value={formData.nakshatra}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formSelect}
                         required
                       >
                         <option value="">Select Nakshatra</option>
@@ -732,8 +734,8 @@ export default function Register() {
                         <option value="revati">Revati</option>
                       </select>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="gothra" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="gothra" className={formStyles.formLabel}>
                         Gothra
                       </label>
                       <input
@@ -742,12 +744,12 @@ export default function Register() {
                         id="gothra"
                         value={formData.gothra}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formInput}
                         required
                       />
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="manglikStatus" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="manglikStatus" className={formStyles.formLabel}>
                         Manglik Status
                       </label>
                       <select
@@ -755,7 +757,7 @@ export default function Register() {
                         id="manglikStatus"
                         value={formData.manglikStatus}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md bg-white/5 border border-white/10 text-white focus:border-pink-500 focus:ring-pink-500"
+                        className={formStyles.formSelect}
                         required
                       >
                         <option value="">Select Status</option>
@@ -764,8 +766,8 @@ export default function Register() {
                         <option value="partial">Partial</option>
                       </select>
                     </div>
-                    <div className="border border-white/20 rounded-lg bg-white/5 backdrop-blur-sm shadow-sm p-3 hover:bg-white/10 transition-colors">
-                      <label htmlFor="horoscopeFile" className="block text-sm font-medium text-purple-200">
+                    <div className={formStyles.formContainer}>
+                      <label htmlFor="horoscopeFile" className={formStyles.formLabel}>
                         Upload Horoscope (PDF/JPG/PNG)
                       </label>
                       <input
@@ -774,12 +776,7 @@ export default function Register() {
                         id="horoscopeFile"
                         onChange={handleChange}
                         accept=".pdf,.jpg,.jpeg,.png"
-                        className="mt-1 block w-full text-sm text-purple-200
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-md file:border-0
-                          file:text-sm file:font-semibold
-                          file:bg-pink-50 file:text-pink-700
-                          hover:file:bg-pink-100"
+                        className={formStyles.formInput}
                       />
                     </div>
                   </div>
@@ -787,43 +784,32 @@ export default function Register() {
               )}
 
               {/* Navigation Buttons */}
-              <div className="mt-8 flex justify-between">
+              <div className={pageStyles.buttonContainer}>
                 {step > 1 && (
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="px-4 py-2 border border-white/20 rounded-md text-sm font-medium text-purple-200 hover:bg-white/5 transition-colors"
-                    disabled={loading}
+                    className={pageStyles.buttonSecondary}
                   >
-                    Back
+                    Previous
                   </button>
                 )}
                 {step < 5 ? (
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="ml-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 transition-colors"
                     disabled={isNextButtonDisabled}
+                    className={isNextButtonDisabled ? pageStyles.buttonPrimaryDisabled : pageStyles.buttonPrimary}
                   >
                     Next
                   </button>
                 ) : (
                   <button
                     type="submit"
-                    className="ml-auto px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                    disabled={loading || Boolean(passwordError)}
+                    disabled={loading}
+                    className={loading ? pageStyles.buttonPrimaryDisabled : pageStyles.buttonPrimary}
                   >
-                    {loading ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Processing...
-                      </>
-                    ) : (
-                      'Complete Registration'
-                    )}
+                    {loading ? 'Registering...' : 'Register'}
                   </button>
                 )}
               </div>

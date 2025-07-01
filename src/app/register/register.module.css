@@ -1,0 +1,182 @@
+.formInput {
+  margin-top: 0.25rem;
+  display: block;
+  width: 100%;
+  border-radius: 0.375rem;
+  background-color: #1f2937;
+  border: 1px solid #4b5563;
+  color: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 150ms;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  height: 2.5rem;
+}
+
+.formInput:hover {
+  background-color: #374151;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #ec4899;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.3);
+}
+
+.formInput::placeholder {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.formSelect {
+  margin-top: 0.25rem;
+  display: block;
+  width: 100%;
+  border-radius: 0.375rem;
+  background-color: #1f2937;
+  border: 1px solid #4b5563;
+  color: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 150ms;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  height: 2.5rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 2rem;
+}
+
+.formSelect:hover {
+  background-color: #374151;
+}
+
+.formSelect:focus {
+  outline: none;
+  border-color: #ec4899;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.3);
+}
+
+.formSelect option {
+  background-color: #1f2937;
+  color: #ffffff;
+  padding: 6px;
+  font-size: 0.875rem;
+}
+
+.formSelect option:hover,
+.formSelect option:focus {
+  background-color: #374151;
+}
+
+.formContainer {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 0.625rem;
+  transition: background-color 150ms;
+  margin-bottom: 0.75rem;
+}
+
+.formContainer:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.errorInput {
+  border-color: #f87171;
+}
+
+.errorInput:focus {
+  border-color: #f87171;
+}
+
+.validText {
+  color: #86efac;
+}
+
+.invalidText {
+  color: #d1d5db;
+}
+
+.validBorder {
+  border-color: #86efac;
+  background-color: rgba(134, 239, 172, 0.2);
+}
+
+.invalidBorder {
+  border-color: #9ca3af;
+}
+
+/* File input specific styles */
+input[type="file"].formInput {
+  font-size: 0.875rem;
+  color: white;
+}
+
+input[type="file"].formInput::file-selector-button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #fce7f3;
+  color: #be185d;
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+
+input[type="file"].formInput::file-selector-button:hover {
+  background-color: #fbcfe8;
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 640px) {
+  .formContainer {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .formInput,
+  .formSelect {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.813rem;
+    height: 2.25rem;
+  }
+
+  .formLabel {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  input[type="file"].formInput::file-selector-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Grid Layout Responsive */
+.formGrid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media screen and (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+} 
