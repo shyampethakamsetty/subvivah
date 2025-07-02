@@ -46,38 +46,61 @@ export async function performGenderAnalysis(video: HTMLVideoElement): Promise<{
     throw new Error('Face analysis models not loaded');
   }
 
-  try {
-    // Detect faces with age and gender
-    const detections = await faceapi
-      .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-      .withAgeAndGender()
-      .withFaceExpressions();
-
-    if (!detections || detections.length === 0) {
-      throw new Error('No face detected in the image');
-    }
-
-    // Get the detection with highest confidence
-    const detection = detections.reduce((prev, current) => 
-      prev.detection.score > current.detection.score ? prev : current
-    );
-
-    const { gender, genderProbability, age } = detection;
-    const expressions = detection.expressions;
-
-    return {
-      gender: gender as 'male' | 'female',
-      confidence: Math.round(genderProbability * 100),
-      age: Math.round(age),
-      expressions: expressions
-    };
-
-  } catch (error) {
-    console.error('Error in face analysis:', error);
-    
-    // Enhanced fallback analysis for Indian faces
-    return performEnhancedHeuristicAnalysis(video);
+  // Helper to check if video is ready
+  function isVideoReady(video: HTMLVideoElement) {
+    return video && video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0;
   }
+
+  // Wait for video to be ready (max 1s)
+  if (!isVideoReady(video)) {
+    await new Promise((resolve) => {
+      let waited = 0;
+      const interval = setInterval(() => {
+        if (isVideoReady(video) || waited > 1000) {
+          clearInterval(interval);
+          resolve(null);
+        }
+        waited += 50;
+      }, 50);
+    });
+  }
+
+  // Retry detection up to 3 times
+  let detections = null;
+  let lastError = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      detections = await faceapi
+        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }))
+        .withAgeAndGender()
+        .withFaceExpressions();
+      if (detections && detections.length > 0) break;
+    } catch (error) {
+      lastError = error;
+    }
+    // Wait a bit before retrying
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  if (!detections || detections.length === 0) {
+    // Provide a clear error for the UI
+    throw new Error('No face detected in the image. Please ensure your face is clearly visible, well-lit, and centered in the camera.');
+  }
+
+  // Get the detection with highest confidence
+  const detection = detections.reduce((prev, current) =>
+    prev.detection.score > current.detection.score ? prev : current
+  );
+
+  const { gender, genderProbability, age } = detection;
+  const expressions = detection.expressions;
+
+  return {
+    gender: gender as 'male' | 'female',
+    confidence: Math.round(genderProbability * 100),
+    age: Math.round(age),
+    expressions: expressions
+  };
 }
 
 /**

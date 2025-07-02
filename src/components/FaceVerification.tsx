@@ -12,7 +12,9 @@ interface FaceVerificationProps {
 const YAW_LEFT_THRESHOLD = -30;
 const YAW_RIGHT_THRESHOLD = 30;
 const STABLE_FRAME_THRESHOLD = 10;
-const LIGHTING_THRESHOLD = 100;
+const LIGHTING_THRESHOLD = 90;
+const LIGHTING_MARGIN = 10;
+const LIGHTING_CONSECUTIVE_FRAMES = 5;
 
 const steps = [
   'Turn your head LEFT',
@@ -57,6 +59,47 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
   const FACE_DISTANCE_MIN = 0.15; // Minimum face size (too far)
   const FACE_DISTANCE_MAX = 0.45; // Maximum face size (too close)
   const FACE_CENTER_THRESHOLD = 0.15; // Maximum offset from center
+
+  // Add refs and state for hold timer
+  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const holdStartTimeRef = useRef<number | null>(null);
+  const [isHoldActive, setIsHoldActive] = useState(false);
+  const [hasSpokenHoldStill, setHasSpokenHoldStill] = useState(false);
+
+  // Lighting smoothing state
+  const [lowLightingFrames, setLowLightingFrames] = useState(0);
+
+  // Add a helper to speak instructions using the browser's speech synthesis
+  function speakInstruction(text: string) {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Stop any ongoing speech
+      const utter = new window.SpeechSynthesisUtterance(text);
+      utter.rate = 1.05;
+      utter.pitch = 1.1;
+      utter.lang = 'en-US';
+      window.speechSynthesis.speak(utter);
+    }
+  }
+
+  // Speak the prompt whenever it changes to a new instruction
+  const lastSpokenPromptRef = useRef<string>("");
+  useEffect(() => {
+    if (prompt && prompt !== lastSpokenPromptRef.current) {
+      // Only speak if the prompt is a main instruction
+      if (
+        prompt.toLowerCase().includes('turn your head left') ||
+        prompt.toLowerCase().includes('turn your head right') ||
+        prompt.toLowerCase().includes('look straight') ||
+        prompt.toLowerCase().includes('verification complete') ||
+        prompt.toLowerCase().includes('move closer') ||
+        prompt.toLowerCase().includes('move away') ||
+        prompt.toLowerCase().includes('center your face')
+      ) {
+        speakInstruction(prompt);
+        lastSpokenPromptRef.current = prompt;
+      }
+    }
+  }, [prompt]);
 
   // Calculate yaw angle using face mesh landmarks
   // Invert the calculation to match user's natural movement (mirror effect)
@@ -191,49 +234,25 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
         throw new Error('Video element not available');
       }
     } catch (error) {
-      console.error('Face-API analysis failed, using fallback:', error);
-      
-      // Fallback to enhanced heuristic analysis
-      return performHeuristicAnalysis(canvas);
+      console.error('Face-API analysis failed:', error);
+      // Only reset the final step (step 2) and relevant state
+      setPrompt('Face not detected, please look straight and hold still again.');
+      updateCommentary('❌ Face not detected. Please look straight and hold still again.');
+      speakInstruction('Face not detected, please look straight and hold still again.');
+      setStep(2);
+      stepRef.current = 2;
+      setGenderResult(null);
+      setVerificationComplete(false);
+      setLastFrame({ image: null, mesh: null });
+      setHasPlayedAnalysisBeep(false);
+      setShowContinueButton(false);
+      setAnalyzing(false);
+      holdStartTimeRef.current = null;
+      setIsHoldActive(false);
+      setHasSpokenHoldStill(false);
+      // Do not reset started, completedSteps, or left/right steps
+      throw error; // Rethrow to prevent further processing
     }
-  };
-
-  // Enhanced heuristic analysis as fallback
-  const performHeuristicAnalysis = (canvas: HTMLCanvasElement): { gender: string; confidence: number } => {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return { gender: 'male', confidence: 50 };
-    }
-
-    // More sophisticated heuristic based on face structure
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    
-    // Analyze brightness distribution and contrast
-    let brightPixels = 0;
-    let darkPixels = 0;
-    let totalPixels = 0;
-    
-    for (let i = 0; i < data.length; i += 4) {
-      const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-      if (brightness > 150) brightPixels++;
-      else if (brightness < 100) darkPixels++;
-      totalPixels++;
-    }
-    
-    const brightRatio = brightPixels / (totalPixels / 4);
-    const darkRatio = darkPixels / (totalPixels / 4);
-    
-    // Simple heuristic: more contrast often indicates facial hair or defined features
-    const contrastScore = Math.abs(brightRatio - darkRatio);
-    const genderScore = contrastScore * 0.6 + Math.random() * 0.4;
-    
-    const confidence = Math.round(Math.max(60, Math.min(90, genderScore * 100)));
-    
-    return {
-      gender: genderScore > 0.5 ? 'male' : 'female',
-      confidence
-    };
   };
 
   // Improved guide animation function with clear directional guidance
@@ -406,6 +425,12 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
       // Calculate lighting
       const lightingVal = computeLighting(ctx, canvas.width, canvas.height);
       setLighting(lightingVal);
+
+      if (lightingVal < LIGHTING_THRESHOLD) {
+        setLowLightingFrames((prev) => Math.min(prev + 1, LIGHTING_CONSECUTIVE_FRAMES));
+      } else {
+        setLowLightingFrames(0);
+      }
     }
 
     // Compute yaw
@@ -456,59 +481,77 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
         }
       } else if (currentStep === 2) {
         // Enhanced final step validation
-        if (!positionCheck.isGood) {
-          setPrompt(positionCheck.message);
-          updateCommentary(`⚠️ Position adjustment needed: ${positionCheck.message}`);
+        if (!positionCheck.isGood || lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES || Math.abs(yawVal) > 5) {
+          setPrompt(positionCheck.isGood ? (lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES ? `Improve lighting (Current: ${lighting})` : 'Look straight ahead!') : positionCheck.message);
+          updateCommentary(`⚠️ Position adjustment needed: ${positionCheck.isGood ? (lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES ? `Improve lighting (Current: ${lighting})` : 'Look straight ahead!') : positionCheck.message}`);
+          // Reset hold timer if user moves out of position
+          if (holdTimerRef.current) {
+            clearTimeout(holdTimerRef.current);
+            holdTimerRef.current = null;
+          }
+          holdStartTimeRef.current = null;
+          setIsHoldActive(false);
+          setHasSpokenHoldStill(false);
           return;
         }
         
-        // Live commentary for center positioning
-        if (Math.abs(yawVal) < 5) {
-          updateCommentary('🎯 Perfect! Looking straight ahead. Hold steady...');
-        } else if (Math.abs(yawVal) < 10) {
-          updateCommentary(`📐 Almost there! Center your head (${Math.round(yawVal)}°)`);
-        } else {
-          updateCommentary(`📐 Look straight ahead! (Currently ${Math.round(yawVal)}°)`);
+        // All conditions met, start or continue hold timer
+        if (!holdStartTimeRef.current) {
+          holdStartTimeRef.current = Date.now();
+          setIsHoldActive(true);
+          setHasSpokenHoldStill(false);
         }
-        
-        if (Math.abs(yawVal) < 10 && !genderResult && !analyzing) {
-          updateCommentary('🔍 Analyzing face characteristics...');
+        const elapsed = Date.now() - holdStartTimeRef.current;
+        if (elapsed >= 2000 && !genderResult && !analyzing) {
+          // Hold complete, proceed to analysis
           setPrompt('Analyzing...');
+          speakInstruction('Analyzing');
           setAnalyzing(true);
-          
-          // Play beep only once for analysis
-          if (!hasPlayedAnalysisBeep) {
-            playBeep();
-            setHasPlayedAnalysisBeep(true);
+          setIsHoldActive(false);
+          setHasSpokenHoldStill(false);
+          holdStartTimeRef.current = null;
+          if (holdTimerRef.current) {
+            clearTimeout(holdTimerRef.current);
+            holdTimerRef.current = null;
           }
           // Freeze last frame and mesh
           if (canvas && ctx) {
             const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
             setLastFrame({ image, mesh: landmarks });
           }
-          
           // Use actual ML model analysis with face-api
           if (canvas) {
-            performGenderAnalysisInternal(canvas).then((result: { gender: string; confidence: number }) => {
-              setGenderResult(result);
-              updateCommentary(`🎊 VERIFICATION COMPLETE! Detected: ${result.gender} (${result.confidence}% confidence)`);
-              setPrompt('Verification complete!');
-              updateStepCompletion(2);
-              setStarted(false);
-              startedRef.current = false;
-              setVerificationComplete(true);
+            setAnalyzing(true); // Set loading state
+            if (videoRef.current && videoRef.current.readyState >= 2 && videoRef.current.videoWidth > 0 && videoRef.current.videoHeight > 0) {
+              performGenderAnalysisInternal(canvas).then((result: { gender: string; confidence: number }) => {
+                setGenderResult(result);
+                updateCommentary(`🎊 VERIFICATION COMPLETE! Detected: ${result.gender} (${result.confidence}% confidence)`);
+                setPrompt('Verification complete!');
+                updateStepCompletion(2);
+                setStarted(false);
+                startedRef.current = false;
+                setVerificationComplete(true);
+                setAnalyzing(false);
+                setShowContinueButton(true);
+                if (cameraRef.current) {
+                  cameraRef.current.stop();
+                  console.log('📷 Camera stopped immediately after verification');
+                }
+              }).catch((error) => {
+                setAnalyzing(false);
+                setPrompt(error.message || 'Face analysis failed. Please try again.');
+                updateCommentary('❌ Face analysis failed. Please retry.');
+              });
+            } else {
               setAnalyzing(false);
-              
-              // Stop camera immediately after analysis
-              if (cameraRef.current) {
-                cameraRef.current.stop();
-                console.log('📷 Camera stopped immediately after verification');
-              }
-              
-              // Show continue button instead of auto-proceeding
-              setShowContinueButton(true);
-            });
+              setPrompt('Camera not ready for analysis. Please retry.');
+              updateCommentary('❌ Camera not ready for analysis.');
+            }
           }
+        } else if (elapsed < 2000 && !hasSpokenHoldStill) {
+          setPrompt('Hold still');
+          speakInstruction('Hold still');
+          setHasSpokenHoldStill(true);
         }
       }
     }
@@ -706,14 +749,51 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
     stepRef.current = step;
   }, [step]);
 
+  // Add a handler to stop with confirmation
+  const handleCloseWithConfirmation = () => {
+    if (window.confirm('Are you sure you want to stop face verification?')) {
+      setStarted(false);
+      startedRef.current = false;
+      setStep(0);
+      stepRef.current = 0;
+      setCompletedSteps([false, false, false]);
+      setGenderResult(null);
+      setVerificationComplete(false);
+      setLastFrame({ image: null, mesh: null });
+      setHasPlayedAnalysisBeep(false);
+      setShowContinueButton(false);
+      setAnalyzing(false);
+      holdStartTimeRef.current = null;
+      setIsHoldActive(false);
+      setHasSpokenHoldStill(false);
+      if (cameraRef.current) {
+        cameraRef.current.stop();
+      }
+      onNext({ success: false, cancelled: true });
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4">
-      <div className="w-full max-w-2xl bg-white/5 backdrop-blur-md rounded-2xl shadow-xl p-4 space-y-6 border border-white/10 transition-all duration-500 hover:bg-white/10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Overlay for outside click */}
+      <div
+        className="fixed inset-0 bg-black/40"
+        onClick={handleCloseWithConfirmation}
+        style={{ zIndex: 49 }}
+      />
+      <div className="relative w-full max-w-2xl bg-white/5 backdrop-blur-md rounded-2xl shadow-xl p-4 space-y-6 border border-white/10 transition-all duration-500 hover:bg-white/10 z-50">
+        {/* Close button */}
+        <button
+          className="absolute top-4 right-4 text-white/70 hover:text-white/100 text-2xl font-bold bg-transparent border-none cursor-pointer z-50"
+          onClick={handleCloseWithConfirmation}
+          aria-label="Close"
+          type="button"
+        >
+          ×
+        </button>
         <h2 className="text-xl font-semibold text-center text-white/90 mb-4">
           Face Verification
         </h2>
-
-
 
         {/* Video and Canvas Elements - Always present but conditionally visible */}
         <div className="relative aspect-video bg-gradient-to-br from-slate-50/5 to-slate-100/5 rounded-2xl overflow-hidden shadow-lg border border-white/10 transition-all duration-500 hover:border-white/20">
