@@ -70,40 +70,92 @@ export default function StaticMatches() {
           {STATIC_MATCHES.map((match, index) => (
             <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden">
               <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-500 relative">
-                <Lock className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-white opacity-50" />
+                <Lock className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-white opacity-80" />
               </div>
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-white">{match.name}</h3>
-                  <div className="bg-pink-600/20 text-pink-400 px-3 py-1 rounded-full text-sm">
+                  <h3 className="text-xl font-semibold text-white blur-[4px]">{match.name}</h3>
+                  <div className="bg-pink-600/20 text-pink-400 px-3 py-1 rounded-full text-sm blur-[4px]">
                     {match.matchScore}% Match
                   </div>
                 </div>
-                <p className="text-purple-200 text-sm mb-4">
+                <p className="text-purple-200 text-sm mb-4 blur-[4px]">
                   {match.age} years • {match.location}
                 </p>
                 <div className="space-y-2 mb-4">
                   {match.highlights.map((highlight, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <Star className="w-4 h-4 text-yellow-400" />
-                      <span className="text-purple-200 text-sm">{highlight}</span>
+                      <span className="text-purple-200 text-sm blur-[4px]">{highlight}</span>
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2 flex-wrap mb-4">
                   {match.interests.map((interest, i) => (
-                    <span key={i} className="bg-purple-600/20 text-purple-200 px-3 py-1 rounded-full text-sm">
+                    <span key={i} className="bg-purple-600/20 text-purple-200 px-3 py-1 rounded-full text-sm blur-[4px]">
                       {interest}
                     </span>
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <button className="flex-1 px-4 py-2 bg-purple-600/50 text-white rounded-lg cursor-not-allowed opacity-50" disabled>
-                    <UserPlus className="w-4 h-4 inline mr-2" />
+                  <button 
+                    onClick={() => {
+                      try {
+                        console.log('Attempting to show login popup from StaticMatches');
+                        if (typeof window !== 'undefined') {
+                          if (typeof window.showLoginPopup === 'function') {
+                            window.showLoginPopup();
+                          } else {
+                            console.error('showLoginPopup function is not available');
+                            // Try to initialize it if not available
+                            window.showLoginPopup = () => {
+                              console.log('Login popup triggered from StaticMatches initialization');
+                              // Since we can't access the DelayedLoginModal's state here,
+                              // we'll reload the page which will trigger the auth check
+                              window.location.reload();
+                            };
+                            window.showLoginPopup();
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error showing login popup:', error);
+                        // Fallback to redirect
+                        window.location.href = '/login';
+                      }
+                    }}
+                    className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
                     Connect
                   </button>
-                  <button className="flex-1 px-4 py-2 bg-pink-600/50 text-white rounded-lg cursor-not-allowed opacity-50" disabled>
-                    <MessageCircle className="w-4 h-4 inline mr-2" />
+                  <button 
+                    onClick={() => {
+                      try {
+                        console.log('Attempting to show login popup from StaticMatches');
+                        if (typeof window !== 'undefined') {
+                          if (typeof window.showLoginPopup === 'function') {
+                            window.showLoginPopup();
+                          } else {
+                            console.error('showLoginPopup function is not available');
+                            // Try to initialize it if not available
+                            window.showLoginPopup = () => {
+                              console.log('Login popup triggered from StaticMatches initialization');
+                              // Since we can't access the DelayedLoginModal's state here,
+                              // we'll reload the page which will trigger the auth check
+                              window.location.reload();
+                            };
+                            window.showLoginPopup();
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error showing login popup:', error);
+                        // Fallback to redirect
+                        window.location.href = '/login';
+                      }
+                    }}
+                    className="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
                     Message
                   </button>
                 </div>

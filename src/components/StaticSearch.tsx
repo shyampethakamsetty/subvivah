@@ -1,4 +1,4 @@
-import { Search, Filter, MapPin, Briefcase, GraduationCap } from 'lucide-react';
+import { Search, Filter, MapPin, Briefcase, GraduationCap, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 const STATIC_PROFILES = [
@@ -41,6 +41,31 @@ export default function StaticSearch() {
       .toUpperCase();
   };
 
+  const handleViewProfile = () => {
+    try {
+      console.log('Attempting to show login popup from StaticSearch');
+      if (typeof window !== 'undefined') {
+        if (typeof window.showLoginPopup === 'function') {
+          window.showLoginPopup();
+        } else {
+          console.error('showLoginPopup function is not available');
+          // Try to initialize it if not available
+          window.showLoginPopup = () => {
+            console.log('Login popup triggered from StaticSearch initialization');
+            // Since we can't access the DelayedLoginModal's state here,
+            // we'll reload the page which will trigger the auth check
+            window.location.reload();
+          };
+          window.showLoginPopup();
+        }
+      }
+    } catch (error) {
+      console.error('Error showing login popup:', error);
+      // Fallback to redirect
+      window.location.href = '/login';
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950">
       {/* Search Form */}
@@ -76,17 +101,17 @@ export default function StaticSearch() {
           {STATIC_PROFILES.map((profile, index) => (
             <div
               key={index}
-              className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
+              className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300 relative group"
             >
               <div className="relative h-48 w-full bg-gradient-to-b from-purple-600/20 to-purple-900/40 flex items-center justify-center">
                 <div className="w-24 h-24 rounded-full bg-purple-600/50 flex items-center justify-center">
-                  <span className="text-3xl font-semibold text-white">
+                  <span className="text-3xl font-semibold text-white blur-[4px]">
                     {getInitials(profile.name)}
                   </span>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-900/90 to-transparent">
-                <h3 className="text-lg font-semibold text-white">{profile.name}</h3>
-                  <p className="text-purple-200 text-sm">
+                  <h3 className="text-lg font-semibold text-white blur-[4px]">{profile.name}</h3>
+                  <p className="text-purple-200 text-sm blur-[4px]">
                     {profile.age} years • {profile.location}
                   </p>
                 </div>
@@ -95,23 +120,29 @@ export default function StaticSearch() {
               <div className="p-4 space-y-2">
                 <div className="flex items-center gap-2 text-purple-200">
                   <GraduationCap className="w-4 h-4" />
-                  <span className="text-sm">{profile.education}</span>
+                  <span className="text-sm blur-[4px]">{profile.education}</span>
                 </div>
                 <div className="flex items-center gap-2 text-purple-200">
                   <Briefcase className="w-4 h-4" />
-                  <span className="text-sm">{profile.profession}</span>
+                  <span className="text-sm blur-[4px]">{profile.profession}</span>
                 </div>
                 <div className="flex items-center gap-2 text-purple-200">
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm">{profile.location}</span>
+                  <span className="text-sm blur-[4px]">{profile.location}</span>
                 </div>
+              </div>
+
+              {/* Lock Overlay */}
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity">
+                <Lock className="w-8 h-8 text-white/80" />
               </div>
 
               <div className="p-4 border-t border-purple-500/20">
                 <button
-                  className="w-full px-4 py-2 bg-purple-600/50 text-white rounded-lg cursor-not-allowed"
-                  disabled
+                  onClick={handleViewProfile}
+                  className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
                 >
+                  <Lock className="w-4 h-4" />
                   View Profile
                 </button>
               </div>
@@ -130,11 +161,7 @@ export default function StaticSearch() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
-                onClick={() => {
-                  if (typeof window !== 'undefined' && window.showLoginPopup) {
-                    window.showLoginPopup();
-                  }
-                }}
+                onClick={handleViewProfile}
                 className="px-8 py-3 bg-pink-600 text-white rounded-lg text-lg font-semibold hover:bg-pink-700 transition-colors"
               >
                 Login Now
