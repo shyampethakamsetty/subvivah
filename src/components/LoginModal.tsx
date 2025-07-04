@@ -165,7 +165,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                       href="/forgot-password" 
                       className="font-medium text-purple-600 hover:text-purple-700 transition-colors"
                     >
-                      Forgot?
+                      Forgot Password?
                     </Link>
                   </div>
                 </div>

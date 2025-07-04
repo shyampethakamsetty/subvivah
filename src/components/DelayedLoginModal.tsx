@@ -19,6 +19,7 @@ export default function DelayedLoginModal() {
   const pathname = usePathname();
   const isRegisterPage = pathname === '/register';
   const isLoginPage = pathname === '/login';
+  const isForgotPasswordPage = pathname === '/forgot-password';
 
   // Check authentication status
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function DelayedLoginModal() {
 
   useEffect(() => {
     // Only proceed if auth check is complete and user is not authenticated
-    if (!authChecked || isAuthenticated || isRegisterPage || isLoginPage) {
+    if (!authChecked || isAuthenticated || isRegisterPage || isLoginPage || isForgotPasswordPage) {
       return;
     }
 
@@ -79,15 +80,15 @@ export default function DelayedLoginModal() {
         window.showLoginPopup = undefined;
       }
     };
-  }, [isRegisterPage, isLoginPage, hasShownInitialPopup, isAuthenticated, authChecked]);
+  }, [isRegisterPage, isLoginPage, isForgotPasswordPage, hasShownInitialPopup, isAuthenticated, authChecked]);
 
   // Reset hasShownInitialPopup when pathname changes
   useEffect(() => {
     setHasShownInitialPopup(false);
   }, [pathname]);
 
-  // Don't render anything on register or login pages or if authenticated
-  if (isRegisterPage || isLoginPage || isAuthenticated || !authChecked) {
+  // Don't render anything on register, login, forgot password pages or if authenticated
+  if (isRegisterPage || isLoginPage || isForgotPasswordPage || isAuthenticated || !authChecked) {
     return null;
   }
 

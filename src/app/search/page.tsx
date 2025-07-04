@@ -4,9 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import UserSearch from '@/components/UserSearch';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Search, Filter, X, UserX, MapPin, Briefcase, GraduationCap, Heart, MessageCircle, User, Calendar, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, X, UserX, MapPin, Briefcase, GraduationCap, Heart, MessageCircle, User as UserIcon, Calendar, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import StaticSearch from '@/components/StaticSearch';
-import withAuth from '@/components/withAuth';
 import { convertHeightToStandardFormat, heightToDisplayFormat } from '@/lib/utils';
 
 interface SearchUser {
@@ -29,6 +28,13 @@ interface SearchUser {
     isProfile: boolean;
     caption?: string;
   }[];
+}
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  photo: string | null;
 }
 
 interface QuickSearchUser {
@@ -94,6 +100,7 @@ const maritalStatusOptions = [
 function SearchPageContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchParams, setSearchParams] = useState({
     ageMin: '',
     ageMax: '',
@@ -120,6 +127,21 @@ function SearchPageContent() {
     perPage: 20
   });
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check');
+        if (response.ok) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    };
+    checkAuth();
+  }, []);
 
   const handleSearch = useCallback(async (page = 1) => {
     setLoading(true);
@@ -154,24 +176,17 @@ function SearchPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    handleSearch(1);
-  }, [handleSearch]);
+    if (isAuthenticated) {
+      handleSearch(1);
+    }
+  }, [handleSearch, isAuthenticated]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
-    // For height inputs, convert to standardized format
-    if (name === 'heightMin' || name === 'heightMax') {
-      setSearchParams(prev => ({
-        ...prev,
-        [name]: value // Store the selected value directly
-      }));
-    } else {
-      setSearchParams(prev => ({
+    setSearchParams(prev => ({
       ...prev,
       [name]: value
     }));
-    }
   };
 
   const clearFilters = () => {
@@ -191,12 +206,8 @@ function SearchPageContent() {
     setActiveFilters([]);
   };
 
-  const handleQuickSearchUserSelect = (user: QuickSearchUser) => {
+  const handleQuickSearchUserSelect = (user: User) => {
     router.push(`/search/${user.id}`);
-  };
-
-  const handleSearchUserSelect = (user: SearchUser) => {
-    // Implementation needed
   };
 
   const handleUserClick = (user: SearchUser) => {
@@ -242,55 +253,57 @@ function SearchPageContent() {
     }
   };
 
+  if (!isAuthenticated) {
+    return <StaticSearch />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-white">Find Your Perfect Match</h1>
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">Search Profiles</h1>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-white hover:bg-white/20 transition-colors"
+          >
+            <Filter className="w-5 h-5" />
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+        </div>
+
+        {/* Active Filters Display */}
+        {activeFilters.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {activeFilters.map(filter => (
+              <div
+                key={filter}
+                className="bg-purple-600/30 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2"
+              >
+                <span className="capitalize">{filter.replace(/([A-Z])/g, ' $1').toLowerCase()}: {searchParams[filter as keyof typeof searchParams]}</span>
+                <button
+                  onClick={() => {
+                    setSearchParams(prev => ({
+                      ...prev,
+                      [filter]: ''
+                    }));
+                  }}
+                  className="hover:text-purple-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              onClick={clearFilters}
+              className="text-purple-200 hover:text-white text-sm flex items-center gap-1"
             >
-              {showFilters ? <X className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
+              Clear all filters
             </button>
           </div>
-          
-          {/* Active Filters Display */}
-          {activeFilters.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {activeFilters.map(filter => (
-                <div
-                  key={filter}
-                  className="bg-purple-600/30 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                >
-                  <span className="capitalize">{filter.replace(/([A-Z])/g, ' $1').toLowerCase()}: {searchParams[filter as keyof typeof searchParams]}</span>
-                  <button
-                    onClick={() => {
-                      setSearchParams(prev => ({
-                        ...prev,
-                        [filter]: ''
-                      }));
-                    }}
-                    className="hover:text-purple-200"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={clearFilters}
-                className="text-purple-200 hover:text-white text-sm flex items-center gap-1"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-          
-          <div className="mt-4">
-            <UserSearch onUserSelect={handleQuickSearchUserSelect} />
-          </div>
+        )}
+
+        <div className="mt-4">
+          <UserSearch onUserSelect={handleQuickSearchUserSelect} />
         </div>
 
         {showFilters && (
@@ -496,8 +509,8 @@ function SearchPageContent() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {users.map((user) => (
-              <div
-                key={user.id}
+                <div
+                  key={user.id}
                   className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300"
                 >
                   <div 
@@ -506,11 +519,11 @@ function SearchPageContent() {
                   >
                     {user.photos && user.photos.length > 0 ? (
                       <div className="relative w-full h-full">
-                    <Image
+                        <Image
                           src={user.photos[0].url}
-                      alt={`${user.firstName} ${user.lastName}`}
-                      fill
-                      className="object-cover"
+                          alt={`${user.firstName} ${user.lastName}`}
+                          fill
+                          className="object-cover"
                           sizes="(max-width: 768px) 50vw, 33vw"
                         />
                         {user.photos.length > 1 && (
@@ -528,7 +541,7 @@ function SearchPageContent() {
                       </div>
                     ) : (
                       <div className="w-full h-full bg-purple-900/50 flex items-center justify-center">
-                        <User className="w-14 h-14 text-white/50" />
+                        <UserIcon className="w-14 h-14 text-white/50" />
                       </div>
                     )}
                     
@@ -656,7 +669,7 @@ function SearchPageContent() {
                       />
                     ) : (
                       <div className="w-full h-full bg-purple-900/50 flex items-center justify-center">
-                        <User className="w-16 h-16 text-white/50" />
+                        <UserIcon className="w-16 h-16 text-white/50" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -673,7 +686,7 @@ function SearchPageContent() {
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h3 className="text-xl font-semibold text-white mb-1">
                       {selectedUser.firstName} {selectedUser.lastName}
-                  </h3>
+                    </h3>
                     <p className="text-sm text-white/90">
                       {selectedUser.age} years • {selectedUser.height || 'Height not specified'}
                     </p>
@@ -718,7 +731,7 @@ function SearchPageContent() {
                       onClick={handleViewFullProfile}
                       className="flex-1 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-all hover:scale-105 flex items-center justify-center gap-2 text-sm"
                     >
-                      <User className="w-4 h-4" />
+                      <UserIcon className="w-4 h-4" />
                       View Full Profile
                     </button>
                     <button
@@ -738,25 +751,25 @@ function SearchPageContent() {
           {users.length > 0 && pagination.pages > 1 && (
             <div className="flex justify-center mt-8 gap-2">
               {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handleSearch(page)}
+                <button
+                  key={page}
+                  onClick={() => handleSearch(page)}
                   className={`px-4 py-2 rounded-lg text-sm ${
                     page === pagination.currentPage
                       ? 'bg-purple-500 text-white'
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
-        )}
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-const SearchPage = withAuth(SearchPageContent);
+const SearchPage = SearchPageContent;
 export default SearchPage;
