@@ -61,8 +61,8 @@ export default function StaticSearch() {
       }
     } catch (error) {
       console.error('Error showing login popup:', error);
-      // Fallback to redirect
-      window.location.href = '/login';
+      // Fallback: reload page to trigger popup
+      window.location.reload();
     }
   };
 

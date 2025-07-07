@@ -58,24 +58,18 @@ export default function withAuth<P extends { user?: User }>(
           } else {
             setIsAuthenticated(false);
             setUser(null);
-            // Only show login popup if not on login or register page
-            const pathname = window.location.pathname;
-            if (!pathname.includes('/login') && !pathname.includes('/register')) {
-              if (typeof window !== 'undefined' && typeof window.showLoginPopup === 'function') {
-                window.showLoginPopup();
-              }
+            // Show login popup for unauthenticated users
+            if (typeof window !== 'undefined' && typeof window.showLoginPopup === 'function') {
+              window.showLoginPopup();
             }
           }
         } catch (error) {
           console.error('Auth check error:', error);
           setIsAuthenticated(false);
           setUser(null);
-          // Only show login popup if not on login or register page
-          const pathname = window.location.pathname;
-          if (!pathname.includes('/login') && !pathname.includes('/register')) {
-            if (typeof window !== 'undefined' && typeof window.showLoginPopup === 'function') {
-              window.showLoginPopup();
-            }
+          // Show login popup for unauthenticated users
+          if (typeof window !== 'undefined' && typeof window.showLoginPopup === 'function') {
+            window.showLoginPopup();
           }
         } finally {
           setLoading(false);

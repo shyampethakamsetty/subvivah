@@ -121,11 +121,11 @@ export default function StaticDating() {
                     window.showLoginPopup();
                   }
                 }
-              } catch (error) {
-                console.error('Error showing login popup:', error);
-                // Fallback to redirect
-                window.location.href = '/login';
-              }
+                                    } catch (error) {
+                        console.error('Error showing login popup:', error);
+                        // Fallback: reload page to trigger popup
+                        window.location.reload();
+                      }
             }}
             className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors"
           >

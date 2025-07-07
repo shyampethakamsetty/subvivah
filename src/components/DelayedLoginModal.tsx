@@ -3,23 +3,23 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import LoginModal from './LoginModal';
+import RegisterModal from './RegisterModal';
 
-// Define the showLoginPopup function type globally
+// Define the showLoginPopup and showRegisterPopup function types globally
 declare global {
   interface Window {
     showLoginPopup?: () => void;
+    showRegisterPopup?: () => void;
   }
 }
 
 export default function DelayedLoginModal() {
-  const [showModal, setShowModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [hasShownInitialPopup, setHasShownInitialPopup] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const pathname = usePathname();
-  const isRegisterPage = pathname === '/register';
-  const isLoginPage = pathname === '/login';
-  const isForgotPasswordPage = pathname === '/forgot-password';
 
   // Check authentication status
   useEffect(() => {
@@ -30,9 +30,12 @@ export default function DelayedLoginModal() {
         
         if (response.ok && data.isAuthenticated && data.user) {
           setIsAuthenticated(true);
-          // Clear any existing login popup function
+          // Clear any existing popup functions
           if (window.showLoginPopup) {
             window.showLoginPopup = undefined;
+          }
+          if (window.showRegisterPopup) {
+            window.showRegisterPopup = undefined;
           }
         } else {
           setIsAuthenticated(false);
@@ -50,19 +53,24 @@ export default function DelayedLoginModal() {
 
   useEffect(() => {
     // Only proceed if auth check is complete and user is not authenticated
-    if (!authChecked || isAuthenticated || isRegisterPage || isLoginPage || isForgotPasswordPage) {
+    if (!authChecked || isAuthenticated) {
       return;
     }
 
     // Initialize showLoginPopup function
     window.showLoginPopup = () => {
-      setShowModal(true);
+      setShowLoginModal(true);
     };
 
-    // Show initial popup after 3 seconds if not shown before
+    // Initialize showRegisterPopup function
+    window.showRegisterPopup = () => {
+      setShowRegisterModal(true);
+    };
+
+    // Show initial login popup after 3 seconds if not shown before
     if (!hasShownInitialPopup) {
       const timer = setTimeout(() => {
-        setShowModal(true);
+        setShowLoginModal(true);
         setHasShownInitialPopup(true);
       }, 3000);
 
@@ -70,6 +78,9 @@ export default function DelayedLoginModal() {
         clearTimeout(timer);
         if (window.showLoginPopup) {
           window.showLoginPopup = undefined;
+        }
+        if (window.showRegisterPopup) {
+          window.showRegisterPopup = undefined;
         }
       };
     }
@@ -79,18 +90,44 @@ export default function DelayedLoginModal() {
       if (window.showLoginPopup) {
         window.showLoginPopup = undefined;
       }
+      if (window.showRegisterPopup) {
+        window.showRegisterPopup = undefined;
+      }
     };
-  }, [isRegisterPage, isLoginPage, isForgotPasswordPage, hasShownInitialPopup, isAuthenticated, authChecked]);
+  }, [hasShownInitialPopup, isAuthenticated, authChecked]);
 
   // Reset hasShownInitialPopup when pathname changes
   useEffect(() => {
     setHasShownInitialPopup(false);
   }, [pathname]);
 
-  // Don't render anything on register, login, forgot password pages or if authenticated
-  if (isRegisterPage || isLoginPage || isForgotPasswordPage || isAuthenticated || !authChecked) {
+  // Don't render anything if authenticated
+  if (isAuthenticated || !authChecked) {
     return null;
   }
 
-  return showModal ? <LoginModal isOpen={showModal} onClose={() => setShowModal(false)} /> : null;
+  return (
+    <>
+      {showLoginModal && (
+        <LoginModal 
+          isOpen={showLoginModal} 
+          onClose={() => setShowLoginModal(false)}
+          onSuccess={() => {
+            setShowLoginModal(false);
+            window.location.reload();
+          }}
+        />
+      )}
+      {showRegisterModal && (
+        <RegisterModal 
+          isOpen={showRegisterModal} 
+          onClose={() => setShowRegisterModal(false)}
+          onSuccess={() => {
+            setShowRegisterModal(false);
+            window.location.reload();
+          }}
+        />
+      )}
+    </>
+  );
 } 

@@ -149,7 +149,11 @@ export default function StaticMessages() {
               Login Now
             </button>
             <button
-              onClick={() => window.location.href = '/register'}
+              onClick={() => {
+                if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                  (window as any).showRegisterPopup();
+                }
+              }}
               className="px-8 py-3 bg-pink-600 text-white rounded-lg text-lg font-semibold hover:bg-pink-700 transition-colors select-none"
             >
               Create Account
