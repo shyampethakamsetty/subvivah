@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import withAuth from '@/components/withAuth';
 import { Sparkles, Heart, MessageCircle, Star } from 'lucide-react';
+import { capitalizeWords } from '@/utils/textFormatting';
 
 interface MatchedProfile {
   id: string;
@@ -323,31 +324,31 @@ function MatchedProfilePage() {
                   {profile.height && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Height</dt>
-                      <dd className="text-white">{profile.height}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.height)}</dd>
                     </div>
                   )}
                   {profile.weight && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Weight</dt>
-                      <dd className="text-white">{profile.weight}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.weight)}</dd>
                     </div>
                   )}
                   {profile.maritalStatus && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Marital Status</dt>
-                      <dd className="text-white">{profile.maritalStatus}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.maritalStatus)}</dd>
                     </div>
                   )}
                   {profile.religion && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Religion</dt>
-                      <dd className="text-white">{profile.religion}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.religion)}</dd>
                     </div>
                   )}
                   {profile.caste && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Caste</dt>
-                      <dd className="text-white">{profile.caste}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.caste)}</dd>
                     </div>
                   )}
                 </dl>
@@ -359,19 +360,19 @@ function MatchedProfilePage() {
                   {profile.education && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Education</dt>
-                      <dd className="text-white">{profile.education}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.education)}</dd>
                     </div>
                   )}
                   {profile.occupation && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Occupation</dt>
-                      <dd className="text-white">{profile.occupation}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.occupation)}</dd>
                     </div>
                   )}
                   {profile.workLocation && (
                     <div>
                       <dt className="text-sm font-medium text-purple-200">Work Location</dt>
-                      <dd className="text-white">{profile.workLocation}</dd>
+                      <dd className="text-white">{capitalizeWords(profile.workLocation)}</dd>
                     </div>
                   )}
                 </dl>

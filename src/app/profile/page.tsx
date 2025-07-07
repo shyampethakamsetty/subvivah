@@ -9,6 +9,7 @@ import { Camera, X, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import FaceVerification from '@/components/FaceVerification';
 import dynamicImport from 'next/dynamic';
+import { capitalizeWords } from '@/utils/textFormatting';
 
 // Dynamically import FaceVerification with no SSR
 const FaceVerificationNoSSR = dynamicImport(() => import('@/components/FaceVerification'), {
@@ -482,7 +483,7 @@ function ProfilePage() {
                   {profilePhoto ? (
                     <Image
                       src={profilePhoto.url}
-                      alt={`${user.firstName}'s profile`}
+                      alt={`${capitalizeWords(user.firstName)}'s profile`}
                       width={160}
                       height={160}
                       className="object-cover w-full h-full"
@@ -492,11 +493,12 @@ function ProfilePage() {
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 flex items-center justify-center">
                       <span className="text-4xl md:text-5xl font-bold text-white/70">
-                        {user.firstName[0]}{user.lastName[0]}
+                        {capitalizeWords(user.firstName)[0]}{capitalizeWords(user.lastName)[0]}
                       </span>
                     </div>
                   )}
                 </div>
+
                 {/* Camera Icon */}
                 <div className="absolute bottom-2 right-2 bg-purple-500/20 backdrop-blur-sm rounded-full p-2 shadow-md cursor-pointer hover:bg-purple-500/30 transition-colors border border-purple-400/30">
                   <label htmlFor="photo-upload" className="cursor-pointer">
@@ -554,7 +556,9 @@ function ProfilePage() {
             <div className="flex-1">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white">{user.firstName} {user.lastName}</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white">
+                    {capitalizeWords(user.firstName)} {capitalizeWords(user.lastName)}
+                  </h2>
                   <button
                     onClick={() => setIsEditing(true)}
                     className="px-4 py-1.5 bg-purple-500/20 backdrop-blur-sm border border-purple-400/30 rounded-lg text-sm font-medium text-white hover:bg-purple-500/30 transition-colors w-fit"
@@ -565,19 +569,25 @@ function ProfilePage() {
                 <p className="text-gray-300">{user.email}</p>
                 <div className="flex flex-wrap gap-2">
                   {user.profile?.maritalStatus && (
-                    <span className="bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full text-xs font-semibold border border-purple-400/30">{user.profile.maritalStatus}</span>
+                    <span className="bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full text-xs font-semibold border border-purple-400/30">
+                      {user.profile.maritalStatus}
+                    </span>
                   )}
                   {user.profile?.religion && (
-                    <span className="bg-pink-500/20 text-pink-200 px-3 py-1 rounded-full text-xs font-semibold border border-pink-400/30">{user.profile.religion}</span>
+                    <span className="bg-pink-500/20 text-pink-200 px-3 py-1 rounded-full text-xs font-semibold border border-pink-400/30">
+                      {user.profile.religion}
+                    </span>
                   )}
                   {user.profile?.education && (
-                    <span className="bg-blue-500/20 text-blue-200 px-3 py-1 rounded-full text-xs font-semibold border border-blue-400/30">{user.profile.education}</span>
+                    <span className="bg-blue-500/20 text-blue-200 px-3 py-1 rounded-full text-xs font-semibold border border-blue-400/30">
+                      {user.profile.education}
+                    </span>
                   )}
-                </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
           {/* Info Cards Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

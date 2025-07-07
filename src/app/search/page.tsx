@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Search, Filter, X, UserX, MapPin, Briefcase, GraduationCap, Heart, MessageCircle, User as UserIcon, Calendar, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import StaticSearch from '@/components/StaticSearch';
 import { convertHeightToStandardFormat, heightToDisplayFormat } from '@/lib/utils';
+import { capitalizeWords } from '@/utils/textFormatting';
 
 interface SearchUser {
   id: string;
@@ -99,7 +100,7 @@ const maritalStatusOptions = [
 
 function SearchPageContent() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchParams, setSearchParams] = useState({
     ageMin: '',
@@ -132,12 +133,24 @@ function SearchPageContent() {
     // Check authentication status
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/check');
-        if (response.ok) {
-          setIsAuthenticated(true);
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        const data = await response.json();
+        setIsAuthenticated(data.isAuthenticated);
+        
+        if (data.isAuthenticated) {
+          handleSearch(1);
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
       }
     };
     checkAuth();
@@ -252,6 +265,14 @@ function SearchPageContent() {
       );
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <StaticSearch />;
@@ -521,7 +542,7 @@ function SearchPageContent() {
                       <div className="relative w-full h-full">
                         <Image
                           src={user.photos[0].url}
-                          alt={`${user.firstName} ${user.lastName}`}
+                          alt={`${capitalizeWords(user.firstName)} ${capitalizeWords(user.lastName)}`}
                           fill
                           className="object-cover"
                           sizes="(max-width: 768px) 50vw, 33vw"
@@ -547,7 +568,7 @@ function SearchPageContent() {
                     
                     <div className="absolute bottom-0 left-0 right-0 p-3">
                       <h3 className="text-lg font-semibold text-white mb-0.5 line-clamp-1">
-                        {user.firstName} {user.lastName}
+                        {capitalizeWords(user.firstName)} {capitalizeWords(user.lastName)}
                       </h3>
                       <div className="flex items-center gap-2 text-white/90 text-sm">
                         <span>{user.age} years</span>
@@ -661,7 +682,7 @@ function SearchPageContent() {
                     {selectedUser.photos && selectedUser.photos.length > 0 ? (
                       <Image
                         src={selectedUser.photos[0].url}
-                        alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                        alt={`${capitalizeWords(selectedUser.firstName)} ${capitalizeWords(selectedUser.lastName)}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 1024px) 100vw, 50vw"
@@ -685,7 +706,7 @@ function SearchPageContent() {
                   {/* Name and Basic Info Overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h3 className="text-xl font-semibold text-white mb-1">
-                      {selectedUser.firstName} {selectedUser.lastName}
+                      {capitalizeWords(selectedUser.firstName)} {capitalizeWords(selectedUser.lastName)}
                     </h3>
                     <p className="text-sm text-white/90">
                       {selectedUser.age} years • {selectedUser.height || 'Height not specified'}

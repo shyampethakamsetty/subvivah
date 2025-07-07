@@ -12,7 +12,9 @@ const protectedApiPaths = [
   '/api/user',
   '/api/profile',
   '/api/auth/me',
-  '/api/auth/logout'
+  '/api/auth/logout',
+  '/api/users',
+  '/api/profiles'
 ];
 
 export function middleware(request: NextRequest) {
@@ -25,7 +27,7 @@ export function middleware(request: NextRequest) {
   if (isProtectedApiPath && !token) {
     // Return unauthorized for API routes
     return new NextResponse(
-      JSON.stringify({ error: 'Unauthorized' }),
+      JSON.stringify({ error: 'Unauthorized', isAuthenticated: false }),
       {
         status: 401,
         headers: {
@@ -38,6 +40,7 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// Update the matcher configuration to include all protected paths
 export const config = {
   matcher: [
     '/api/search/:path*',
@@ -46,5 +49,11 @@ export const config = {
     '/api/messages/:path*',
     '/api/kundli/:path*',
     '/api/brahmand-chat/:path*',
+    '/api/user/:path*',
+    '/api/profile/:path*',
+    '/api/auth/me',
+    '/api/auth/logout',
+    '/api/users/:path*',
+    '/api/profiles/:path*'
   ],
 }; 
