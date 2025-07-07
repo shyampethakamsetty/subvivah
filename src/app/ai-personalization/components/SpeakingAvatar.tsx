@@ -10,6 +10,7 @@ interface SpeakingAvatarProps {
   size?: 'sm' | 'md' | 'lg';
   showStopButton?: boolean;
   onStopSpeaking?: () => void;
+  onWordBoundary?: (wordIndex: number) => void;
 }
 
 export interface SpeakingAvatarHandle {
@@ -23,7 +24,7 @@ const sizeMap = {
 };
 
 const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
-  ({ text, onSpeakEnd, size = 'md', showStopButton = false, onStopSpeaking }, ref) => {
+  ({ text, onSpeakEnd, size = 'md', showStopButton = false, onStopSpeaking, onWordBoundary }, ref) => {
     const { language } = useLanguage();
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [femaleVoice, setFemaleVoice] = useState<SpeechSynthesisVoice | null>(null);
@@ -156,6 +157,26 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
         speech.voice = femaleVoice;
         utteranceRef.current = speech;
 
+        // Word boundary tracking
+        if (typeof speech.onboundary !== 'undefined' && typeof text === 'string' && typeof onWordBoundary === 'function') {
+          const words = text.split(/\s+/);
+          speech.onboundary = (event: any) => {
+            if (event.name === 'word' && event.charIndex !== undefined) {
+              // Find the word index by charIndex
+              let charCount = 0;
+              let wordIdx = 0;
+              for (let i = 0; i < words.length; i++) {
+                charCount += words[i].length + 1; // +1 for space
+                if (event.charIndex < charCount) {
+                  wordIdx = i;
+                  break;
+                }
+              }
+              onWordBoundary(wordIdx);
+            }
+          };
+        }
+
         // Add error handling for speech synthesis
         speech.onerror = (event) => {
           // Silently handle not-allowed errors to prevent console spam
@@ -180,6 +201,9 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
           if (isStoppedRef.current) return;
           setIsSpeaking(false);
           onSpeakEnd?.();
+          if (typeof onWordBoundary === 'function') {
+            onWordBoundary(-1); // Reset word highlight
+          }
         };
 
         // Ensure speech synthesis is in a good state
@@ -212,7 +236,7 @@ const SpeakingAvatar = forwardRef<SpeakingAvatarHandle, SpeakingAvatarProps>(
         }
         window.speechSynthesis.cancel();
       };
-    }, [text, femaleVoice, isMounted, voiceReady, onSpeakEnd]);
+    }, [text, femaleVoice, isMounted, voiceReady, onSpeakEnd, onWordBoundary]);
 
     // Expose enhanced stopSpeaking method
     useImperativeHandle(ref, () => ({

@@ -39,6 +39,7 @@ model User {
   profileViews      ProfileView[]  @relation("ProfileViewed")
   spotlightMatch    SpotlightMatch?
   matchedInSpotlight SpotlightMatch[] @relation("MatchedUser")
+  aiPersonalization AIPersonalization?
 }
 
 model Profile {
@@ -238,4 +239,36 @@ model SpotlightMatch {
   matchedUser     User     @relation("MatchedUser", fields: [matchedUserId], references: [id])
 
   @@unique([userId, matchedUserId])
+}
+
+model AIPersonalization {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String   @unique @db.ObjectId
+  isCompleted         Boolean  @default(false)
+  
+  // Shard Answers (11 questions)
+  foodPreference      String?
+  sleepSchedule       String?
+  socialPersonality   String?
+  religionSpirituality String?
+  relationshipType    String?
+  careerPriority      String?
+  childrenPreference  String?
+  livingSetup         String?
+  relocationFlexibility String?
+  marriageTimeline    String?
+  relationshipIntent  String?
+  
+  // Personalized Answers (AI-generated questions)
+  personalizedAnswers Json?
+  
+  // Profile Summary
+  profileSummary      Json?
+  
+  // Metadata
+  completedAt         DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  user                User     @relation(fields: [userId], references: [id])
 }

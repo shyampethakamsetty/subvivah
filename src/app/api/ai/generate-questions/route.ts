@@ -1,49 +1,72 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { userData, language = 'en' } = await req.json();
+    const { shardAnswers, language } = await request.json();
 
-    const prompt = `You are an expert matchmaker for a matrimonial service. Your job is to ask 3 personalized, open-ended questions that will help you understand the user's values, relationship goals, compatibility factors, and preferences for matchmaking. Do NOT ask generic personality questions. All questions must be strictly relevant to finding a compatible life partner, understanding their expectations from marriage, and what matters most to them in a relationship. Use the user's background to personalize the questions, but always keep the matchmaking context primary.
+    // Create a prompt based on the shard answers
+    const prompt = `Based on the following user preferences, generate 5-7 personalized questions about marriage, relationships, and partner matching. 
+    
+User Preferences:
+${Object.entries(shardAnswers).map(([key, value]) => `${key}: ${value}`).join('\n')}
 
-User Information:
-- Name: ${userData.name}
-- Age: ${userData.age}
-- Gender: ${userData.gender}
-- Location: ${userData.location}
-- Profession: ${userData.profession}
-- Education: ${userData.education}
+Generate questions that are:
+1. Relevant to their specific preferences
+2. Focused on marriage and relationship compatibility
+3. Deep and meaningful for matching
+4. In ${language === 'hi' ? 'Hindi' : 'English'} language
+5. Include categories like: communication style, future goals, family values, lifestyle compatibility, emotional needs
 
-Generate 3 questions that:
-1. Are strictly about matchmaking, compatibility, and relationship values
-2. Are personalized to their background
-3. Are open-ended and encourage detailed responses
-4. Are suitable for a matrimonial context
-
-${language === 'hi' ? 'All questions must be in Hindi.' : 'All questions must be in English.'}
-
-Format the response as a JSON object: { "questions": [ ... ] }`;
+Format the response as JSON:
+{
+  "questions": [
+    {
+      "id": "unique_id",
+      "question": "The question text",
+      "category": "category_name",
+      "importance": "high|medium|low"
+    }
+  ]
+}`;
 
     const completion = await openai.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "gpt-4-turbo-preview",
-      response_format: { type: "json_object" },
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert marriage counselor and relationship advisor. Generate thoughtful, personalized questions based on user preferences."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
     });
 
-    const content = completion.choices[0].message.content;
-    if (!content) {
-      throw new Error('No content received from OpenAI');
+    const response = completion.choices[0]?.message?.content;
+    
+    if (!response) {
+      throw new Error('No response from OpenAI');
     }
 
-    const response = JSON.parse(content);
-    const questions = response.questions;
+    // Parse the JSON response
+    let questions;
+    try {
+      questions = JSON.parse(response);
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response:', response);
+      throw new Error('Invalid response format from AI');
+    }
 
-    return NextResponse.json({ questions });
+    return NextResponse.json({ questions: questions.questions || [] });
+
   } catch (error) {
     console.error('Error generating questions:', error);
     return NextResponse.json(
