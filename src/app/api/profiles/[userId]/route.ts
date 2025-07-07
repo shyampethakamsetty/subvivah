@@ -59,7 +59,9 @@ export async function GET(
             email: true,
             phone: true,
             photos: {
-              where: { isProfile: true },
+              orderBy: {
+                isProfile: 'desc'
+              },
               select: {
                 url: true,
                 isProfile: true
