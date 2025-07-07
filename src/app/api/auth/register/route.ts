@@ -11,35 +11,7 @@ export async function POST(request: Request) {
       email,
       password,
       dateOfBirth,
-      // Profile data
-      height,
-      weight,
-      maritalStatus,
-      religion,
-      caste,
-      motherTongue,
-      education,
-      occupation,
-      annualIncome,
-      workLocation,
-      fatherName,
-      fatherOccupation,
-      motherName,
-      motherOccupation,
-      siblings,
-      // Horoscope data
-      timeOfBirth,
-      placeOfBirth,
-      rashi,
-      nakshatra,
-      gothra,
-      manglikStatus,
-      // Preferences data
-      preferredAge,
-      preferredHeight,
-      preferredEducation,
-      preferredOccupation,
-      preferredLocation,
+      phone,
     } = data;
 
     // Validate required fields
@@ -65,7 +37,7 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user with profile, horoscope, and preferences
+    // Create user (no profile, horoscope, or preferences at registration)
     const user = await prisma.user.create({
       data: {
         email,
@@ -74,54 +46,9 @@ export async function POST(request: Request) {
         lastName,
         gender: 'unknown',
         dob: new Date(dateOfBirth),
+        phone: phone || null,
         isVerified: false,
         isActive: true,
-        profile: {
-          create: {
-            height,
-            weight,
-            maritalStatus,
-            religion,
-            caste,
-            motherTongue,
-            education,
-            occupation,
-            annualIncome,
-            workLocation,
-            fatherName,
-            fatherOccupation,
-            motherName,
-            motherOccupation,
-            siblings,
-          },
-        },
-        horoscope: {
-          create: {
-            dateOfBirth: new Date(dateOfBirth),
-            timeOfBirth,
-            placeOfBirth,
-            rashi,
-            nakshatra,
-            gotra: gothra,
-            manglik: manglikStatus,
-          },
-        },
-        preferences: {
-          create: {
-            ageFrom: preferredAge?.split('-')[0] ? parseInt(preferredAge.split('-')[0]) : null,
-            ageTo: preferredAge?.split('-')[1] ? parseInt(preferredAge.split('-')[1]) : null,
-            heightFrom: preferredHeight?.split('-')[0] || null,
-            heightTo: preferredHeight?.split('-')[1] || null,
-            education: preferredEducation,
-            occupation: preferredOccupation,
-            location: preferredLocation,
-          },
-        },
-      },
-      include: {
-        profile: true,
-        horoscope: true,
-        preferences: true,
       },
     });
 

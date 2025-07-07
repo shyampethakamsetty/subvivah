@@ -152,7 +152,17 @@ export default function Navbar() {
                   >
                     Login
                   </button>
-                  <Link href="/register" className="bg-white text-purple-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-50">Register</Link>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                        (window as any).showRegisterPopup();
+                      }
+                    }}
+                    className="bg-white text-purple-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-50"
+                  >
+                    Register
+                  </button>
                 </>
               )
             )}
@@ -196,7 +206,17 @@ export default function Navbar() {
               >
                 Login
               </button>
-              <Link href="/register" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">Register</Link>
+              <button
+                onClick={() => {
+                  handleMobileMenuClick();
+                  if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                    (window as any).showRegisterPopup();
+                  }
+                }}
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block"
+              >
+                Register
+              </button>
             </>
           )}
         </div>

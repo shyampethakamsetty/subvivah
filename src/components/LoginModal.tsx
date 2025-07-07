@@ -185,12 +185,17 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
               <div className="text-center mt-4">
                 <p className="text-sm text-gray-600">
                   Don't have an account?{" "}
-                  <Link 
-                    href="/register" 
+                  <button
+                    onClick={() => {
+                      onClose();
+                      if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                        (window as any).showRegisterPopup();
+                      }
+                    }}
                     className="font-medium text-purple-600 hover:text-purple-700 transition-colors"
                   >
                     Create one now
-                  </Link>
+                  </button>
                 </p>
               </div>
             </div>
