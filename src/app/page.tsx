@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from '@/context/LanguageContext';
 import { 
   Brain, 
   Fingerprint, 
@@ -45,10 +46,61 @@ import kundliAnimation from "../../public/animations/kundli.json";
 import aiInterviewAnimation from "../../public/animations/ai-interview.json";
 
 export default function Home() {
+  const { language } = useLanguage();
   const securityLottieRef = useRef(null);
   const matchmakingLottieRef = useRef(null);
   const kundliLottieRef = useRef(null);
   const aiInterviewLottieRef = useRef(null);
+
+  // Home page text based on language
+  const homeText = {
+    hi: {
+      heroTitle: 'अपना सर्वश्रेष्ठ साथी खोजें',
+      heroSubtitle: 'जहाँ रिश्ते दिल से बनते हैं',
+      heroDescription: 'हजारों सफल जोड़ों में शामिल हों शुभ विवाह पर। आज ही अपनी प्रोफाइल बनाएं और अपने जीवन साथी को खोजने की यात्रा शुरू करें।',
+      getStarted: 'शुरू करें',
+      browseProfiles: 'प्रोफाइल देखें',
+      scrollToExplore: 'और जानने के लिए स्क्रॉल करें',
+      featuresTitle: 'हमारी विशेषताएं',
+      featuresSubtitle: 'आपकी खुशी के लिए डिज़ाइन किया गया',
+      aiMatching: 'AI मैचिंग',
+      aiMatchingDesc: 'उन्नत AI तकनीक के साथ सर्वश्रेष्ठ मैच खोजें',
+      secureData: 'सुरक्षित डेटा',
+      secureDataDesc: 'आपकी जानकारी पूरी तरह से सुरक्षित रहेगी',
+      kundliMatching: 'कुंडली मैचिंग',
+      kundliMatchingDesc: 'पारंपरिक ज्योतिष के साथ वैज्ञानिक मैचिंग',
+      privacyControl: 'गोपनीयता नियंत्रण',
+      privacyControlDesc: 'आप अपनी जानकारी को नियंत्रित करते हैं',
+      testimonialsTitle: 'सफल कहानियां',
+      testimonialsSubtitle: 'हमारे सदस्यों की सफलता की कहानियां',
+      joinNow: 'अभी शामिल हों',
+      joinNowDesc: 'अपना सर्वश्रेष्ठ साथी खोजने के लिए आज ही शुरू करें'
+    },
+    en: {
+      heroTitle: 'Find Your Perfect Match',
+      heroSubtitle: 'जहाँ रिश्ते दिल से बनते हैं',
+      heroDescription: 'Join thousands of successful matches on शुभ विवाह. Create your profile today and start your journey to find your life partner.',
+      getStarted: 'Get Started',
+      browseProfiles: 'Browse Profiles',
+      scrollToExplore: 'Scroll to Explore',
+      featuresTitle: 'Our Features',
+      featuresSubtitle: 'Designed for your happiness',
+      aiMatching: 'AI Matching',
+      aiMatchingDesc: 'Find the best matches with advanced AI technology',
+      secureData: 'Secure Data',
+      secureDataDesc: 'Your information stays completely secure',
+      kundliMatching: 'Kundli Matching',
+      kundliMatchingDesc: 'Scientific matching with traditional astrology',
+      privacyControl: 'Privacy Control',
+      privacyControlDesc: 'You control your information',
+      testimonialsTitle: 'Success Stories',
+      testimonialsSubtitle: 'Stories of success from our members',
+      joinNow: 'Join Now',
+      joinNowDesc: 'Start today to find your perfect life partner'
+    }
+  };
+
+  const t = homeText[language];
 
   return (
     <div className="min-h-screen bg-white">
@@ -113,7 +165,7 @@ export default function Home() {
               }}
               className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg"
             >
-              Find Your Perfect Match
+              {t.heroTitle}
             </motion.h1>
             <motion.p 
               variants={{
@@ -130,7 +182,7 @@ export default function Home() {
               className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" 
               style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}
             >
-              जहाँ रिश्ते दिल से बनते हैं
+              {t.heroSubtitle}
             </motion.p>
             <motion.p 
               variants={{
@@ -146,7 +198,7 @@ export default function Home() {
               }}
               className="text-base sm:text-lg text-white mb-8"
             >
-              Join thousands of successful matches on शुभ विवाह. Create your profile today and start your journey to find your life partner.
+              {t.heroDescription}
             </motion.p>
             <motion.div 
               variants={{
@@ -166,13 +218,13 @@ export default function Home() {
                 href="/register"
                 className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto"
               >
-                Get Started
+                {t.getStarted}
               </Link>
               <Link
                 href="/search"
                 className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto"
               >
-                Browse Profiles
+                {t.browseProfiles}
               </Link>
             </motion.div>
           </motion.div>
@@ -193,7 +245,7 @@ export default function Home() {
             className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center"
           >
             <div className="flex flex-col items-center gap-2">
-              <p className="text-white text-sm font-medium tracking-wider">Scroll to Explore</p>
+              <p className="text-white text-sm font-medium tracking-wider">{t.scrollToExplore}</p>
               <svg 
                 className="w-6 h-6 text-white animate-bounce" 
                 fill="none"

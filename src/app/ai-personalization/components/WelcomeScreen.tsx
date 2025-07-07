@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import SpeakingAvatar from './SpeakingAvatar';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -9,26 +10,81 @@ interface WelcomeScreenProps {
   onBack?: () => void;
 }
 
+interface UserData {
+  firstName: string;
+  lastName: string;
+  gender: string;
+  email: string;
+}
+
 export default function WelcomeScreen({ onNext, onBack = () => {} }: WelcomeScreenProps) {
   const { language, setLanguage } = useLanguage();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data.user);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUserName = () => {
+    if (!userData) return '';
+    return `${userData.firstName} ${userData.lastName}`.trim();
+  };
+
+  const getGreeting = () => {
+    const name = getUserName();
+    if (language === 'hi') {
+      return name ? `नमस्कार ${name}!` : 'नमस्कार!';
+    } else {
+      return name ? `Hello ${name}!` : 'Hello!';
+    }
+  };
 
   const TEXT = {
     hi: {
-      welcomeMessage: "नमस्कार! Subvivah AI में आपका स्वागत है।",
-      title: 'नमस्कार! Subvivah AI में आपका स्वागत है।',
+      welcomeMessage: userData ? `नमस्कार ${getUserName()}! Subvivah AI में आपका स्वागत है।` : "नमस्कार! Subvivah AI में आपका स्वागत है।",
+      title: userData ? `नमस्कार ${getUserName()}!` : 'नमस्कार! Subvivah AI में आपका स्वागत है।',
       description: 'मैं आपकी पसंद समझने में आपकी मदद करूंगी।',
       begin: 'शुरू करें',
-      changeLang: 'Change to English',
     },
     en: {
-      welcomeMessage: "Welcome to Subvivah AI!",
-      title: 'Welcome to Subvivah AI!',
+      welcomeMessage: userData ? `Hello ${getUserName()}! Welcome to Subvivah AI.` : "Welcome to Subvivah AI!",
+      title: userData ? `Hello ${getUserName()}!` : 'Welcome to Subvivah AI!',
       description: 'I will help you understand your preferences.',
       begin: 'Begin',
-      changeLang: 'हिंदी में बदलें',
     }
   };
   const t = TEXT[language];
+
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="flex flex-col items-center justify-center min-h-[70vh] relative max-w-4xl mx-auto px-4"
+      >
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent mb-4"></div>
+        <div className="text-white/80">
+          {language === 'hi' ? 'लोड हो रहा है...' : 'Loading...'}
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -37,14 +93,6 @@ export default function WelcomeScreen({ onNext, onBack = () => {} }: WelcomeScre
       exit={{ opacity: 0, y: -20 }}
       className="flex flex-col items-center justify-center min-h-[70vh] relative max-w-4xl mx-auto px-4"
     >
-      {/* Language Switch Button */}
-      <button
-        className="absolute top-4 right-4 px-4 py-2 bg-white/20 text-white rounded-full text-sm font-semibold hover:bg-white/30 transition-colors z-10"
-        onClick={() => setLanguage(language === 'hi' ? 'en' : 'hi')}
-      >
-        {t.changeLang}
-      </button>
-
       <SpeakingAvatar text={t.welcomeMessage} size="lg" />
 
       <h1 className="text-4xl font-bold text-center mb-4 mt-8 text-white">
