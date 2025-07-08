@@ -4,28 +4,34 @@ import { verify } from 'jsonwebtoken';
 
 export async function PUT(request: NextRequest) {
   try {
+    console.log('Profile update API called');
+    
     // Get the token from the cookie
     const cookie = request.headers.get('cookie') || '';
     const match = cookie.match(/token=([^;]+)/);
     const token = match ? match[1] : null;
     
     if (!token) {
+      console.log('No token found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     let decoded: any;
     try {
       decoded = verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      console.log('Token verified for user:', decoded.userId);
     } catch (error) {
       console.error('Token verification failed:', error);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const data = await request.json();
+    console.log('Received data:', data);
 
     // Start a transaction to update profile
     const result = await prisma.$transaction(async (tx) => {
       const userId = decoded.userId;
+      console.log('Updating profile for user:', userId);
       
       // Update or create profile
       const profile = await tx.profile.upsert({
@@ -78,6 +84,7 @@ export async function PUT(request: NextRequest) {
         }
       });
 
+      console.log('Profile updated successfully:', profile);
       return profile;
     });
 

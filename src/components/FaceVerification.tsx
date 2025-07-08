@@ -6,7 +6,9 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 interface FaceVerificationProps {
-  onNext: (data: any) => void;
+  onNext?: (data: any) => void;
+  onVerificationComplete?: (data: any) => void;
+  onClose?: () => void;
 }
 
 const YAW_LEFT_THRESHOLD = -30;
@@ -22,7 +24,7 @@ const steps = [
   'Look straight ahead',
 ];
 
-const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
+const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificationComplete, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [step, setStep] = useState(0);
@@ -595,13 +597,20 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
 
   const continueAfterVerification = () => {
     if (genderResult) {
-      onNext({ 
+      const result = { 
         success: true, 
         gender: genderResult.gender,
         confidence: genderResult.confidence / 100,
         faceDistance: faceDistance,
         centerOffset: faceCenterOffset
-      });
+      };
+      
+      // Use onVerificationComplete if provided, otherwise fall back to onNext
+      if (onVerificationComplete) {
+        onVerificationComplete(result);
+      } else if (onNext) {
+        onNext(result);
+      }
     }
   };
 
@@ -769,7 +778,13 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext }) => {
       if (cameraRef.current) {
         cameraRef.current.stop();
       }
-      onNext({ success: false, cancelled: true });
+      
+      // Use onClose if provided, otherwise fall back to onNext
+      if (onClose) {
+        onClose();
+      } else if (onNext) {
+        onNext({ success: false, cancelled: true });
+      }
     }
   };
 

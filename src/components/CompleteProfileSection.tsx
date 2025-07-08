@@ -10,7 +10,9 @@ import {
   ArrowRight,
   Edit3,
   Camera,
-  Sparkles
+  Sparkles,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
@@ -39,6 +41,7 @@ const CompleteProfileSection: React.FC<CompleteProfileSectionProps> = ({
   const router = useRouter();
   const { language } = useLanguage();
   const [sections, setSections] = useState<SectionStatus[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     calculateProgress();
@@ -123,7 +126,7 @@ const CompleteProfileSection: React.FC<CompleteProfileSectionProps> = ({
 
   const calculateGenderVerificationProgress = (): number => {
     // Check if user has completed face verification
-    return userProfile?.isVerified ? 100 : 0;
+    return user?.isVerified ? 100 : 0;
   };
 
   const calculateAIPersonalizationProgress = (): number => {
@@ -153,113 +156,82 @@ const CompleteProfileSection: React.FC<CompleteProfileSectionProps> = ({
   const overallProgress = getOverallProgress();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-xl"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/10">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Complete Profile</h2>
-          <p className="text-purple-200">
-            Complete your profile to get better matches
-          </p>
+          <h2 className="text-2xl font-bold text-white mb-2">Complete Your Profile</h2>
+          <p className="text-gray-300">Fill in your details to find better matches</p>
         </div>
-        <div className="text-right">
-          <div className="text-3xl font-bold text-white">{overallProgress}%</div>
-          <div className="text-sm text-purple-200">Overall Progress</div>
-        </div>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-500/20 backdrop-blur-sm border border-purple-400/30 rounded-lg text-sm font-medium text-white hover:bg-purple-500/30 transition-colors"
+        >
+          {isExpanded ? (
+            <>
+              Show Less
+              <ChevronUp className="w-4 h-4" />
+            </>
+          ) : (
+            <>
+              Show More
+              <ChevronDown className="w-4 h-4" />
+            </>
+          )}
+        </button>
       </div>
 
-      {/* Overall Progress Bar */}
-      <div className="mb-6">
-        <div className="w-full bg-white/20 rounded-full h-3">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${overallProgress}%` }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="bg-gradient-to-r from-pink-500 to-purple-500 h-3 rounded-full"
-          />
-        </div>
-      </div>
-
-      {/* Sections */}
-      <div className="space-y-4">
+      <div className={`space-y-6 transition-all duration-300 ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-[150px] overflow-hidden opacity-90'}`}>
         {sections.map((section, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors cursor-pointer"
-            onClick={() => handleSectionClick(section.route)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className={`p-2 rounded-lg ${
-                  section.completed 
-                    ? 'bg-green-500/20 text-green-400' 
-                    : 'bg-purple-500/20 text-purple-400'
-                }`}>
-                  {section.completed ? <CheckCircle className="w-5 h-5" /> : section.icon}
+          <div key={section.title} className="relative">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-purple-500/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-purple-400/30">
+                {section.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">{section.title}</h3>
+                    <p className="text-gray-400 text-sm">{section.description}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-white">{section.progress}%</span>
+                    {section.completed ? (
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-gray-400" />
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-1">
-                    {section.title}
-                  </h3>
-                  <p className="text-sm text-purple-200 mb-2">
-                    {section.description}
-                  </p>
-                  <div className="w-full bg-white/20 rounded-full h-2">
+                <div className="relative pt-1">
+                  <div className="flex mb-2 items-center justify-between">
+                    <div>
+                      <button
+                        onClick={() => router.push(section.route)}
+                        className="inline-flex items-center px-4 py-1.5 bg-purple-500/20 backdrop-blur-sm border border-purple-400/30 rounded-lg text-sm font-medium text-white hover:bg-purple-500/30 transition-colors"
+                      >
+                        {section.action}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="overflow-hidden h-2 text-xs flex rounded-full bg-purple-500/10">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${section.progress}%` }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                      className={`h-2 rounded-full ${
-                        section.completed 
-                          ? 'bg-green-500' 
-                          : 'bg-gradient-to-r from-pink-500 to-purple-500'
-                      }`}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                      className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-purple-400 to-pink-400"
                     />
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-purple-200">
-                  {section.progress}%
-                </span>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:from-pink-600 hover:to-purple-600 transition-colors"
-                >
-                  {section.action}
-                </motion.button>
-              </div>
             </div>
-          </motion.div>
+            {index < sections.length - 1 && (
+              <div className="absolute left-6 top-16 bottom-0 w-[1px] bg-purple-400/20" />
+            )}
+          </div>
         ))}
       </div>
-
-      {/* Progress Summary */}
-      <div className="mt-6 p-4 bg-white/5 rounded-xl">
-        <div className="text-center">
-          <p className="text-purple-200 text-sm mb-2">
-            {language === 'hi' 
-              ? 'अपनी प्रोफ़ाइल को पूरा करने के लिए ऊपर दिए गए विकल्पों पर क्लिक करें'
-              : 'Click on the options above to complete your profile'
-            }
-          </p>
-          <p className="text-white/60 text-xs">
-            {language === 'hi'
-              ? 'हर सेक्शन को पूरा करने से आपकी प्रोफ़ाइल की गुणवत्ता बेहतर होगी'
-              : 'Completing each section will improve your profile quality'
-            }
-          </p>
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 };
 
