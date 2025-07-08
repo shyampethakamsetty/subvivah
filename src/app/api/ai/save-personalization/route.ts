@@ -2,16 +2,52 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { verify } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    console.log('🔵 Starting AI personalization save...');
     
-    if (!session?.user?.email) {
+    // Try both authentication methods
+    let userId: string | undefined;
+    
+    // 1. Try NextAuth session
+    const session = await getServerSession(authOptions);
+    if (session?.user?.email) {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      });
+      if (user) {
+        userId = user.id;
+        console.log('✅ Authenticated via NextAuth session');
+      }
+    }
+    
+    // 2. Try JWT token if NextAuth failed
+    if (!userId) {
+      const cookie = request.headers.get('cookie') || '';
+      const match = cookie.match(/token=([^;]+)/);
+      const token = match ? match[1] : null;
+      
+      if (token) {
+        try {
+          const decoded: any = verify(token, process.env.JWT_SECRET || 'your-secret-key');
+          userId = decoded.userId;
+          console.log('✅ Authenticated via JWT token');
+        } catch (error) {
+          console.error('❌ JWT verification failed:', error);
+        }
+      }
+    }
+
+    if (!userId) {
+      console.log('❌ No valid authentication found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    console.log('👤 User ID:', userId);
 
     const {
       shardAnswers,
@@ -20,14 +56,12 @@ export async function POST(request: NextRequest) {
       isCompleted = false
     } = await request.json();
 
-    // Get user by email
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+    console.log('📝 Received data:', {
+      hasShardAnswers: !!shardAnswers,
+      hasPersonalizedAnswers: !!personalizedAnswers,
+      hasProfileSummary: !!profileSummary,
+      isCompleted
     });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
 
     // Extract shard answers into individual fields
     const shardData = {
@@ -44,36 +78,53 @@ export async function POST(request: NextRequest) {
       relationshipIntent: shardAnswers?.relationship_intent || null,
     };
 
-    // Upsert AI personalization data
-    const aiPersonalization = await prisma.aIPersonalization.upsert({
-      where: { userId: user.id },
-      update: {
-        ...shardData,
-        personalizedAnswers: personalizedAnswers || null,
-        profileSummary: profileSummary || null,
-        isCompleted,
-        completedAt: isCompleted ? new Date() : null,
-        updatedAt: new Date(),
-      },
-      create: {
-        userId: user.id,
-        ...shardData,
-        personalizedAnswers: personalizedAnswers || null,
-        profileSummary: profileSummary || null,
-        isCompleted,
-        completedAt: isCompleted ? new Date() : null,
-      },
-    });
+    console.log('🔄 Processed shard data:', shardData);
 
-    return NextResponse.json({ 
-      success: true, 
-      data: aiPersonalization 
-    });
+    try {
+      // Upsert AI personalization data
+      const aiPersonalization = await prisma.aIPersonalization.upsert({
+        where: { userId },
+        update: {
+          ...shardData,
+          personalizedAnswers: personalizedAnswers || null,
+          profileSummary: profileSummary || null,
+          isCompleted,
+          completedAt: isCompleted ? new Date() : null,
+          updatedAt: new Date(),
+        },
+        create: {
+          userId,
+          ...shardData,
+          personalizedAnswers: personalizedAnswers || null,
+          profileSummary: profileSummary || null,
+          isCompleted,
+          completedAt: isCompleted ? new Date() : null,
+        },
+      });
+
+      console.log('✅ Successfully saved AI personalization:', {
+        id: aiPersonalization.id,
+        userId: aiPersonalization.userId,
+        isCompleted: aiPersonalization.isCompleted
+      });
+
+      return NextResponse.json({ 
+        success: true, 
+        data: aiPersonalization 
+      });
+
+    } catch (dbError) {
+      console.error('❌ Database error:', dbError);
+      throw dbError;
+    }
 
   } catch (error) {
-    console.error('Error saving AI personalization:', error);
+    console.error('❌ Error saving AI personalization:', error);
     return NextResponse.json(
-      { error: 'Failed to save personalization data' },
+      { 
+        error: 'Failed to save personalization data',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -81,22 +132,54 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    console.log('🔵 Starting AI personalization fetch...');
     
-    if (!session?.user?.email) {
+    // Try both authentication methods
+    let userId: string | undefined;
+    
+    // 1. Try NextAuth session
+    const session = await getServerSession(authOptions);
+    if (session?.user?.email) {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      });
+      if (user) {
+        userId = user.id;
+        console.log('✅ Authenticated via NextAuth session');
+      }
+    }
+    
+    // 2. Try JWT token if NextAuth failed
+    if (!userId) {
+      const cookie = request.headers.get('cookie') || '';
+      const match = cookie.match(/token=([^;]+)/);
+      const token = match ? match[1] : null;
+      
+      if (token) {
+        try {
+          const decoded: any = verify(token, process.env.JWT_SECRET || 'your-secret-key');
+          userId = decoded.userId;
+          console.log('✅ Authenticated via JWT token');
+        } catch (error) {
+          console.error('❌ JWT verification failed:', error);
+        }
+      }
+    }
+
+    if (!userId) {
+      console.log('❌ No valid authentication found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
+    console.log('👤 User ID:', userId);
 
     const aiPersonalization = await prisma.aIPersonalization.findUnique({
-      where: { userId: user.id }
+      where: { userId }
+    });
+
+    console.log('✅ Successfully fetched AI personalization:', {
+      found: !!aiPersonalization,
+      isCompleted: aiPersonalization?.isCompleted
     });
 
     return NextResponse.json({ 
@@ -105,7 +188,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching AI personalization:', error);
+    console.error('❌ Error fetching AI personalization:', error);
     return NextResponse.json(
       { error: 'Failed to fetch personalization data' },
       { status: 500 }

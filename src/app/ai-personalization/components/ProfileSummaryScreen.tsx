@@ -26,6 +26,8 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [avatarText, setAvatarText] = useState('');
 
@@ -38,6 +40,7 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
     setError(null);
     
     try {
+      console.log('Generating summary with data:', initialData);
       const response = await fetch('/api/ai/generate-summary', {
         method: 'POST',
         headers: {
@@ -46,7 +49,7 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
         body: JSON.stringify({
           shardAnswers: initialData.shardAnswers,
           personalizedAnswers: initialData.personalizedAnswers,
-          language: language,
+          language
         }),
       });
 
@@ -55,20 +58,31 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       }
 
       const data = await response.json();
+      console.log('Generated summary:', data);
       setSummary(data);
-      setAvatarText(data.summary);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error generating summary:', err);
-      setError('Failed to generate profile summary. Please try again.');
-      setLoading(false);
+      setAvatarText('I have generated a summary based on your answers. Please review it and make sure it represents you accurately.');
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      setError('Failed to generate summary. Please try again.');
+      setAvatarText('I apologize, but I encountered an error while generating your summary. Would you like to try again?');
     } finally {
       setGenerating(false);
+      setLoading(false);
     }
   };
 
   const handleComplete = async () => {
+    setSaving(true);
+    setSaveSuccess(false);
+    setError(null);
     try {
+      console.log('Saving personalization data:', {
+        shardAnswers: initialData.shardAnswers,
+        personalizedAnswers: initialData.personalizedAnswers,
+        profileSummary: summary,
+        isCompleted: true
+      });
+
       // Save all data to database
       const saveResponse = await fetch('/api/ai/save-personalization', {
         method: 'POST',
@@ -81,31 +95,33 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
           profileSummary: summary,
           isCompleted: true
         }),
+        credentials: 'include' // Important for sending cookies
       });
 
       if (!saveResponse.ok) {
-        throw new Error('Failed to save personalization data');
+        const errorData = await saveResponse.json();
+        throw new Error(errorData.error || 'Failed to save personalization data');
       }
 
       const saveData = await saveResponse.json();
-      console.log('AI Personalization saved:', saveData);
+      console.log('AI Personalization saved successfully:', saveData);
+      
+      // Show success animation
+      setSaveSuccess(true);
+      setAvatarText('Great! Your profile has been saved successfully. You can now proceed to your profile page.');
+      
+      // Wait for animation to complete before proceeding
+      setTimeout(() => {
+        onNext({ isCompleted: true });
+      }, 1500);
 
-      // Proceed to next step
-      onNext({ 
-        profileSummary: summary,
-        shardAnswers: initialData.shardAnswers,
-        personalizedAnswers: initialData.personalizedAnswers,
-        isCompleted: true
-      });
     } catch (error) {
       console.error('Error saving personalization data:', error);
-      // Still proceed even if save fails
-      onNext({ 
-        profileSummary: summary,
-        shardAnswers: initialData.shardAnswers,
-        personalizedAnswers: initialData.personalizedAnswers,
-        isCompleted: true
-      });
+      setError(error instanceof Error ? error.message : 'Failed to save your profile. Please try again.');
+      setAvatarText('I apologize, but there was an error saving your profile. Would you like to try again?');
+      setSaveSuccess(false);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -138,162 +154,114 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
 
   if (loading || generating) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="w-full max-w-4xl mx-auto p-4"
-      >
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-pink-500 border-t-transparent mx-auto mb-6"></div>
-          <h2 className="text-2xl font-bold text-white mb-4">{t.title}</h2>
-          <p className="text-purple-200 text-lg">{t.generating}</p>
-        </div>
-      </motion.div>
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+        <p className="mt-4 text-gray-600">
+          {generating ? 'Generating your profile summary...' : 'Loading...'}
+        </p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="w-full max-w-4xl mx-auto p-4"
-      >
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl text-center">
-          <div className="text-red-400 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Error</h2>
-          <p className="text-purple-200 mb-6">{t.error}</p>
-          <div className="flex gap-4 justify-center">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={onBack}
-              className="px-6 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-colors"
-            >
-              {t.back}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={generateSummary}
-              className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors"
-            >
-              Try Again
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (!summary) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="w-full max-w-4xl mx-auto p-4"
-      >
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl text-center">
-          <div className="text-yellow-400 text-6xl mb-4">🤔</div>
-          <h2 className="text-2xl font-bold text-white mb-4">No Summary Generated</h2>
-          <p className="text-purple-200 mb-6">Unable to generate profile summary at this time.</p>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onBack}
-            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors"
-          >
-            {t.back}
-          </motion.button>
-        </div>
-      </motion.div>
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <div className="text-red-500 mb-4">⚠️ {error}</div>
+        <button
+          onClick={() => {
+            setError(null);
+            generateSummary();
+          }}
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="w-full max-w-4xl mx-auto p-4"
-    >
-      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-4">{t.title}</h1>
-          <p className="text-purple-200 text-lg">{t.subtitle}</p>
-        </div>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold mb-4">
+        {language === 'hi' ? 'आपका प्रोफ़ाइल सारांश' : 'Your Profile Summary'}
+      </h2>
 
-        {/* Avatar Speaking Summary */}
-        <div className="mb-8">
-          <SpeakingAvatar text={avatarText} size="lg" />
-        </div>
-
-        {/* Summary Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Key Traits */}
-          <div className="bg-white/5 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <span className="text-pink-400">✨</span>
-              {t.keyTraits}
+      {summary && (
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-xl font-semibold mb-4">
+              {language === 'hi' ? 'सारांश' : 'Summary'}
             </h3>
-            <div className="space-y-2">
+            <p className="text-gray-700">{summary.summary}</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-xl font-semibold mb-4">
+              {language === 'hi' ? 'प्रमुख विशेषताएं' : 'Key Traits'}
+            </h3>
+            <div className="flex flex-wrap gap-2">
               {summary.keyTraits.map((trait, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <span className="text-pink-400">•</span>
-                  <span className="text-purple-200">{trait}</span>
-                </div>
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
+                >
+                  {trait}
+                </span>
               ))}
             </div>
           </div>
 
-          {/* Compatibility Notes */}
-          <div className="bg-white/5 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <span className="text-green-400">💝</span>
-              {t.compatibilityNotes}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-xl font-semibold mb-4">
+              {language === 'hi' ? 'संगतता नोट्स' : 'Compatibility Notes'}
             </h3>
-            <p className="text-purple-200 leading-relaxed">
-              {summary.compatibilityNotes}
-            </p>
+            <p className="text-gray-700">{summary.compatibilityNotes}</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-xl font-semibold mb-4">
+              {language === 'hi' ? 'मैच प्राथमिकताएं' : 'Match Preferences'}
+            </h3>
+            <p className="text-gray-700">{summary.matchPreferences}</p>
           </div>
         </div>
+      )}
 
-        {/* Match Preferences */}
-        <div className="bg-white/5 rounded-xl p-6 mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <span className="text-blue-400">🎯</span>
-            {t.matchPreferences}
-          </h3>
-          <p className="text-purple-200 leading-relaxed">
-            {summary.matchPreferences}
-          </p>
-        </div>
+      <div className="flex justify-between mt-8">
+        <button
+          onClick={onBack}
+          className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+          disabled={saving}
+        >
+          {language === 'hi' ? 'पीछे' : 'Back'}
+        </button>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onBack}
-            className="px-6 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-colors"
-          >
-            {t.back}
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleComplete}
-            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors"
-          >
-            {t.complete}
-          </motion.button>
-        </div>
+        <button
+          onClick={handleComplete}
+          disabled={saving || !summary}
+          className={`px-6 py-2 rounded transition-colors relative ${
+            saving
+              ? 'bg-gray-400 cursor-not-allowed'
+              : saveSuccess
+              ? 'bg-green-500 hover:bg-green-600'
+              : 'bg-purple-500 hover:bg-purple-600'
+          } text-white`}
+        >
+          {saving ? (
+            <span className="flex items-center">
+              <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></span>
+              {language === 'hi' ? 'सहेज रहा है...' : 'Saving...'}
+            </span>
+          ) : saveSuccess ? (
+            <span className="flex items-center">
+              <span className="mr-2">✓</span>
+              {language === 'hi' ? 'सफलतापूर्वक सहेजा गया' : 'Saved Successfully'}
+            </span>
+          ) : (
+            language === 'hi' ? 'पूर्ण करें' : 'Complete'
+          )}
+        </button>
       </div>
-    </motion.div>
+    </div>
   );
 } 

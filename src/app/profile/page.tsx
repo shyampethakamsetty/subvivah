@@ -353,9 +353,13 @@ function ProfilePage() {
         });
 
         if (response.ok) {
-          // Update local user state
-          setUser(prev => prev ? { ...prev, gender: data.gender } : null);
-          console.log('✅ Gender updated successfully:', data.gender);
+          // Refresh user data after updating gender
+          const userResponse = await fetch('/api/auth/me');
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            setUser(userData.user);
+          }
+          console.log('✅ Gender updated and user data refreshed');
         } else {
           console.error('Failed to update gender in database');
         }
