@@ -45,6 +45,27 @@ const BENEFITS = [
 ];
 
 export default function StaticMessages() {
+  const handleInteraction = () => {
+    try {
+      console.log('Attempting to show register popup from StaticMessages');
+      if (typeof window !== 'undefined') {
+        if (typeof window.showRegisterPopup === 'function') {
+          window.showRegisterPopup();
+        } else {
+          console.error('showRegisterPopup function is not available');
+          window.showRegisterPopup = () => {
+            console.log('Register popup triggered from StaticMessages initialization');
+            window.location.reload();
+          };
+          window.showRegisterPopup();
+        }
+      }
+    } catch (error) {
+      console.error('Error showing register popup:', error);
+      window.location.href = '/register';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950">
       {/* Hero Section */}
@@ -59,26 +80,26 @@ export default function StaticMessages() {
             <p className="text-xl md:text-2xl text-purple-200 mb-12">
               Connect safely and build meaningful relationships through our trusted platform
             </p>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-3xl mx-auto">
+            <div 
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-3xl mx-auto cursor-pointer hover:scale-105 transition-transform duration-300"
+              onClick={handleInteraction}
+            >
               <div className="flex flex-col items-center gap-4">
                 <div className="w-16 h-16 bg-purple-600/30 rounded-full flex items-center justify-center mb-4">
                   <Lock className="w-8 h-8 text-purple-200" />
                 </div>
                 <p className="text-lg text-purple-200 mb-4">
-                  Login to start connecting with your matches through our secure messaging system
+                  Create an account to start connecting with your matches through our secure messaging system
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button 
-                    onClick={() => {
-                      if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-                        (window as any).showLoginPopup();
-                      }
-                    }}
-                    className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors select-none"
-                  >
-                    Start Messaging
-                  </button>
-                </div>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleInteraction();
+                  }}
+                  className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors select-none"
+                >
+                  Get Started
+                </button>
               </div>
             </div>
           </div>
@@ -94,7 +115,8 @@ export default function StaticMessages() {
           {TRUST_FEATURES.map((feature, index) => (
             <div
               key={index}
-              className="bg-white/10 backdrop-blur-sm rounded-xl p-6 transform hover:scale-105 transition-all duration-300 select-none"
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-6 transform hover:scale-105 transition-all duration-300 select-none cursor-pointer"
+              onClick={handleInteraction}
             >
               <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
                 {feature.icon}
@@ -137,28 +159,12 @@ export default function StaticMessages() {
           <p className="text-lg text-purple-200 mb-8">
             Join our trusted community and begin your journey to meaningful relationships
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-                  (window as any).showLoginPopup();
-                }
-              }}
-              className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors select-none"
-            >
-              Login Now
-            </button>
-            <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
-                  (window as any).showRegisterPopup();
-                }
-              }}
-              className="px-8 py-3 bg-pink-600 text-white rounded-lg text-lg font-semibold hover:bg-pink-700 transition-colors select-none"
-            >
-              Create Account
-            </button>
-          </div>
+          <button
+            onClick={handleInteraction}
+            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors select-none"
+          >
+            Get Started
+          </button>
         </div>
       </div>
     </div>

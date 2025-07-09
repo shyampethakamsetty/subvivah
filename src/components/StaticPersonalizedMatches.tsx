@@ -33,24 +33,24 @@ const STATIC_PERSONALIZED_MATCHES = [
 ];
 
 export default function StaticPersonalizedMatches() {
-  const handleLoginClick = () => {
+  const handleInteraction = () => {
     try {
-      console.log('Attempting to show login popup from StaticPersonalizedMatches');
+      console.log('Attempting to show register popup from StaticPersonalizedMatches');
       if (typeof window !== 'undefined') {
-        if (typeof window.showLoginPopup === 'function') {
-          window.showLoginPopup();
+        if (typeof window.showRegisterPopup === 'function') {
+          window.showRegisterPopup();
         } else {
-          console.error('showLoginPopup function is not available');
-          window.showLoginPopup = () => {
-            console.log('Login popup triggered from StaticPersonalizedMatches initialization');
+          console.error('showRegisterPopup function is not available');
+          window.showRegisterPopup = () => {
+            console.log('Register popup triggered from StaticPersonalizedMatches initialization');
             window.location.reload();
           };
-          window.showLoginPopup();
+          window.showRegisterPopup();
         }
       }
     } catch (error) {
-      console.error('Error showing login popup:', error);
-      window.location.href = '/login';
+      console.error('Error showing register popup:', error);
+      window.location.href = '/register';
     }
   };
 
@@ -89,7 +89,11 @@ export default function StaticPersonalizedMatches() {
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">Today's AI-Curated Matches</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {STATIC_PERSONALIZED_MATCHES.map((match, index) => (
-            <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden">
+            <div 
+              key={index} 
+              className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300"
+              onClick={handleInteraction}
+            >
               <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-500 relative">
                 <Lock className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-white opacity-80" />
               </div>
@@ -119,7 +123,10 @@ export default function StaticPersonalizedMatches() {
                   ))}
                 </div>
                 <button 
-                  onClick={handleLoginClick}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleInteraction();
+                  }}
                   className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <ThumbsUp className="w-4 h-4" />
@@ -131,18 +138,18 @@ export default function StaticPersonalizedMatches() {
         </div>
       </div>
 
-      {/* Login CTA */}
+      {/* CTA */}
       <div className="max-w-3xl mx-auto text-center bg-white/10 backdrop-blur-sm rounded-xl p-8">
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Experience AI-Powered Matchmaking</h2>
         <p className="text-lg text-purple-200 mb-6">
-          Login now to unlock personalized matches selected by our advanced AI algorithm
+          Create an account now to unlock personalized matches selected by our advanced AI algorithm
         </p>
         <button 
-          onClick={handleLoginClick}
+          onClick={handleInteraction}
           className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors flex items-center justify-center gap-2 mx-auto"
         >
           <Brain className="w-5 h-5" />
-          Get Matched Now
+          Get Started
         </button>
       </div>
     </div>

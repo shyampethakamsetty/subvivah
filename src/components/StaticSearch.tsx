@@ -41,26 +41,26 @@ export default function StaticSearch() {
       .toUpperCase();
   };
 
-  const handleViewProfile = () => {
+  const handleInteraction = () => {
     try {
-      console.log('Attempting to show login popup from StaticSearch');
+      console.log('Attempting to show register popup from StaticSearch');
       if (typeof window !== 'undefined') {
-        if (typeof window.showLoginPopup === 'function') {
-          window.showLoginPopup();
+        if (typeof window.showRegisterPopup === 'function') {
+          window.showRegisterPopup();
         } else {
-          console.error('showLoginPopup function is not available');
+          console.error('showRegisterPopup function is not available');
           // Try to initialize it if not available
-          window.showLoginPopup = () => {
-            console.log('Login popup triggered from StaticSearch initialization');
+          window.showRegisterPopup = () => {
+            console.log('Register popup triggered from StaticSearch initialization');
             // Since we can't access the DelayedLoginModal's state here,
             // we'll reload the page which will trigger the auth check
             window.location.reload();
           };
-          window.showLoginPopup();
+          window.showRegisterPopup();
         }
       }
     } catch (error) {
-      console.error('Error showing login popup:', error);
+      console.error('Error showing register popup:', error);
       // Fallback: reload page to trigger popup
       window.location.reload();
     }
@@ -75,7 +75,7 @@ export default function StaticSearch() {
           <p className="text-lg text-purple-200">Join thousands of happy couples who found their soulmate on शुभ विवाह</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg p-6">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg p-6 cursor-pointer hover:scale-105 transition-transform duration-300" onClick={handleInteraction}>
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="flex-1 relative">
               <input
@@ -101,7 +101,8 @@ export default function StaticSearch() {
           {STATIC_PROFILES.map((profile, index) => (
             <div
               key={index}
-              className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300 relative group"
+              className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300 relative group cursor-pointer"
+              onClick={handleInteraction}
             >
               <div className="relative h-48 w-full bg-gradient-to-b from-purple-600/20 to-purple-900/40 flex items-center justify-center">
                 <div className="w-24 h-24 rounded-full bg-purple-600/50 flex items-center justify-center">
@@ -139,7 +140,10 @@ export default function StaticSearch() {
 
               <div className="p-4 border-t border-purple-500/20">
                 <button
-                  onClick={handleViewProfile}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleInteraction();
+                  }}
                   className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Lock className="w-4 h-4" />
@@ -150,7 +154,7 @@ export default function StaticSearch() {
           ))}
         </div>
 
-        {/* Login/Register CTA */}
+        {/* CTA */}
         <div className="mt-12 text-center">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-2xl font-semibold text-white mb-4">
@@ -159,20 +163,12 @@ export default function StaticSearch() {
             <p className="text-purple-200 mb-8">
               Join शुभ विवाह today and connect with thousands of potential matches. Our advanced matchmaking system helps you find the perfect life partner.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
-                onClick={handleViewProfile}
-                className="px-8 py-3 bg-pink-600 text-white rounded-lg text-lg font-semibold hover:bg-pink-700 transition-colors"
-              >
-                Login Now
-              </button>
-              <Link
-                href="/register"
-                className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors"
-              >
-                Create Account
-              </Link>
-            </div>
+            <button 
+              onClick={handleInteraction}
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors"
+            >
+              Get Started
+            </button>
           </div>
         </div>
       </div>

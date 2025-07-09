@@ -122,16 +122,15 @@ export default function MatchesPage() {
         return;
       }
 
-      // Filter matches for 30% or higher
+      // Show ALL matches, sorted by score (best matches first)
       const filteredMatches = data.matches
-        .filter((match: any) => match.matchScore >= 30)
         .map((match: any) => ({
           ...match,
           isBestMatch: false
         }));
 
       if (filteredMatches.length === 0 && !bestMatch) {
-        setError('No matches found with 30% or higher match score. Try updating your preferences to find more matches.');
+        setError('No matches found based on your preferences. Try updating your preferences to find more matches.');
         return;
       }
 

@@ -12,6 +12,7 @@ interface PersonalizedMatch {
   user: {
     firstName: string;
     lastName: string;
+    gender: string;
     photos: Array<{ url: string }>;
     education?: string;
     occupation?: string;
@@ -175,6 +176,11 @@ export default function PersonalizedMatches() {
         <h3 className="text-lg font-semibold text-purple-100 mb-2">
           {match.user.firstName} {match.user.lastName}
         </h3>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-sm text-purple-300 font-medium">
+            {match.user.gender}
+          </span>
+        </div>
         <div className="space-y-1.5">
           {match.user.workLocation && (
             <div className="flex items-center gap-1.5 text-white/80 text-sm">
@@ -316,6 +322,11 @@ export default function PersonalizedMatches() {
                 <h3 className="text-xl font-semibold text-white mb-1">
                   {selectedUser.user.firstName} {selectedUser.user.lastName}
                 </h3>
+                <div className="flex items-center gap-2 text-white/90 text-sm mb-2">
+                  <span className="text-sm text-white/80">
+                    {selectedUser.user.gender}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2 text-white/90 text-sm">
                   <div className={`${getScoreColor(selectedUser.matchScore)} px-2 py-0.5 rounded-full text-white text-sm font-medium`}>
                     {selectedUser.matchScore}% • {getScoreText(selectedUser.matchScore)}

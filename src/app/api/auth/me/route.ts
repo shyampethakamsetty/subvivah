@@ -32,6 +32,7 @@ export async function GET(request: Request) {
         photos: true,
         horoscope: true,
         preferences: true,
+        aiPersonalization: true,
       },
     });
 

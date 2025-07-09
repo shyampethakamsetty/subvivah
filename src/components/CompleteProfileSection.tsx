@@ -45,7 +45,7 @@ const CompleteProfileSection: React.FC<CompleteProfileSectionProps> = ({
 
   useEffect(() => {
     calculateProgress();
-  }, [userProfile]);
+  }, [userProfile, user]);
 
   const calculateProgress = () => {
     const basicInfoProgress = calculateBasicInfoProgress();
@@ -130,17 +130,41 @@ const CompleteProfileSection: React.FC<CompleteProfileSectionProps> = ({
   };
 
   const calculateAIPersonalizationProgress = (): number => {
-    if (!userProfile) return 0;
+    if (!user?.aiPersonalization) return 0;
     
-    const aiFields = [
-      'aboutMe', 'hobbies', 'personalityTraits'
+    // Check if AI personalization is completed
+    if (user.aiPersonalization.isCompleted) {
+      return 100;
+    }
+    
+    // Check for shard answers (the 11 main questions)
+    const shardFields = [
+      'foodPreference', 'sleepSchedule', 'socialPersonality', 
+      'religionSpirituality', 'relationshipType', 'careerPriority',
+      'childrenPreference', 'livingSetup', 'relocationFlexibility',
+      'marriageTimeline', 'relationshipIntent'
     ];
     
-    const completedFields = aiFields.filter(field => 
-      userProfile[field] && userProfile[field].toString().trim() !== ''
+    const completedShardFields = shardFields.filter(field => 
+      user.aiPersonalization[field] && user.aiPersonalization[field].toString().trim() !== ''
     ).length;
     
-    return Math.round((completedFields / aiFields.length) * 100);
+    // Calculate progress based on shard answers (11 questions)
+    const shardProgress = Math.round((completedShardFields / shardFields.length) * 100);
+    
+    // If shard answers are complete, check for personalized answers and profile summary
+    if (shardProgress === 100) {
+      const hasPersonalizedAnswers = !!user.aiPersonalization.personalizedAnswers;
+      const hasProfileSummary = !!user.aiPersonalization.profileSummary;
+      
+      if (hasPersonalizedAnswers && hasProfileSummary) {
+        return 100;
+      } else if (hasPersonalizedAnswers || hasProfileSummary) {
+        return 90; // Almost complete
+      }
+    }
+    
+    return shardProgress;
   };
 
   const handleSectionClick = (route: string) => {

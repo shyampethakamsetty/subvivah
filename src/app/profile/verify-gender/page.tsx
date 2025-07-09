@@ -6,9 +6,15 @@ import { ArrowLeft, Camera, Shield } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
 
-// Dynamically import FaceVerification with no SSR
+// Dynamically import FaceVerification with no SSR and loading state
 const FaceVerification = dynamic(() => import('@/components/FaceVerification'), {
-  ssr: false
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+      <span className="ml-3 text-white">Loading verification...</span>
+    </div>
+  )
 });
 
 const GenderVerificationPage = () => {
@@ -180,16 +186,17 @@ const GenderVerificationPage = () => {
               </div>
             </motion.div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl"
-            >
+            <React.Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+                <span className="ml-3 text-white">Loading verification...</span>
+              </div>
+            }>
               <FaceVerification
                 onVerificationComplete={handleVerificationComplete}
                 onClose={() => setShowFaceVerification(false)}
               />
-            </motion.div>
+            </React.Suspense>
           )}
 
           {/* Status Messages */}

@@ -161,12 +161,15 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                   </div>
 
                   <div className="text-sm">
-                    <Link 
-                      href="/forgot-password" 
+                    <button
+                      onClick={() => {
+                        onClose();
+                        window.location.href = '/forgot-password';
+                      }}
                       className="font-medium text-purple-600 hover:text-purple-700 transition-colors"
                     >
                       Forgot Password?
-                    </Link>
+                    </button>
                   </div>
                 </div>
 

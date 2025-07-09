@@ -76,7 +76,7 @@ export async function GET(request: Request) {
           { id: { not: userId } },
           { isActive: true },
           { isVerified: true },
-          { gender: currentUser.gender === 'male' ? 'female' : 'male' }, // Filter by opposite gender
+          { gender: currentUser.gender === 'Male' ? 'Female' : 'Male' }, // Filter by opposite gender
           {
             aiPersonalization: {
               isCompleted: true
@@ -88,6 +88,7 @@ export async function GET(request: Request) {
         id: true,
         firstName: true,
         lastName: true,
+        gender: true,
         photos: true,
         aiPersonalization: {
           select: {
@@ -129,6 +130,7 @@ export async function GET(request: Request) {
           user: {
             firstName: match.firstName,
             lastName: match.lastName,
+            gender: match.gender,
             photos: match.photos || []
           },
           matchScore,
@@ -138,10 +140,9 @@ export async function GET(request: Request) {
 
     console.log('🔵 Matches with scores:', matchesWithScores.map(m => ({ id: m.id, score: m.matchScore })));
 
-    const matches = matchesWithScores
-      .filter(match => match.matchScore >= 30) // Lower threshold from 50 to 30
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 50); // Show more matches (up from 20)
+    // Show ALL matches, sorted by score (best matches first)
+    let matches = matchesWithScores
+      .sort((a, b) => b.matchScore - a.matchScore);
 
     console.log('🔵 Final filtered matches:', matches.length);
 
@@ -218,39 +219,51 @@ function calculateMatchScore(user1: any, user2: any): number {
 function getMatchingCriteria(user1: any, user2: any): string[] {
   const criteria: string[] = [];
   
-  if (user1.foodPreference === user2.foodPreference) {
-    criteria.push('Similar Food Preferences');
+  // Helper function to format field values for display
+  const formatValue = (value: string) => {
+    if (!value) return '';
+    return value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  if (user1.foodPreference === user2.foodPreference && user1.foodPreference) {
+    criteria.push(`Both prefer ${formatValue(user1.foodPreference)} food`);
   }
-  if (user1.sleepSchedule === user2.sleepSchedule) {
-    criteria.push('Similar Sleep Schedule');
+  if (user1.sleepSchedule === user2.sleepSchedule && user1.sleepSchedule) {
+    criteria.push(`Both are ${formatValue(user1.sleepSchedule)}`);
   }
-  if (user1.socialPersonality === user2.socialPersonality) {
-    criteria.push('Matching Social Style');
+  if (user1.socialPersonality === user2.socialPersonality && user1.socialPersonality) {
+    criteria.push(`Both are ${formatValue(user1.socialPersonality)}`);
   }
-  if (user1.religionSpirituality === user2.religionSpirituality) {
-    criteria.push('Spiritual Alignment');
+  if (user1.religionSpirituality === user2.religionSpirituality && user1.religionSpirituality) {
+    criteria.push(`Both are ${formatValue(user1.religionSpirituality)}`);
   }
-  if (user1.relationshipType === user2.relationshipType) {
-    criteria.push('Relationship Goals Match');
+  if (user1.relationshipType === user2.relationshipType && user1.relationshipType) {
+    criteria.push(`Both seek ${formatValue(user1.relationshipType)} relationships`);
   }
-  if (user1.careerPriority === user2.careerPriority) {
-    criteria.push('Career Priority Match');
+  if (user1.careerPriority === user2.careerPriority && user1.careerPriority) {
+    criteria.push(`Both prioritize ${formatValue(user1.careerPriority)}`);
   }
-  if (user1.childrenPreference === user2.childrenPreference) {
-    criteria.push('Family Planning Match');
+  if (user1.childrenPreference === user2.childrenPreference && user1.childrenPreference) {
+    criteria.push(`Both ${formatValue(user1.childrenPreference)}`);
   }
-  if (user1.livingSetup === user2.livingSetup) {
-    criteria.push('Living Setup Match');
+  if (user1.livingSetup === user2.livingSetup && user1.livingSetup) {
+    criteria.push(`Both prefer ${formatValue(user1.livingSetup)}`);
   }
-  if (user1.marriageTimeline === user2.marriageTimeline) {
-    criteria.push('Marriage Timeline Match');
+  if (user1.marriageTimeline === user2.marriageTimeline && user1.marriageTimeline) {
+    criteria.push(`Both want marriage ${formatValue(user1.marriageTimeline)}`);
+  }
+  if (user1.relationshipIntent === user2.relationshipIntent && user1.relationshipIntent) {
+    criteria.push(`Both want ${formatValue(user1.relationshipIntent)}`);
+  }
+  if (user1.relocationFlexibility === user2.relocationFlexibility && user1.relocationFlexibility) {
+    criteria.push(`Both are ${formatValue(user1.relocationFlexibility)}`);
   }
 
   return criteria;
 }
 
 function areCompatibleAnswers(field: string, value1: string, value2: string): boolean {
-  // Simplified compatibility rules
+  // Enhanced compatibility rules
   const compatibilityRules: Record<string, string[][]> = {
     socialPersonality: [
       ['extrovert', 'ambivert'],
@@ -261,8 +274,8 @@ function areCompatibleAnswers(field: string, value1: string, value2: string): bo
       ['non_vegetarian', 'eggetarian']
     ],
     sleepSchedule: [
-      ['early_bird', 'flexible'],
-      ['night_owl', 'flexible']
+      ['early_bird', 'balanced'],
+      ['night_owl', 'balanced']
     ],
     religionSpirituality: [
       ['moderately_religious', 'somewhat_religious'],
@@ -272,6 +285,26 @@ function areCompatibleAnswers(field: string, value1: string, value2: string): bo
     marriageTimeline: [
       ['within_6_months', 'within_1_year'],
       ['within_1_year', 'within_2_years']
+    ],
+    relationshipType: [
+      ['traditional', 'balanced'],
+      ['modern', 'balanced']
+    ],
+    careerPriority: [
+      ['career_focused', 'work_life_balance'],
+      ['family_focused', 'work_life_balance']
+    ],
+    childrenPreference: [
+      ['want_children', 'maybe_later'],
+      ['maybe_later', 'not_sure']
+    ],
+    livingSetup: [
+      ['joint_family', 'nuclear_family'],
+      ['nuclear_family', 'independent']
+    ],
+    relocationFlexibility: [
+      ['flexible', 'depends_on_opportunity'],
+      ['not_flexible', 'depends_on_opportunity']
     ]
   };
 

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import SpeakingAvatar from './SpeakingAvatar';
-import PersonalizedMatches from './PersonalizedMatches';
 
 interface ProfileSummaryScreenProps {
   onNext: (data: any) => void;
@@ -141,11 +140,11 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       }
 
       setSaveSuccess(true);
-      setAvatarText('Great! Your profile has been saved and verified successfully. You can now proceed to your profile page.');
+      setAvatarText('Great! Your AI personalization has been completed successfully. You can now view your personalized matches.');
       
-      // Show success message for 2 seconds before redirecting
+      // Show success message for 2 seconds before redirecting to personalized matches
       setTimeout(() => {
-        onNext({ isCompleted: true });
+        window.location.href = '/personalized-matches';
       }, 2000);
 
     } catch (error) {
@@ -169,8 +168,8 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       complete: 'पूरा करें',
       back: 'वापस',
       error: 'प्रोफ़ाइल सारांश तैयार करने में समस्या हुई। कृपया फिर से कोशिश करें।',
-      success: 'बधाई हो! आपकी प्रोफ़ाइल सफलतापूर्वक सहेजी गई है।',
-      redirecting: 'आपको प्रोफ़ाइल पेज पर भेजा जा रहा है...'
+      success: 'बधाई हो! आपका AI व्यक्तित्व विश्लेषण पूरा हो गया है।',
+      redirecting: 'आपको व्यक्तिगत मैचेस पेज पर भेजा जा रहा है...'
     },
     en: {
       title: 'Your Profile Summary',
@@ -182,8 +181,8 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       complete: 'Complete',
       back: 'Back',
       error: 'Failed to generate profile summary. Please try again.',
-      success: 'Congratulations! Your profile has been successfully saved.',
-      redirecting: 'Redirecting you to your profile page...'
+      success: 'Congratulations! Your AI personalization has been completed.',
+      redirecting: 'Redirecting you to personalized matches...'
     }
   };
 
@@ -276,13 +275,6 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
               {language === 'hi' ? 'मैच प्राथमिकताएं' : 'Match Preferences'}
             </h3>
             <p className="text-purple-200">{summary.matchPreferences}</p>
-          </div>
-
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-white mb-6">
-              {language === 'hi' ? 'आपके अनुरूप प्रोफाइल' : 'Compatible Profiles'}
-            </h2>
-            <PersonalizedMatches />
           </div>
         </div>
       )}
