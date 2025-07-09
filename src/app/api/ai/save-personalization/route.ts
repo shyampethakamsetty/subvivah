@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { verify } from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -47,84 +47,63 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('👤 User ID:', userId);
-
+    // Get request body
+    const body = await request.json();
     const {
       shardAnswers,
       personalizedAnswers,
       profileSummary,
-      isCompleted = false
-    } = await request.json();
+      isCompleted
+    } = body;
 
-    console.log('📝 Received data:', {
+    console.log('📝 Saving AI personalization data:', {
+      userId,
+      isCompleted,
       hasShardAnswers: !!shardAnswers,
       hasPersonalizedAnswers: !!personalizedAnswers,
-      hasProfileSummary: !!profileSummary,
-      isCompleted
+      hasProfileSummary: !!profileSummary
     });
 
-    // Extract shard answers into individual fields
-    const shardData = {
-      foodPreference: shardAnswers?.food_preference || null,
-      sleepSchedule: shardAnswers?.sleep_schedule || null,
-      socialPersonality: shardAnswers?.social_personality || null,
-      religionSpirituality: shardAnswers?.religion_spirituality || null,
-      relationshipType: shardAnswers?.relationship_type || null,
-      careerPriority: shardAnswers?.career_priority || null,
-      childrenPreference: shardAnswers?.children_preference || null,
-      livingSetup: shardAnswers?.living_setup || null,
-      relocationFlexibility: shardAnswers?.relocation_flexibility || null,
-      marriageTimeline: shardAnswers?.marriage_timeline || null,
-      relationshipIntent: shardAnswers?.relationship_intent || null,
+    // Map shard answers to the schema fields
+    const aiPersonalizationData = {
+      userId,
+      isCompleted: isCompleted || false,
+      foodPreference: shardAnswers?.foodPreference,
+      sleepSchedule: shardAnswers?.sleepSchedule,
+      socialPersonality: shardAnswers?.socialPersonality,
+      religionSpirituality: shardAnswers?.religionSpirituality,
+      relationshipType: shardAnswers?.relationshipType,
+      careerPriority: shardAnswers?.careerPriority,
+      childrenPreference: shardAnswers?.childrenPreference,
+      livingSetup: shardAnswers?.livingSetup,
+      relocationFlexibility: shardAnswers?.relocationFlexibility,
+      marriageTimeline: shardAnswers?.marriageTimeline,
+      relationshipIntent: shardAnswers?.relationshipIntent,
+      personalizedAnswers: personalizedAnswers || undefined,
+      profileSummary: profileSummary || undefined,
+      completedAt: isCompleted ? new Date() : null
     };
 
-    console.log('🔄 Processed shard data:', shardData);
+    // Use upsert to create or update
+    const savedData = await prisma.aIPersonalization.upsert({
+      where: {
+        userId
+      },
+      update: aiPersonalizationData,
+      create: aiPersonalizationData
+    });
 
-    try {
-      // Upsert AI personalization data
-      const aiPersonalization = await prisma.aIPersonalization.upsert({
-        where: { userId },
-        update: {
-          ...shardData,
-          personalizedAnswers: personalizedAnswers || null,
-          profileSummary: profileSummary || null,
-          isCompleted,
-          completedAt: isCompleted ? new Date() : null,
-          updatedAt: new Date(),
-        },
-        create: {
-          userId,
-          ...shardData,
-          personalizedAnswers: personalizedAnswers || null,
-          profileSummary: profileSummary || null,
-          isCompleted,
-          completedAt: isCompleted ? new Date() : null,
-        },
-      });
+    console.log('✅ Successfully saved AI personalization data');
 
-      console.log('✅ Successfully saved AI personalization:', {
-        id: aiPersonalization.id,
-        userId: aiPersonalization.userId,
-        isCompleted: aiPersonalization.isCompleted
-      });
-
-      return NextResponse.json({ 
-        success: true, 
-        data: aiPersonalization 
-      });
-
-    } catch (dbError) {
-      console.error('❌ Database error:', dbError);
-      throw dbError;
-    }
+    return NextResponse.json({ 
+      success: true, 
+      data: savedData 
+    });
 
   } catch (error) {
     console.error('❌ Error saving AI personalization:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to save personalization data',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to save personalization data' },
       { status: 500 }
     );
   }

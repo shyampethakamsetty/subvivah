@@ -272,3 +272,5 @@ model AIPersonalization {
   
   user                User     @relation(fields: [userId], references: [id])
 }
+
+
