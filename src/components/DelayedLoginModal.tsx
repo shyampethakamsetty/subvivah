@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import AuthRedirectModal from './AuthRedirectModal';
+import LoginModal from './LoginModal';
 
 // Define the showLoginPopup and showRegisterPopup function types globally
 declare global {
@@ -84,7 +84,7 @@ export default function DelayedLoginModal() {
   }
 
   return (
-    <AuthRedirectModal 
+    <LoginModal 
       isOpen={showAuthModal}
       onClose={() => setShowAuthModal(false)}
     />

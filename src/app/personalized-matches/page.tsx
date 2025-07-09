@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Heart, X, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import StaticPersonalizedMatches from '@/components/StaticPersonalizedMatches';
 
 interface MatchProfile {
   id: string;
@@ -51,8 +52,7 @@ export default function PersonalizedMatches() {
             code: 'NOT_AUTHENTICATED',
             suggestion: 'Please login to view personalized matches.'
           };
-          router.push('/login');
-          return;
+          throw errorMessage;
         }
 
         if (response.status === 400) {
@@ -183,6 +183,11 @@ export default function PersonalizedMatches() {
   }
 
   if (error) {
+    // Show static component for unauthenticated users
+    if (error.code === 'NOT_AUTHENTICATED') {
+      return <StaticPersonalizedMatches />;
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white/5 backdrop-blur-lg rounded-lg p-8 max-w-md w-full">
@@ -283,7 +288,7 @@ export default function PersonalizedMatches() {
 
                 <div className="flex justify-between items-center mt-4">
                   <Link
-                    href={`/profile/${match.id}`}
+                    href={`/personalized-matches/${match.id}`}
                     className="text-purple-400 hover:text-purple-300 text-sm"
                   >
                     {t[language].viewProfile}

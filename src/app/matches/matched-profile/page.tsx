@@ -94,7 +94,9 @@ function MatchedProfilePage() {
         const userData = await userResponse.json();
         
         if (!userData.isAuthenticated || !userData.user) {
-          router.push('/login');
+          if (typeof window !== 'undefined' && window.showLoginPopup) {
+              window.showLoginPopup();
+            }
           return;
         }
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import SpeakingAvatar from './SpeakingAvatar';
+import PersonalizedMatches from './PersonalizedMatches';
 
 interface ProfileSummaryScreenProps {
   onNext: (data: any) => void;
@@ -142,9 +143,10 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       setSaveSuccess(true);
       setAvatarText('Great! Your profile has been saved and verified successfully. You can now proceed to your profile page.');
       
+      // Show success message for 2 seconds before redirecting
       setTimeout(() => {
         onNext({ isCompleted: true });
-      }, 1500);
+      }, 2000);
 
     } catch (error) {
       console.error('❌ Error:', error);
@@ -166,7 +168,9 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       matchPreferences: 'मैच प्राथमिकताएं',
       complete: 'पूरा करें',
       back: 'वापस',
-      error: 'प्रोफ़ाइल सारांश तैयार करने में समस्या हुई। कृपया फिर से कोशिश करें।'
+      error: 'प्रोफ़ाइल सारांश तैयार करने में समस्या हुई। कृपया फिर से कोशिश करें।',
+      success: 'बधाई हो! आपकी प्रोफ़ाइल सफलतापूर्वक सहेजी गई है।',
+      redirecting: 'आपको प्रोफ़ाइल पेज पर भेजा जा रहा है...'
     },
     en: {
       title: 'Your Profile Summary',
@@ -177,7 +181,9 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       matchPreferences: 'Match Preferences',
       complete: 'Complete',
       back: 'Back',
-      error: 'Failed to generate profile summary. Please try again.'
+      error: 'Failed to generate profile summary. Please try again.',
+      success: 'Congratulations! Your profile has been successfully saved.',
+      redirecting: 'Redirecting you to your profile page...'
     }
   };
 
@@ -212,29 +218,45 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold mb-4">
+    <div className="max-w-4xl mx-auto space-y-8 p-4 relative">
+      {saveSuccess && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex flex-col items-center"
+        >
+          <div className="text-lg font-semibold mb-1">{t.success}</div>
+          <div className="text-sm opacity-90">{t.redirecting}</div>
+        </motion.div>
+      )}
+
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-white mb-2">
         {language === 'hi' ? 'आपका प्रोफ़ाइल सारांश' : 'Your Profile Summary'}
       </h2>
+        <p className="text-purple-200 text-lg">
+          {language === 'hi' ? 'आपकी पसंद और जवाबों के आधार पर तैयार किया गया' : 'Generated based on your preferences and answers'}
+        </p>
+      </div>
 
       {summary && (
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-4">
+          <div className="bg-purple-900/50 backdrop-blur-sm p-6 rounded-lg shadow border border-purple-500/20">
+            <h3 className="text-xl font-semibold mb-4 text-purple-100">
               {language === 'hi' ? 'सारांश' : 'Summary'}
             </h3>
-            <p className="text-gray-700">{summary.summary}</p>
+            <p className="text-purple-200">{summary.summary}</p>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-4">
+          <div className="bg-purple-900/50 backdrop-blur-sm p-6 rounded-lg shadow border border-purple-500/20">
+            <h3 className="text-xl font-semibold mb-4 text-purple-100">
               {language === 'hi' ? 'प्रमुख विशेषताएं' : 'Key Traits'}
             </h3>
             <div className="flex flex-wrap gap-2">
               {summary.keyTraits.map((trait, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
+                  className="px-3 py-1 bg-purple-800/50 text-purple-200 rounded-full text-sm"
                 >
                   {trait}
                 </span>
@@ -242,59 +264,73 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-4">
+          <div className="bg-purple-900/50 backdrop-blur-sm p-6 rounded-lg shadow border border-purple-500/20">
+            <h3 className="text-xl font-semibold mb-4 text-purple-100">
               {language === 'hi' ? 'संगतता नोट्स' : 'Compatibility Notes'}
             </h3>
-            <p className="text-gray-700">{summary.compatibilityNotes}</p>
+            <p className="text-purple-200">{summary.compatibilityNotes}</p>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-4">
+          <div className="bg-purple-900/50 backdrop-blur-sm p-6 rounded-lg shadow border border-purple-500/20">
+            <h3 className="text-xl font-semibold mb-4 text-purple-100">
               {language === 'hi' ? 'मैच प्राथमिकताएं' : 'Match Preferences'}
             </h3>
-            <p className="text-gray-700">{summary.matchPreferences}</p>
+            <p className="text-purple-200">{summary.matchPreferences}</p>
+          </div>
+
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-white mb-6">
+              {language === 'hi' ? 'आपके अनुरूप प्रोफाइल' : 'Compatible Profiles'}
+            </h2>
+            <PersonalizedMatches />
           </div>
         </div>
       )}
 
       {verificationStatus && (
-        <div className="bg-white/10 p-4 rounded-lg mt-4">
-          <h3 className="text-lg font-semibold text-white mb-2">Verification Status</h3>
-          <ul className="space-y-2">
-            <li className="flex items-center text-sm">
-              <span className={verificationStatus.exists ? "text-green-400" : "text-red-400"}>
-                {verificationStatus.exists ? "✓" : "✗"} Data Exists
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-purple-900/30 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-purple-500/20 mt-8"
+        >
+          <h3 className="text-xl font-semibold text-purple-100 mb-4">Verification Status</h3>
+          <ul className="space-y-3">
+            {[
+              { label: 'Data Exists', status: verificationStatus.exists },
+              { label: 'Completion Status', status: verificationStatus.isComplete },
+              { label: 'Shard Answers', status: verificationStatus.hasShardAnswers },
+              { label: 'Personalized Answers', status: verificationStatus.hasPersonalizedAnswers },
+              { label: 'Profile Summary', status: verificationStatus.hasProfileSummary }
+            ].map((item, index) => (
+              <motion.li 
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+                className="flex items-center text-base bg-purple-900/20 p-3 rounded-lg"
+              >
+                <span className={`flex items-center ${item.status ? "text-green-400" : "text-red-400"}`}>
+                  <span className="w-6 h-6 flex items-center justify-center rounded-full bg-purple-900/30 mr-3">
+                    {item.status ? "✓" : "✗"}
               </span>
-            </li>
-            <li className="flex items-center text-sm">
-              <span className={verificationStatus.isComplete ? "text-green-400" : "text-red-400"}>
-                {verificationStatus.isComplete ? "✓" : "✗"} Completion Status
+                  <span className="text-purple-100">{item.label}</span>
               </span>
-            </li>
-            <li className="flex items-center text-sm">
-              <span className={verificationStatus.hasShardAnswers ? "text-green-400" : "text-red-400"}>
-                {verificationStatus.hasShardAnswers ? "✓" : "✗"} Shard Answers
-              </span>
-            </li>
-            <li className="flex items-center text-sm">
-              <span className={verificationStatus.hasPersonalizedAnswers ? "text-green-400" : "text-red-400"}>
-                {verificationStatus.hasPersonalizedAnswers ? "✓" : "✗"} Personalized Answers
-              </span>
-            </li>
-            <li className="flex items-center text-sm">
-              <span className={verificationStatus.hasProfileSummary ? "text-green-400" : "text-red-400"}>
-                {verificationStatus.hasProfileSummary ? "✓" : "✗"} Profile Summary
-              </span>
-            </li>
+              </motion.li>
+            ))}
           </ul>
-        </div>
+        </motion.div>
       )}
 
-      <div className="flex justify-between mt-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="flex justify-between mt-12 pt-6 border-t border-purple-500/20"
+      >
         <button
           onClick={onBack}
-          className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+          className="px-8 py-3 bg-purple-900/50 text-purple-100 rounded-xl hover:bg-purple-900/70 transition-all border border-purple-500/20 hover:border-purple-500/40 backdrop-blur-sm"
           disabled={saving}
         >
           {language === 'hi' ? 'पीछे' : 'Back'}
@@ -303,17 +339,17 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
         <button
           onClick={handleComplete}
           disabled={saving || !summary}
-          className={`px-6 py-2 rounded transition-colors relative ${
+          className={`px-8 py-3 rounded-xl transition-all relative backdrop-blur-sm ${
             saving
-              ? 'bg-gray-400 cursor-not-allowed'
+              ? 'bg-purple-900/30 cursor-not-allowed'
               : saveSuccess
-              ? 'bg-green-500 hover:bg-green-600'
-              : 'bg-purple-500 hover:bg-purple-600'
-          } text-white`}
+              ? 'bg-green-500/80 hover:bg-green-500/90'
+              : 'bg-purple-600/80 hover:bg-purple-600/90'
+          } text-white border border-purple-500/20 hover:border-purple-500/40`}
         >
           {saving ? (
             <span className="flex items-center">
-              <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></span>
+              <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></span>
               {language === 'hi' ? 'सहेज रहा है...' : 'Saving...'}
             </span>
           ) : saveSuccess ? (
@@ -325,7 +361,7 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
             language === 'hi' ? 'पूर्ण करें' : 'Complete'
           )}
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 } 
