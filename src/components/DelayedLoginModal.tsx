@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import LoginModal from './LoginModal';
-import RegisterModal from './RegisterModal';
+import AuthRedirectModal from './AuthRedirectModal';
 
 // Define the showLoginPopup and showRegisterPopup function types globally
 declare global {
@@ -14,12 +13,13 @@ declare global {
 }
 
 export default function DelayedLoginModal() {
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [hasShownInitialPopup, setHasShownInitialPopup] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const pathname = usePathname();
+
+  // Don't show the modal on auth-related pages
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
 
   // Check authentication status
   useEffect(() => {
@@ -53,37 +53,19 @@ export default function DelayedLoginModal() {
 
   useEffect(() => {
     // Only proceed if auth check is complete and user is not authenticated
-    if (!authChecked || isAuthenticated) {
+    if (!authChecked || isAuthenticated || isAuthPage) {
       return;
     }
 
     // Initialize showLoginPopup function
     window.showLoginPopup = () => {
-      setShowLoginModal(true);
+      setShowAuthModal(true);
     };
 
     // Initialize showRegisterPopup function
     window.showRegisterPopup = () => {
-      setShowRegisterModal(true);
+      setShowAuthModal(true);
     };
-
-    // Show initial login popup after 3 seconds if not shown before
-    if (!hasShownInitialPopup) {
-      const timer = setTimeout(() => {
-        setShowLoginModal(true);
-        setHasShownInitialPopup(true);
-      }, 3000);
-
-      return () => {
-        clearTimeout(timer);
-        if (window.showLoginPopup) {
-          window.showLoginPopup = undefined;
-        }
-        if (window.showRegisterPopup) {
-          window.showRegisterPopup = undefined;
-        }
-      };
-    }
 
     return () => {
       // Cleanup
@@ -94,40 +76,17 @@ export default function DelayedLoginModal() {
         window.showRegisterPopup = undefined;
       }
     };
-  }, [hasShownInitialPopup, isAuthenticated, authChecked]);
+  }, [isAuthenticated, authChecked, isAuthPage]);
 
-  // Reset hasShownInitialPopup when pathname changes
-  useEffect(() => {
-    setHasShownInitialPopup(false);
-  }, [pathname]);
-
-  // Don't render anything if authenticated
-  if (isAuthenticated || !authChecked) {
+  // Don't render anything if authenticated or on auth pages
+  if (isAuthenticated || !authChecked || isAuthPage) {
     return null;
   }
 
   return (
-    <>
-      {showLoginModal && (
-        <LoginModal 
-          isOpen={showLoginModal} 
-          onClose={() => setShowLoginModal(false)}
-          onSuccess={() => {
-            setShowLoginModal(false);
-            window.location.reload();
-          }}
-        />
-      )}
-      {showRegisterModal && (
-        <RegisterModal 
-          isOpen={showRegisterModal} 
-          onClose={() => setShowRegisterModal(false)}
-          onSuccess={() => {
-            setShowRegisterModal(false);
-            window.location.reload();
-          }}
-        />
-      )}
-    </>
+    <AuthRedirectModal 
+      isOpen={showAuthModal}
+      onClose={() => setShowAuthModal(false)}
+    />
   );
 } 
