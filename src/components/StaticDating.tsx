@@ -30,6 +30,31 @@ const STATIC_SUGGESTIONS = [
 ];
 
 export default function StaticDating() {
+  const handleInteraction = () => {
+    try {
+      console.log('Attempting to show register popup from StaticDating');
+      if (typeof window !== 'undefined') {
+        if (typeof window.showRegisterPopup === 'function') {
+          window.showRegisterPopup();
+        } else {
+          console.error('showRegisterPopup function is not available');
+          // Try to initialize it if not available
+          window.showRegisterPopup = () => {
+            console.log('Register popup triggered from StaticDating initialization');
+            // Since we can't access the DelayedLoginModal's state here,
+            // we'll reload the page which will trigger the auth check
+            window.location.reload();
+          };
+          window.showRegisterPopup();
+        }
+      }
+    } catch (error) {
+      console.error('Error showing register popup:', error);
+      // Fallback: reload page to trigger popup
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-8 px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
@@ -46,7 +71,10 @@ export default function StaticDating() {
 
       {/* Features Grid */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-transform duration-300">
+        <div 
+          className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+          onClick={handleInteraction}
+        >
           <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <Coffee className="w-8 h-8 text-white" />
           </div>
@@ -54,7 +82,10 @@ export default function StaticDating() {
           <p className="text-purple-200">Handpicked selection of the finest restaurants and cafes for your dining pleasure</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-transform duration-300">
+        <div 
+          className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+          onClick={handleInteraction}
+        >
           <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <Star className="w-8 h-8 text-white" />
           </div>
@@ -62,7 +93,10 @@ export default function StaticDating() {
           <p className="text-purple-200">Exceptional service and ambiance at every featured establishment</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-transform duration-300">
+        <div 
+          className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+          onClick={handleInteraction}
+        >
           <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <Coffee className="w-8 h-8 text-white" />
           </div>
@@ -76,7 +110,11 @@ export default function StaticDating() {
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">Featured Dining Venues</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {STATIC_SUGGESTIONS.map((venue, index) => (
-            <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden">
+            <div 
+              key={index} 
+              className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300"
+              onClick={handleInteraction}
+            >
               <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-500 relative">
                 <Lock className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-white opacity-50" />
               </div>
@@ -95,49 +133,18 @@ export default function StaticDating() {
         </div>
       </div>
 
-      {/* Login CTA */}
+      {/* CTA */}
       <div className="max-w-3xl mx-auto text-center bg-white/10 backdrop-blur-sm rounded-xl p-8">
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Make a Reservation?</h2>
         <p className="text-lg text-purple-200 mb-6">
-          Login now to book your table at these exclusive dining venues
+          Create an account now to book your table at these exclusive dining venues
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button 
-            onClick={() => {
-              try {
-                console.log('Attempting to show login popup from StaticDating');
-                if (typeof window !== 'undefined') {
-                  if (typeof window.showLoginPopup === 'function') {
-                    window.showLoginPopup();
-                  } else {
-                    console.error('showLoginPopup function is not available');
-                    // Try to initialize it if not available
-                    window.showLoginPopup = () => {
-                      console.log('Login popup triggered from StaticDating initialization');
-                      // Since we can't access the DelayedLoginModal's state here,
-                      // we'll reload the page which will trigger the auth check
-                      window.location.reload();
-                    };
-                    window.showLoginPopup();
-                  }
-                }
-                                    } catch (error) {
-                        console.error('Error showing login popup:', error);
-                        // Fallback: reload page to trigger popup
-                        window.location.reload();
-                      }
-            }}
-            className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors"
-          >
-            Login Now
-          </button>
-          <button 
-            onClick={() => window.location.href = '/register'}
-            className="px-8 py-3 bg-indigo-600 text-white rounded-lg text-lg font-semibold hover:bg-indigo-700 transition-colors"
-          >
-            Create Account
-          </button>
-        </div>
+        <button 
+          onClick={handleInteraction}
+          className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors"
+        >
+          Get Started
+        </button>
       </div>
     </div>
   );

@@ -25,18 +25,18 @@ export default function withAuth<P extends { user?: User }>(
           } else {
             setIsAuthenticated(false);
             setUser(null);
-            // Show login popup instead of redirecting
-            if (typeof window !== 'undefined' && window.showLoginPopup) {
-              window.showLoginPopup();
+            // Show register popup first instead of login popup
+            if (typeof window !== 'undefined' && window.showRegisterPopup) {
+              window.showRegisterPopup();
             }
           }
         } catch (error) {
           console.error('Auth check error:', error);
           setIsAuthenticated(false);
           setUser(null);
-          // Show login popup instead of redirecting
-          if (typeof window !== 'undefined' && window.showLoginPopup) {
-            window.showLoginPopup();
+          // Show register popup first instead of login popup
+          if (typeof window !== 'undefined' && window.showRegisterPopup) {
+            window.showRegisterPopup();
           }
         } finally {
           setLoading(false);

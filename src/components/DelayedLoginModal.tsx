@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import LoginModal from './LoginModal';
+import AuthModal from './AuthModal';
 
 // Define the showLoginPopup and showRegisterPopup function types globally
 declare global {
@@ -14,6 +14,7 @@ declare global {
 
 export default function DelayedLoginModal() {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const pathname = usePathname();
@@ -59,11 +60,13 @@ export default function DelayedLoginModal() {
 
     // Initialize showLoginPopup function
     window.showLoginPopup = () => {
+      setAuthMode('login');
       setShowAuthModal(true);
     };
 
     // Initialize showRegisterPopup function
     window.showRegisterPopup = () => {
+      setAuthMode('register');
       setShowAuthModal(true);
     };
 
@@ -84,9 +87,10 @@ export default function DelayedLoginModal() {
   }
 
   return (
-    <LoginModal 
+    <AuthModal 
       isOpen={showAuthModal}
       onClose={() => setShowAuthModal(false)}
+      initialMode={authMode}
     />
   );
 } 

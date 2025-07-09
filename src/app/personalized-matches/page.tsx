@@ -59,9 +59,9 @@ export default function PersonalizedMatches() {
           const data = await response.json();
           if (data.error === 'Personalization not completed') {
             errorMessage = {
-              message: t[language].error.aiNotComplete,
+              message: 'To get personalized matches, please complete your AI personalization first.',
               code: 'AI_NOT_COMPLETE',
-              suggestion: 'Complete your personalization to get matched with compatible profiles.'
+              suggestion: 'Answer all questions to help us find your perfect match.'
             };
           }
         }
@@ -136,7 +136,7 @@ export default function PersonalizedMatches() {
         tryAgain: 'पुनः प्रयास करें',
         goToProfile: 'प्रोफ़ाइल पर जाएं',
         notAuthenticated: 'कृपया लॉगिन करें',
-        aiNotComplete: 'AI व्यक्तिगतकरण अधूरा है',
+        aiNotComplete: 'संगत प्रोफाइल के साथ मैच करने के लिए अपना व्यक्तिगतकरण पूरा करें।',
         networkError: 'नेटवर्क त्रुटि',
         serverError: 'सर्वर त्रुटि',
         unknownError: 'अज्ञात त्रुटि'
@@ -157,7 +157,7 @@ export default function PersonalizedMatches() {
         tryAgain: 'Try Again',
         goToProfile: 'Go to Profile',
         notAuthenticated: 'Please Login',
-        aiNotComplete: 'AI Personalization Incomplete',
+        aiNotComplete: 'Complete your personalization to get matched with compatible profiles.',
         networkError: 'Network Error',
         serverError: 'Server Error',
         unknownError: 'Unknown Error'
@@ -188,6 +188,43 @@ export default function PersonalizedMatches() {
       return <StaticPersonalizedMatches />;
     }
 
+    // Special handling for AI personalization incomplete - show friendly prompt instead of error
+    if (error.code === 'AI_NOT_COMPLETE') {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="bg-white/5 backdrop-blur-lg rounded-lg p-8 max-w-md w-full">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 mb-4">
+                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold mb-2 text-purple-400">
+                AI Personalization Required
+              </h2>
+              <p className="text-lg mb-2 text-white">
+                {error.message}
+              </p>
+              {error.suggestion && (
+                <p className="text-sm mb-6 text-gray-300">
+                  {error.suggestion}
+                </p>
+              )}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/ai-personalization"
+                  className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Start AI Personalization
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Handle other errors with the original error UI
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white/5 backdrop-blur-lg rounded-lg p-8 max-w-md w-full">
@@ -217,14 +254,6 @@ export default function PersonalizedMatches() {
               >
                 {t[language].error.tryAgain}
               </button>
-              {error.code === 'AI_NOT_COMPLETE' && (
-                <Link
-                  href="/ai-personalization"
-                  className="bg-white/10 text-white px-6 py-2 rounded-lg hover:bg-white/20 transition-colors"
-                >
-                  {t[language].error.goToProfile}
-                </Link>
-              )}
             </div>
           </div>
         </div>
@@ -238,11 +267,30 @@ export default function PersonalizedMatches() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-12"
+        className="text-center mb-8"
       >
         <h1 className="text-3xl font-bold mb-2">{t[language].title}</h1>
         <p className="text-gray-300">{t[language].subtitle}</p>
       </motion.div>
+
+      {/* Match Summary */}
+      {matches.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-purple-600/20 backdrop-blur-sm rounded-lg p-4 mb-8 border border-purple-500/30"
+        >
+          <div className="text-center">
+            <p className="text-purple-200 text-lg">
+              Found <span className="font-semibold text-white">{matches.length}</span> compatible matches
+            </p>
+            <p className="text-purple-300 text-sm mt-1">
+              Showing profiles with at least one matching preference
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {matches.length === 0 ? (
         <div className="text-center text-gray-400 py-12">
@@ -276,7 +324,7 @@ export default function PersonalizedMatches() {
                 </h3>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {match.matchingCriteria.slice(0, 3).map((criteria, i) => (
+                  {match.matchingCriteria.slice(0, 4).map((criteria, i) => (
                     <span
                       key={i}
                       className="bg-purple-600/20 text-purple-300 text-xs px-2 py-1 rounded-full"
@@ -284,15 +332,22 @@ export default function PersonalizedMatches() {
                       {criteria}
                     </span>
                   ))}
+                  {match.matchingCriteria.length > 4 && (
+                    <span className="bg-purple-600/20 text-purple-300 text-xs px-2 py-1 rounded-full">
+                      +{match.matchingCriteria.length - 4} more
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex justify-between items-center mt-4">
-                  <Link
-                    href={`/personalized-matches/${match.id}`}
-                    className="text-purple-400 hover:text-purple-300 text-sm"
-                  >
-                    {t[language].viewProfile}
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/personalized-matches/${match.id}`}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Show Details
+                    </Link>
+                  </div>
                   
                   <div className="flex gap-2">
                     <button

@@ -51,8 +51,8 @@ function PreferencesPage() {
       // First get the current user
       const userResponse = await fetch('/api/auth/me');
       if (!userResponse.ok) {
-        if (typeof window !== 'undefined' && window.showLoginPopup) {
-              window.showLoginPopup();
+        if (typeof window !== 'undefined' && window.showRegisterPopup) {
+              window.showRegisterPopup();
             }
         return;
       }

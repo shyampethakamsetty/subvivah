@@ -49,6 +49,15 @@ const SAMPLE_TOPICS = [
 ];
 
 export default function BrahamandChatPage() {
+  const handleInteraction = () => {
+    if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+      (window as any).showRegisterPopup();
+    } else {
+      // Fallback: reload page to trigger popup
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950">
       {/* Hero Section */}
@@ -63,22 +72,21 @@ export default function BrahamandChatPage() {
             <p className="text-xl md:text-2xl text-purple-200 mb-8">
               Your Personal Guide for Spiritual Growth and Vedic Wisdom
             </p>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-3xl mx-auto">
+            <div 
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-3xl mx-auto cursor-pointer hover:scale-105 transition-transform duration-300"
+              onClick={handleInteraction}
+            >
               <div className="flex flex-col items-center gap-4">
                 <div className="w-16 h-16 bg-purple-600/30 rounded-full flex items-center justify-center mb-4">
                   <Lock className="w-8 h-8 text-purple-200" />
                 </div>
                 <p className="text-lg text-purple-200 mb-4">
-                  Login to start your spiritual journey with ब्रह्मांड
+                  Create an account to start your spiritual journey with ब्रह्मांड
                 </p>
                 <button
-                  onClick={() => {
-                    if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-                      (window as any).showLoginPopup();
-                    } else {
-                      // Fallback: reload page to trigger popup
-                      window.location.reload();
-                    }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleInteraction();
                   }}
                   className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors select-none"
                 >
@@ -99,7 +107,8 @@ export default function BrahamandChatPage() {
           {SAMPLE_FEATURES.map((feature, index) => (
             <div
               key={index}
-              className="bg-white/10 backdrop-blur-sm rounded-xl p-6 transform hover:scale-105 transition-all duration-300 select-none"
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-6 transform hover:scale-105 transition-all duration-300 select-none cursor-pointer"
+              onClick={handleInteraction}
             >
               <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
                 {feature.icon}
@@ -121,11 +130,7 @@ export default function BrahamandChatPage() {
             <div
               key={index}
               className="bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 text-purple-200 hover:bg-purple-600/30 transition-colors cursor-pointer select-none"
-              onClick={() => {
-                if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-                  (window as any).showLoginPopup();
-                }
-              }}
+              onClick={handleInteraction}
             >
               {topic}
             </div>
@@ -171,28 +176,12 @@ export default function BrahamandChatPage() {
           <p className="text-lg text-purple-200 mb-8">
             Join thousands of seekers who have found guidance and clarity through ब्रह्मांड
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
-                  (window as any).showLoginPopup();
-                }
-              }}
-              className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors select-none"
-            >
-              Login Now
-            </button>
-            <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
-                  (window as any).showRegisterPopup();
-                }
-              }}
-              className="px-8 py-3 bg-pink-600 text-white rounded-lg text-lg font-semibold hover:bg-pink-700 transition-colors select-none"
-            >
-              Create Account
-            </button>
-          </div>
+          <button
+            onClick={handleInteraction}
+            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors select-none"
+          >
+            Get Started
+          </button>
         </div>
       </div>
     </div>

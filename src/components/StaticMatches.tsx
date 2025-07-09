@@ -1,22 +1,13 @@
 'use client';
 
-import { Heart, Star, Lock, Sparkles, UserPlus, MessageCircle } from 'lucide-react';
+import { Sparkles, Star, UserPlus, MessageCircle, Lock } from 'lucide-react';
 
 const STATIC_MATCHES = [
   {
-    name: "Priya M.",
+    name: "Priya S.",
     age: 26,
-    location: "Mumbai, India",
-    matchScore: 95,
-    highlights: ["Similar interests", "Same profession", "Compatible horoscope"],
-    education: "Software Engineer",
-    interests: ["Reading", "Travel", "Music"]
-  },
-  {
-    name: "Anjali S.",
-    age: 28,
     location: "Delhi, India",
-    matchScore: 92,
+    matchScore: 95,
     highlights: ["Similar family values", "Compatible lifestyle", "Same mother tongue"],
     education: "MBA Finance",
     interests: ["Yoga", "Cooking", "Art"]
@@ -33,6 +24,31 @@ const STATIC_MATCHES = [
 ];
 
 export default function StaticMatches() {
+  const handleInteraction = () => {
+    try {
+      console.log('Attempting to show register popup from StaticMatches');
+      if (typeof window !== 'undefined') {
+        if (typeof window.showRegisterPopup === 'function') {
+          window.showRegisterPopup();
+        } else {
+          console.error('showRegisterPopup function is not available');
+          // Try to initialize it if not available
+          window.showRegisterPopup = () => {
+            console.log('Register popup triggered from StaticMatches initialization');
+            // Since we can't access the DelayedLoginModal's state here,
+            // we'll reload the page which will trigger the auth check
+            window.location.reload();
+          };
+          window.showRegisterPopup();
+        }
+      }
+    } catch (error) {
+      console.error('Error showing register popup:', error);
+      // Fallback to redirect
+      window.location.href = '/register';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 py-8 px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
@@ -68,7 +84,7 @@ export default function StaticMatches() {
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">Today's Featured Matches</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {STATIC_MATCHES.map((match, index) => (
-            <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden">
+            <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300" onClick={handleInteraction}>
               <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-500 relative">
                 <Lock className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-white opacity-80" />
               </div>
@@ -99,29 +115,9 @@ export default function StaticMatches() {
                 </div>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => {
-                      try {
-                        console.log('Attempting to show login popup from StaticMatches');
-                        if (typeof window !== 'undefined') {
-                          if (typeof window.showLoginPopup === 'function') {
-                            window.showLoginPopup();
-                          } else {
-                            console.error('showLoginPopup function is not available');
-                            // Try to initialize it if not available
-                            window.showLoginPopup = () => {
-                              console.log('Login popup triggered from StaticMatches initialization');
-                              // Since we can't access the DelayedLoginModal's state here,
-                              // we'll reload the page which will trigger the auth check
-                              window.location.reload();
-                            };
-                            window.showLoginPopup();
-                          }
-                        }
-                      } catch (error) {
-                        console.error('Error showing login popup:', error);
-                        // Fallback to redirect
-                        window.location.href = '/login';
-                      }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleInteraction();
                     }}
                     className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
                   >
@@ -129,29 +125,9 @@ export default function StaticMatches() {
                     Connect
                   </button>
                   <button 
-                    onClick={() => {
-                      try {
-                        console.log('Attempting to show login popup from StaticMatches');
-                        if (typeof window !== 'undefined') {
-                          if (typeof window.showLoginPopup === 'function') {
-                            window.showLoginPopup();
-                          } else {
-                            console.error('showLoginPopup function is not available');
-                            // Try to initialize it if not available
-                            window.showLoginPopup = () => {
-                              console.log('Login popup triggered from StaticMatches initialization');
-                              // Since we can't access the DelayedLoginModal's state here,
-                              // we'll reload the page which will trigger the auth check
-                              window.location.reload();
-                            };
-                            window.showLoginPopup();
-                          }
-                        }
-                      } catch (error) {
-                        console.error('Error showing login popup:', error);
-                        // Fallback to redirect
-                        window.location.href = '/login';
-                      }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleInteraction();
                     }}
                     className="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors flex items-center justify-center gap-2"
                   >
@@ -165,53 +141,18 @@ export default function StaticMatches() {
         </div>
       </div>
 
-      {/* Login CTA */}
+      {/* CTA */}
       <div className="max-w-3xl mx-auto text-center bg-white/10 backdrop-blur-sm rounded-xl p-8">
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Meet Your Soulmate?</h2>
         <p className="text-lg text-purple-200 mb-6">
-          Login now to view your matches and start your journey towards finding true love
+          Create an account now to view your matches and start your journey towards finding true love
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button 
-            onClick={() => {
-              try {
-                console.log('Attempting to show login popup from StaticMatches');
-                if (typeof window !== 'undefined') {
-                  if (typeof window.showLoginPopup === 'function') {
-                    window.showLoginPopup();
-                  } else {
-                    console.error('showLoginPopup function is not available');
-                    // Try to initialize it if not available
-                    window.showLoginPopup = () => {
-                      console.log('Login popup triggered from StaticMatches initialization');
-                      // Since we can't access the DelayedLoginModal's state here,
-                      // we'll reload the page which will trigger the auth check
-                      window.location.reload();
-                    };
-                    window.showLoginPopup();
-                  }
-                }
-              } catch (error) {
-                console.error('Error showing login popup:', error);
-                // Fallback to redirect
-                window.location.href = '/login';
-              }
-            }}
-            className="px-8 py-3 bg-pink-600 text-white rounded-lg text-lg font-semibold hover:bg-pink-700 transition-colors"
-          >
-            Login Now
-          </button>
-          <button 
-            onClick={() => {
-              if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
-                (window as any).showRegisterPopup();
-              }
-            }}
-            className="px-8 py-3 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors"
-          >
-            Create Account
-          </button>
-        </div>
+        <button 
+          onClick={handleInteraction}
+          className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors"
+        >
+          Get Started
+        </button>
       </div>
     </div>
   );

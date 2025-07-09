@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
-import { FaceMesh } from '@mediapipe/face_mesh';
 import { Camera } from '@mediapipe/camera_utils';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+
+// Dynamic import for MediaPipe to handle WASM loading issues
+let FaceMesh: any = null;
 
 interface FaceVerificationProps {
   onNext?: (data: any) => void;
@@ -39,11 +41,12 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
   const [isFaceDetected, setIsFaceDetected] = useState(false);
   const [genderResult, setGenderResult] = useState<{ gender: string; confidence: number } | null>(null);
   const cameraRef = useRef<Camera | null>(null);
-  const faceMeshRef = useRef<FaceMesh | null>(null);
+  const faceMeshRef = useRef<any>(null);
   const stableFramesRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [lastFrame, setLastFrame] = useState<{ image: ImageData | null, mesh: any[] | null }>({ image: null, mesh: null });
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisStarted, setAnalysisStarted] = useState(false); // Flag to prevent re-analysis
   const [guideAnimation, setGuideAnimation] = useState(0); // 0: left, 1: right, 2: center
   const [hasPlayedAnalysisBeep, setHasPlayedAnalysisBeep] = useState(false); // Prevent multiple beeps
   const [showContinueButton, setShowContinueButton] = useState(false); // Show continue button after completion
@@ -57,10 +60,10 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
   // Live commentary system - only current status
   const [currentCommentary, setCurrentCommentary] = useState<string>('Camera ready');
   
-  // Face positioning thresholds
-  const FACE_DISTANCE_MIN = 0.15; // Minimum face size (too far)
-  const FACE_DISTANCE_MAX = 0.45; // Maximum face size (too close)
-  const FACE_CENTER_THRESHOLD = 0.15; // Maximum offset from center
+  // Face positioning thresholds - Further relaxed for flickering tolerance
+  const FACE_DISTANCE_MIN = 0.10; // Minimum face size (too far) - further relaxed from 0.12
+  const FACE_DISTANCE_MAX = 0.55; // Maximum face size (too close) - further relaxed from 0.50
+  const FACE_CENTER_THRESHOLD = 0.25; // Maximum offset from center - further relaxed from 0.20
 
   // Add refs and state for hold timer
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -482,8 +485,10 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
           updateCommentary(`➡️ Turn your head to the RIGHT now! (${Math.round(yawVal)}°)`);
         }
       } else if (currentStep === 2) {
-        // Enhanced final step validation
-        if (!positionCheck.isGood || lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES || Math.abs(yawVal) > 5) {
+        // Enhanced final step validation - Further relaxed tolerance for flickering
+        // Initial check: 12° tolerance for starting hold timer (increased from 8°)
+        // Skip position validation if analysis has already started
+        if (!analysisStarted && (!positionCheck.isGood || lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES || Math.abs(yawVal) > 12)) {
           setPrompt(positionCheck.isGood ? (lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES ? `Improve lighting (Current: ${lighting})` : 'Look straight ahead!') : positionCheck.message);
           updateCommentary(`⚠️ Position adjustment needed: ${positionCheck.isGood ? (lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES ? `Improve lighting (Current: ${lighting})` : 'Look straight ahead!') : positionCheck.message}`);
           // Reset hold timer if user moves out of position
@@ -504,11 +509,19 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
           setHasSpokenHoldStill(false);
         }
         const elapsed = Date.now() - holdStartTimeRef.current;
-        if (elapsed >= 2000 && !genderResult && !analyzing) {
-          // Hold complete, proceed to analysis
+        
+        // Allow small movements during hold period - much more forgiving for flickering
+        // Hold period check: 15° tolerance for completing analysis (much more forgiving)
+        const isAcceptablePosition = positionCheck.isGood && 
+          lowLightingFrames < LIGHTING_CONSECUTIVE_FRAMES && 
+          Math.abs(yawVal) <= 15; // Much more tolerant during hold for flickering
+        
+        if (elapsed >= 2000 && !genderResult && !analyzing && !analysisStarted && isAcceptablePosition) {
+          // Hold complete, proceed to analysis - prevent re-analysis
           setPrompt('Analyzing...');
           speakInstruction('Analyzing');
           setAnalyzing(true);
+          setAnalysisStarted(true); // Mark analysis as started
           setIsHoldActive(false);
           setHasSpokenHoldStill(false);
           holdStartTimeRef.current = null;
@@ -541,11 +554,13 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
                 }
               }).catch((error) => {
                 setAnalyzing(false);
+                setAnalysisStarted(false); // Reset analysis flag on error
                 setPrompt(error.message || 'Face analysis failed. Please try again.');
                 updateCommentary('❌ Face analysis failed. Please retry.');
               });
             } else {
               setAnalyzing(false);
+              setAnalysisStarted(false); // Reset analysis flag on error
               setPrompt('Camera not ready for analysis. Please retry.');
               updateCommentary('❌ Camera not ready for analysis.');
             }
@@ -574,6 +589,7 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
     setLastFrame({ image: null, mesh: null });
     setHasPlayedAnalysisBeep(false); // Reset analysis beep flag
     setShowContinueButton(false); // Reset continue button
+    setAnalysisStarted(false); // Reset analysis flag
     updateCommentary('🚀 VERIFICATION STARTED! Turn your head to the LEFT first');
     console.log('✅ Verification started, step set to 0, startedRef:', startedRef.current);
   };
@@ -591,6 +607,7 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
     setLastFrame({ image: null, mesh: null });
     setHasPlayedAnalysisBeep(false); // Reset analysis beep flag
     setShowContinueButton(false); // Reset continue button
+    setAnalysisStarted(false); // Reset analysis flag
     updateCommentary('⏹️ Verification stopped by user');
     // Don't stop the camera, just reset the verification state
   };
@@ -669,20 +686,67 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
         canvas.width = width;
         canvas.height = height;
         
-        // Initialize FaceMesh
-        const faceMesh = new FaceMesh({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-        });
-        
-        faceMesh.setOptions({
-          maxNumFaces: 1,
-          refineLandmarks: true,
-          minDetectionConfidence: 0.3,
-          minTrackingConfidence: 0.3,
-        });
-        
-        faceMesh.onResults(onResults);
-        faceMeshRef.current = faceMesh;
+        // Initialize FaceMesh with comprehensive error handling for WASM issues
+        let faceMesh: any;
+        try {
+          // Add a longer delay to ensure WASM is fully ready
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Dynamically import MediaPipe if not already loaded
+          if (!FaceMesh) {
+            try {
+              const { FaceMesh: FaceMeshModule } = await import('@mediapipe/face_mesh');
+              FaceMesh = FaceMeshModule;
+            } catch (importError) {
+              console.error('Failed to import MediaPipe FaceMesh:', importError);
+              throw new Error('MediaPipe FaceMesh not available');
+            }
+          }
+          
+          // Check if MediaPipe is available
+          if (!FaceMesh) {
+            throw new Error('MediaPipe FaceMesh not available');
+          }
+          
+          faceMesh = new FaceMesh({
+            locateFile: (file: string) => {
+              // Try multiple CDN sources for better reliability
+              const cdnUrls = [
+                `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+                `https://unpkg.com/@mediapipe/face_mesh/${file}`,
+                `https://cdn.skypack.dev/@mediapipe/face_mesh/${file}`
+              ];
+              return cdnUrls[0]; // Start with primary CDN
+            },
+          });
+          
+          // Wait for FaceMesh to be ready
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('FaceMesh initialization timeout'));
+            }, 10000);
+            
+            faceMesh.setOptions({
+              maxNumFaces: 1,
+              refineLandmarks: true,
+              minDetectionConfidence: 0.3,
+              minTrackingConfidence: 0.3,
+            });
+            
+            faceMesh.onResults(onResults);
+            faceMeshRef.current = faceMesh;
+            
+            // Test if FaceMesh is working
+            setTimeout(() => {
+              clearTimeout(timeout);
+              resolve(null);
+            }, 1000);
+          });
+          
+        } catch (faceMeshError) {
+          console.error('FaceMesh initialization failed:', faceMeshError);
+          throw new Error('Face detection failed to load. Please try refreshing the page or use a different browser (Chrome/Firefox recommended).');
+        }
 
         // Initialize Camera
         const camera = new Camera(video, {
@@ -713,12 +777,19 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
           console.log('Face verification component ready');
         }, 1500);
 
-      } catch (error) {
-        console.error('Failed to initialize verification:', error);
-        clearTimeout(fallbackTimer);
-        setInitializationError('Failed to access camera or load models. Please check permissions.');
-        setIsInitializing(false);
-      }
+              } catch (error) {
+          console.error('Failed to initialize verification:', error);
+          clearTimeout(fallbackTimer);
+          
+          // Check if it's a WASM-related error
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          if (errorMessage.includes('buffer') || errorMessage.includes('WASM') || errorMessage.includes('Module')) {
+            setInitializationError('Face detection failed to load. Please refresh the page or try a different browser (Chrome/Firefox recommended). If the issue persists, try clearing your browser cache.');
+          } else {
+            setInitializationError('Failed to access camera or load models. Please check permissions and refresh the page.');
+          }
+          setIsInitializing(false);
+        }
     };
 
     initializeVerification();
@@ -789,14 +860,14 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed' }}>
       {/* Overlay for outside click */}
       <div
         className="fixed inset-0 bg-black/40"
         onClick={handleCloseWithConfirmation}
         style={{ zIndex: 49 }}
       />
-      <div className="relative w-full max-w-2xl bg-white/5 backdrop-blur-md rounded-2xl shadow-xl p-4 space-y-6 border border-white/10 transition-all duration-500 hover:bg-white/10 z-50">
+      <div className="relative w-full max-w-2xl bg-white/5 backdrop-blur-md rounded-2xl shadow-xl p-4 space-y-6 border border-white/10 transition-all duration-500 hover:bg-white/10 z-50 max-h-[85vh] overflow-y-auto" style={{ margin: 'auto', transform: 'translateY(-2vh)' }}>
         {/* Close button */}
         <button
           className="absolute top-4 right-4 text-white/70 hover:text-white/100 text-2xl font-bold bg-transparent border-none cursor-pointer z-50"
@@ -851,6 +922,18 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
                   className="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
                 >
                   Retry
+                </button>
+                <button
+                  onClick={() => {
+                    setInitializationError(null);
+                    setIsInitializing(true);
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 100);
+                  }}
+                  className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors ml-2"
+                >
+                  Try Again
                 </button>
               </div>
             </div>
@@ -1014,6 +1097,7 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
             <div className="flex flex-col items-center justify-center">
               <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-500/80 border-t-transparent mb-2"></div>
               <div className="text-slate-300/90 font-medium">Analyzing...</div>
+              <div className="text-slate-400/70 text-xs mt-1">Please wait, do not move</div>
             </div>
           )}
           <div className="flex justify-center space-x-3 mt-4">

@@ -14,11 +14,18 @@ interface PersonalizedQuestionsScreenProps {
   };
 }
 
+interface SuggestedAnswer {
+  id: string;
+  text: string;
+  icon: string;
+}
+
 interface GeneratedQuestion {
   id: string;
   question: string;
   category: string;
-  importance: 'high' | 'medium' | 'low';
+  importance: string;
+  suggestedAnswers: SuggestedAnswer[];
 }
 
 export default function PersonalizedQuestionsScreen({ onNext, onBack, initialData }: PersonalizedQuestionsScreenProps) {
@@ -34,6 +41,8 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [recognition, setRecognition] = useState<any>(null);
   const [currentWordIdx, setCurrentWordIdx] = useState(-1);
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
   const questionWords = questions[currentQuestionIndex]?.question.split(/\s+/);
 
   useEffect(() => {
@@ -105,11 +114,31 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
     }
   };
 
+  const handleSuggestionSelect = (suggestion: SuggestedAnswer) => {
+    setSelectedSuggestion(suggestion.id);
+    
+    // Play sound effect
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(console.error);
+    }
+
+    if (suggestion.id === 'custom') {
+      setShowCustomInput(true);
+      setCurrentAnswer('');
+    } else {
+      setShowCustomInput(false);
+      setCurrentAnswer(suggestion.text);
+    }
+  };
+
   const handleSubmitAnswer = () => {
     if (currentAnswer.trim()) {
       const newAnswers = { ...answers, [questions[currentQuestionIndex].id]: currentAnswer };
       setAnswers(newAnswers);
       setCurrentAnswer('');
+      setSelectedSuggestion(null);
+      setShowCustomInput(false);
       
       // Play sound effect
       if (audio) {
@@ -133,6 +162,8 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setCurrentAnswer('');
+      setSelectedSuggestion(null);
+      setShowCustomInput(false);
     } else {
       onNext({ 
         personalizedAnswers: answers,
@@ -156,7 +187,9 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
       back: 'वापस',
       question: 'प्रश्न',
       of: 'का',
-      error: 'प्रश्न तैयार करने में समस्या हुई। कृपया फिर से कोशिश करें।'
+      error: 'प्रश्न तैयार करने में समस्या हुई। कृपया फिर से कोशिश करें।',
+      orWriteYourOwn: 'या अपना जवाब लिखें',
+      writeYourOwn: 'अपना जवाब लिखें...'
     },
     en: {
       title: 'Personalized Questions',
@@ -170,13 +203,15 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
       back: 'Back',
       question: 'Question',
       of: 'of',
-      error: 'Failed to generate questions. Please try again.'
+      error: 'Failed to generate questions. Please try again.',
+      orWriteYourOwn: 'or write your own answer',
+      writeYourOwn: 'Write your own answer...'
     }
   };
 
   const t = TEXT[language];
 
-  if (loading || generating) {
+  if (loading) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -185,9 +220,8 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
         className="w-full max-w-4xl mx-auto p-4"
       >
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-pink-500 border-t-transparent mx-auto mb-6"></div>
-          <h2 className="text-2xl font-bold text-white mb-4">{t.title}</h2>
-          <p className="text-purple-200 text-lg">{t.generating}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-200">{t.generating}</p>
         </div>
       </motion.div>
     );
@@ -202,27 +236,16 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
         className="w-full max-w-4xl mx-auto p-4"
       >
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl text-center">
-          <div className="text-red-400 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Error</h2>
-          <p className="text-purple-200 mb-6">{t.error}</p>
-          <div className="flex gap-4 justify-center">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={onBack}
-              className="px-6 py-3 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition-colors"
-            >
-              {t.back}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={generateQuestions}
-              className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors"
-            >
-              Try Again
-            </motion.button>
-          </div>
+          <div className="text-red-400 text-6xl mb-4">❌</div>
+          <h2 className="text-2xl font-bold text-white mb-4">{t.error}</h2>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onBack}
+            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors"
+          >
+            {t.back}
+          </motion.button>
         </div>
       </motion.div>
     );
@@ -313,42 +336,99 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
           </div>
         </div>
 
-        {/* Answer Input */}
+        {/* Suggested Answers */}
         <div className="mb-8">
-          <div className="relative">
-            <textarea
-              value={currentAnswer}
-              onChange={(e) => setCurrentAnswer(e.target.value)}
-              placeholder={language === 'hi' ? 'अपना जवाब यहाँ लिखें...' : 'Type your answer here...'}
-              className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 resize-none"
-              rows={4}
-            />
-            
-            {/* Voice Input Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleVoiceInput}
-              disabled={isRecording}
-              className={`absolute bottom-3 right-3 p-3 rounded-full transition-colors ${
-                isRecording
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
-            >
-              {isRecording ? <FaMicrophoneSlash /> : <FaMicrophone />}
-            </motion.button>
-          </div>
+          <h3 className="text-lg font-semibold text-white mb-4 text-center">
+            {language === 'hi' ? 'सुझाए गए जवाब चुनें:' : 'Choose a suggested answer:'}
+          </h3>
           
-          {isRecording && (
-            <div className="mt-2 text-center">
-              <div className="flex items-center justify-center gap-2 text-pink-400">
-                <FaVolumeUp className="animate-pulse" />
-                <span className="text-sm">{t.recording}</span>
-              </div>
-            </div>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <AnimatePresence>
+              {currentQuestion.suggestedAnswers.map((suggestion, index) => (
+                <motion.div
+                  key={suggestion.id}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleSuggestionSelect(suggestion)}
+                  className={`relative cursor-pointer rounded-xl p-4 transition-all duration-300 ${
+                    selectedSuggestion === suggestion.id
+                      ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg scale-105'
+                      : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white'
+                  }`}
+                >
+                  {/* Selection indicator */}
+                  {selectedSuggestion === suggestion.id && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center"
+                    >
+                      <span className="text-white text-sm">✓</span>
+                    </motion.div>
+                  )}
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{suggestion.icon}</span>
+                    <span className="text-sm font-medium">{suggestion.text}</span>
+                  </div>
+
+                  {/* Blur effect for unselected cards */}
+                  {selectedSuggestion && selectedSuggestion !== suggestion.id && (
+                    <div className="absolute inset-0 bg-black/20 backdrop-blur-sm rounded-xl" />
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         </div>
+
+        {/* Custom Answer Input */}
+        {showCustomInput && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-8"
+          >
+            <div className="relative">
+              <textarea
+                value={currentAnswer}
+                onChange={(e) => setCurrentAnswer(e.target.value)}
+                placeholder={t.writeYourOwn}
+                className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 resize-none"
+                rows={4}
+              />
+              
+              {/* Voice Input Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleVoiceInput}
+                disabled={isRecording}
+                className={`absolute bottom-3 right-3 p-3 rounded-full transition-colors ${
+                  isRecording
+                    ? 'bg-red-500 text-white'
+                    : 'bg-white/20 text-white hover:bg-white/30'
+                }`}
+              >
+                {isRecording ? <FaMicrophoneSlash /> : <FaMicrophone />}
+              </motion.button>
+            </div>
+            
+            {isRecording && (
+              <div className="mt-2 text-center">
+                <div className="flex items-center justify-center gap-2 text-pink-400">
+                  <FaVolumeUp className="animate-pulse" />
+                  <span className="text-sm">{t.recording}</span>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Navigation */}
         <div className="flex justify-between items-center">
@@ -361,7 +441,7 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
             {t.back}
           </motion.button>
 
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -372,17 +452,13 @@ export default function PersonalizedQuestionsScreen({ onNext, onBack, initialDat
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: currentAnswer.trim() ? 1.02 : 1 }}
-              whileTap={{ scale: currentAnswer.trim() ? 0.98 : 1 }}
-              disabled={!currentAnswer.trim()}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleSubmitAnswer}
-              className={`px-6 py-3 rounded-full font-semibold transition-colors ${
-                currentAnswer.trim()
-                  ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-500 hover:to-purple-500'
-                  : 'bg-white/10 text-white/50 cursor-not-allowed'
-              }`}
+              disabled={!currentAnswer.trim()}
+              className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-semibold hover:from-pink-500 hover:to-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {currentQuestionIndex === questions.length - 1 ? 'Complete' : t.submit}
+              {t.submit}
             </motion.button>
           </div>
         </div>

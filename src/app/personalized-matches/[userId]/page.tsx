@@ -45,6 +45,8 @@ interface UserProfile {
   familyValues: string | null;
   familyStatus: string | null;
   familyLocation: string | null;
+  matchingCriteria?: string[];
+  matchScore?: number;
   user: {
     firstName: string;
     lastName: string;
@@ -214,6 +216,39 @@ function PersonalizedMatchProfilePage() {
           </div>
 
           <div className="p-6 space-y-8">
+            {/* Match Score and Compatibility */}
+            {profile.matchScore !== undefined && (
+              <div className="bg-purple-600/20 backdrop-blur-sm rounded-lg p-6 border border-purple-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <Sparkles className="w-6 h-6 text-purple-400" />
+                  <h2 className="text-xl font-semibold text-white">Compatibility</h2>
+                </div>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-purple-600 text-white px-4 py-2 rounded-full text-lg font-semibold">
+                    {profile.matchScore}% Match
+                  </div>
+                  <div className="text-purple-300">
+                    {profile.matchScore >= 70 ? 'Excellent Match' :
+                     profile.matchScore >= 50 ? 'Great Match' :
+                     profile.matchScore >= 30 ? 'Good Match' : 'Compatible'}
+                  </div>
+                </div>
+                {profile.matchingCriteria && profile.matchingCriteria.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-medium text-white mb-3">What You Have in Common:</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {profile.matchingCriteria.map((criteria, index) => (
+                        <div key={index} className="flex items-center gap-2 text-purple-200">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          <span>{criteria}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* About Me Section */}
             {profile.aboutMe && (
               <div className="text-white/90">

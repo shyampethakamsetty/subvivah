@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from '@/context/LanguageContext';
 import { 
@@ -23,15 +23,15 @@ import {
   UserCheck,
   Star,
   MessageSquare,
-  Target
+  Target,
+  User,
+  Heart,
+  Search,
+  Calendar
 } from 'lucide-react';
 
 // Dynamically import components that use browser APIs
 const Chatbot = dynamic(() => import("@/components/Chatbot"), {
-  ssr: false,
-});
-
-const DailySuggestionBubble = dynamic(() => import("@/components/DailySuggestionBubble"), {
   ssr: false,
 });
 
@@ -51,6 +51,34 @@ export default function Home() {
   const matchmakingLottieRef = useRef(null);
   const kundliLottieRef = useRef(null);
   const aiInterviewLottieRef = useRef(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (response.ok && data.isAuthenticated && data.user) {
+          setIsAuthenticated(true);
+          setUser(data.user);
+        } else {
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // Home page text based on language
   const homeText = {
@@ -102,13 +130,21 @@ export default function Home() {
 
   const t = homeText[language];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Chatbot */}
       <Chatbot />
-
-      {/* Daily Suggestion Bubble */}
-      <DailySuggestionBubble />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 bg-white">
@@ -165,7 +201,12 @@ export default function Home() {
               }}
               className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg"
             >
-              {t.heroTitle}
+              {isAuthenticated 
+                ? (language === 'hi' 
+                    ? `नमस्कार ${user?.firstName || ''}!`
+                    : `Welcome back, ${user?.firstName || ''}!`)
+                : t.heroTitle
+              }
             </motion.h1>
             <motion.p 
               variants={{
@@ -198,7 +239,12 @@ export default function Home() {
               }}
               className="text-base sm:text-lg text-white mb-8"
             >
-              {t.heroDescription}
+              {isAuthenticated 
+                ? (language === 'hi' 
+                    ? 'आपके लिए नए मैचेस और अपडेट्स देखें। अपनी प्रोफ़ाइल को अपडेट करें या नए कनेक्शन्स खोजें।'
+                    : 'Discover new matches and updates for you. Update your profile or find new connections.')
+                : t.heroDescription
+              }
             </motion.p>
             <motion.div 
               variants={{
@@ -214,18 +260,46 @@ export default function Home() {
               }}
               className="flex flex-col sm:flex-row justify-center gap-4"
             >
-              <Link
-                href="/register"
-                className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto"
-              >
-                {t.getStarted}
-              </Link>
-              <Link
-                href="/search"
-                className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto"
-              >
-                {t.browseProfiles}
-              </Link>
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    href="/register"
+                    className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto"
+                  >
+                    {t.getStarted}
+                  </Link>
+                  <Link
+                    href="/search"
+                    className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto"
+                  >
+                    {t.browseProfiles}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/profile"
+                    className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto flex items-center gap-2"
+                  >
+                    <User className="w-5 h-5" />
+                    {language === 'hi' ? 'मेरी प्रोफ़ाइल' : 'My Profile'}
+                  </Link>
+                  <Link
+                    href="/matches"
+                    className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto flex items-center gap-2"
+                  >
+                    <Heart className="w-5 h-5" />
+                    {language === 'hi' ? 'मैचेस' : 'Matches'}
+                  </Link>
+                  <Link
+                    href="/personalized-matches"
+                    className="bg-purple-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-purple-700 transition duration-300 shadow-lg w-full sm:w-auto flex items-center gap-2"
+                  >
+                    <Brain className="w-5 h-5" />
+                    {language === 'hi' ? 'AI मैचेस' : 'AI Matches'}
+                  </Link>
+                </>
+              )}
             </motion.div>
           </motion.div>
 
@@ -263,6 +337,102 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Quick Actions for Authenticated Users */}
+      {isAuthenticated && (
+        <section className="py-12 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-8"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                {language === 'hi' ? 'त्वरित कार्य' : 'Quick Actions'}
+              </h2>
+              <p className="text-gray-600">
+                {language === 'hi' ? 'अपनी यात्रा जारी रखें' : 'Continue your journey'}
+              </p>
+            </motion.div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Link href="/search" className="block text-center">
+                  <Search className="w-8 h-8 text-red-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {language === 'hi' ? 'प्रोफाइल खोजें' : 'Search Profiles'}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {language === 'hi' ? 'नए कनेक्शन्स खोजें' : 'Find new connections'}
+                  </p>
+                </Link>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Link href="/personalized-matches" className="block text-center">
+                  <Brain className="w-8 h-8 text-purple-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {language === 'hi' ? 'AI मैचेस' : 'AI Matches'}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {language === 'hi' ? 'AI द्वारा चुने गए मैचेस' : 'AI-curated matches'}
+                  </p>
+                </Link>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Link href="/messages" className="block text-center">
+                  <MessageSquare className="w-8 h-8 text-blue-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {language === 'hi' ? 'संदेश' : 'Messages'}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {language === 'hi' ? 'अपने कनेक्शन्स से बात करें' : 'Chat with your connections'}
+                  </p>
+                </Link>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Link href="/dating" className="block text-center">
+                  <Calendar className="w-8 h-8 text-green-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {language === 'hi' ? 'डेटिंग' : 'Dating'}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {language === 'hi' ? 'रोमांटिक प्लान बनाएं' : 'Plan romantic dates'}
+                  </p>
+                </Link>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Beautiful Memories Section */}
       <section className="py-16 bg-white">
