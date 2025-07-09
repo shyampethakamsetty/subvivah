@@ -140,12 +140,6 @@ const DailySuggestionBubble = () => {
           setAnalyzing(false);
         }
 
-        // Show popup after 4 seconds
-        const timer = setTimeout(() => {
-          setIsOpen(true);
-        }, 4000);
-
-        return () => clearTimeout(timer);
       } catch (error) {
         console.error('Error fetching matched profile:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch matched profile');
