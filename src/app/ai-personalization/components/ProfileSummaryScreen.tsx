@@ -30,6 +30,7 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [avatarText, setAvatarText] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState<any>(null);
 
   useEffect(() => {
     generateSummary();
@@ -71,12 +72,37 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
     }
   };
 
+  const verifyData = async () => {
+    try {
+      const verifyResponse = await fetch('/api/ai/verify-personalization', {
+        credentials: 'include'
+      });
+      
+      if (!verifyResponse.ok) {
+        throw new Error('Failed to verify data');
+      }
+
+      const verifyResult = await verifyResponse.json();
+      console.log('✅ Verification result:', verifyResult);
+      setVerificationStatus(verifyResult.verification);
+
+      if (!verifyResult.verification.exists || !verifyResult.verification.isComplete) {
+        throw new Error('Data not saved completely');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('❌ Verification failed:', error);
+      return false;
+    }
+  };
+
   const handleComplete = async () => {
     setSaving(true);
     setSaveSuccess(false);
     setError(null);
     try {
-      console.log('Saving personalization data:', {
+      console.log('📝 Saving personalization data:', {
         shardAnswers: initialData.shardAnswers,
         personalizedAnswers: initialData.personalizedAnswers,
         profileSummary: summary,
@@ -95,7 +121,7 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
           profileSummary: summary,
           isCompleted: true
         }),
-        credentials: 'include' // Important for sending cookies
+        credentials: 'include'
       });
 
       if (!saveResponse.ok) {
@@ -104,19 +130,24 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
       }
 
       const saveData = await saveResponse.json();
-      console.log('AI Personalization saved successfully:', saveData);
+      console.log('✅ Save successful:', saveData);
+
+      // Verify the saved data
+      const isVerified = await verifyData();
       
-      // Show success animation
+      if (!isVerified) {
+        throw new Error('Data verification failed');
+      }
+
       setSaveSuccess(true);
-      setAvatarText('Great! Your profile has been saved successfully. You can now proceed to your profile page.');
+      setAvatarText('Great! Your profile has been saved and verified successfully. You can now proceed to your profile page.');
       
-      // Wait for animation to complete before proceeding
       setTimeout(() => {
         onNext({ isCompleted: true });
       }, 1500);
 
     } catch (error) {
-      console.error('Error saving personalization data:', error);
+      console.error('❌ Error:', error);
       setError(error instanceof Error ? error.message : 'Failed to save your profile. Please try again.');
       setAvatarText('I apologize, but there was an error saving your profile. Would you like to try again?');
       setSaveSuccess(false);
@@ -224,6 +255,39 @@ export default function ProfileSummaryScreen({ onNext, onBack, initialData }: Pr
             </h3>
             <p className="text-gray-700">{summary.matchPreferences}</p>
           </div>
+        </div>
+      )}
+
+      {verificationStatus && (
+        <div className="bg-white/10 p-4 rounded-lg mt-4">
+          <h3 className="text-lg font-semibold text-white mb-2">Verification Status</h3>
+          <ul className="space-y-2">
+            <li className="flex items-center text-sm">
+              <span className={verificationStatus.exists ? "text-green-400" : "text-red-400"}>
+                {verificationStatus.exists ? "✓" : "✗"} Data Exists
+              </span>
+            </li>
+            <li className="flex items-center text-sm">
+              <span className={verificationStatus.isComplete ? "text-green-400" : "text-red-400"}>
+                {verificationStatus.isComplete ? "✓" : "✗"} Completion Status
+              </span>
+            </li>
+            <li className="flex items-center text-sm">
+              <span className={verificationStatus.hasShardAnswers ? "text-green-400" : "text-red-400"}>
+                {verificationStatus.hasShardAnswers ? "✓" : "✗"} Shard Answers
+              </span>
+            </li>
+            <li className="flex items-center text-sm">
+              <span className={verificationStatus.hasPersonalizedAnswers ? "text-green-400" : "text-red-400"}>
+                {verificationStatus.hasPersonalizedAnswers ? "✓" : "✗"} Personalized Answers
+              </span>
+            </li>
+            <li className="flex items-center text-sm">
+              <span className={verificationStatus.hasProfileSummary ? "text-green-400" : "text-red-400"}>
+                {verificationStatus.hasProfileSummary ? "✓" : "✗"} Profile Summary
+              </span>
+            </li>
+          </ul>
         </div>
       )}
 

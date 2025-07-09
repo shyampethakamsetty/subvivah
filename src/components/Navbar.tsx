@@ -102,6 +102,7 @@ export default function Navbar() {
       search: 'खोज',
       dating: 'डेटिंग',
       matches: 'मैच',
+      personalizedMatches: 'व्यक्तिगत मैच',
       messages: 'संदेश',
       kundli: 'कुंडली जनरेटर',
       manageProfile: 'प्रोफाइल प्रबंधन',
@@ -116,6 +117,7 @@ export default function Navbar() {
       search: 'Search',
       dating: 'Dating',
       matches: 'Matches',
+      personalizedMatches: 'Personalized Matches',
       messages: 'Messages',
       kundli: 'Kundli Generator',
       manageProfile: 'Manage Profile',
@@ -151,11 +153,12 @@ export default function Navbar() {
             </button>
           </div>
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
+            <div className="flex items-center space-x-4">
               <Link href="/" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">{t.home}</Link>
               <Link href="/search" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">{t.search}</Link>
               <Link href="/dating" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">{t.dating}</Link>
               <Link href="/matches" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">{t.matches}</Link>
+              <Link href="/personalized-matches" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">{t.personalizedMatches}</Link>
               <Link href="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">{t.messages}</Link>
               <Link href="/kundli" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700">{t.kundli}</Link>
             </div>
@@ -224,7 +227,10 @@ export default function Navbar() {
         <div className="md:hidden px-2 pt-2 pb-3 space-y-1">
           {/* Mobile Language Switcher */}
           <button
-            onClick={() => setLanguage(language === 'hi' ? 'en' : 'hi')}
+            onClick={() => {
+              setLanguage(language === 'hi' ? 'en' : 'hi');
+              setMobileMenuOpen(false);
+            }}
             className="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-purple-700 block"
           >
             {language === 'hi' ? t.switchToEnglish : t.switchToHindi}
@@ -233,6 +239,7 @@ export default function Navbar() {
           <Link href="/search" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">{t.search}</Link>
           <Link href="/dating" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">{t.dating}</Link>
           <Link href="/matches" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">{t.matches}</Link>
+          <Link href="/personalized-matches" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">{t.personalizedMatches}</Link>
           <Link href="/messages" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">{t.messages}</Link>
           <Link href="/kundli" onClick={handleMobileMenuClick} className="px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 block">{t.kundli}</Link>
           {isAuthenticated ? (
