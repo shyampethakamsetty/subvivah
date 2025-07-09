@@ -68,21 +68,23 @@ export async function POST(request: NextRequest) {
     const aiPersonalizationData = {
       userId,
       isCompleted: isCompleted || false,
-      foodPreference: shardAnswers?.foodPreference,
-      sleepSchedule: shardAnswers?.sleepSchedule,
-      socialPersonality: shardAnswers?.socialPersonality,
-      religionSpirituality: shardAnswers?.religionSpirituality,
-      relationshipType: shardAnswers?.relationshipType,
-      careerPriority: shardAnswers?.careerPriority,
-      childrenPreference: shardAnswers?.childrenPreference,
-      livingSetup: shardAnswers?.livingSetup,
-      relocationFlexibility: shardAnswers?.relocationFlexibility,
-      marriageTimeline: shardAnswers?.marriageTimeline,
-      relationshipIntent: shardAnswers?.relationshipIntent,
+      foodPreference: shardAnswers?.foodPreference || shardAnswers?.['food-preference'] || shardAnswers?.['food_preference'],
+      sleepSchedule: shardAnswers?.sleepSchedule || shardAnswers?.['sleep-schedule'] || shardAnswers?.['sleep_schedule'],
+      socialPersonality: shardAnswers?.socialPersonality || shardAnswers?.['social-personality'] || shardAnswers?.['social_personality'],
+      religionSpirituality: shardAnswers?.religionSpirituality || shardAnswers?.['religion-spirituality'] || shardAnswers?.['religion_spirituality'],
+      relationshipType: shardAnswers?.relationshipType || shardAnswers?.['relationship-type'] || shardAnswers?.['relationship_type'],
+      careerPriority: shardAnswers?.careerPriority || shardAnswers?.['career-priority'] || shardAnswers?.['career_priority'],
+      childrenPreference: shardAnswers?.childrenPreference || shardAnswers?.['children-preference'] || shardAnswers?.['children_preference'],
+      livingSetup: shardAnswers?.livingSetup || shardAnswers?.['living-setup'] || shardAnswers?.['living_setup'],
+      relocationFlexibility: shardAnswers?.relocationFlexibility || shardAnswers?.['relocation-flexibility'] || shardAnswers?.['relocation_flexibility'],
+      marriageTimeline: shardAnswers?.marriageTimeline || shardAnswers?.['marriage-timeline'] || shardAnswers?.['marriage_timeline'],
+      relationshipIntent: shardAnswers?.relationshipIntent || shardAnswers?.['relationship-intent'] || shardAnswers?.['relationship_intent'],
       personalizedAnswers: personalizedAnswers || undefined,
       profileSummary: profileSummary || undefined,
       completedAt: isCompleted ? new Date() : null
     };
+
+    console.log('📝 Mapped AI personalization data:', aiPersonalizationData);
 
     // Use upsert to create or update
     const savedData = await prisma.aIPersonalization.upsert({

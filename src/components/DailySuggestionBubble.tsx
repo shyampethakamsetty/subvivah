@@ -89,7 +89,9 @@ const DailySuggestionBubble = () => {
         // Get current user
         const userResponse = await fetch('/api/auth/me');
         if (!userResponse.ok) {
-          router.push('/login');
+          if (typeof window !== 'undefined' && window.showLoginPopup) {
+              window.showLoginPopup();
+            }
           return;
         }
         const userData = await userResponse.json();

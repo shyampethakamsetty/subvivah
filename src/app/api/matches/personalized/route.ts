@@ -29,6 +29,8 @@ export async function GET(request: Request) {
 
     const userId = decoded.userId;
 
+    console.log('🔵 Fetching personalized matches for user:', userId);
+
     // Get current user's personalization data
     const currentUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -57,7 +59,10 @@ export async function GET(request: Request) {
       }
     });
 
+    console.log('🔵 Current user AI personalization:', currentUser?.aiPersonalization);
+
     if (!currentUser?.aiPersonalization?.isCompleted) {
+      console.log('❌ User has not completed AI personalization');
       return NextResponse.json(
         { error: 'Personalization not completed' },
         { status: 400 }
@@ -71,6 +76,7 @@ export async function GET(request: Request) {
           { id: { not: userId } },
           { isActive: true },
           { isVerified: true },
+          { gender: currentUser.gender === 'male' ? 'female' : 'male' }, // Filter by opposite gender
           {
             aiPersonalization: {
               isCompleted: true
@@ -102,8 +108,10 @@ export async function GET(request: Request) {
       take: 100 // Limit initial fetch to 100 profiles
     });
 
+    console.log('🔵 Found potential matches:', potentialMatches.length);
+
     // Calculate matches
-    const matches = potentialMatches
+    const matchesWithScores = potentialMatches
       .filter(match => match.aiPersonalization) // Ensure aiPersonalization exists
       .map(match => {
         const matchScore = calculateMatchScore(
@@ -126,10 +134,16 @@ export async function GET(request: Request) {
           matchScore,
           matchingCriteria
         };
-      })
-      .filter(match => match.matchScore >= 50)
+      });
+
+    console.log('🔵 Matches with scores:', matchesWithScores.map(m => ({ id: m.id, score: m.matchScore })));
+
+    const matches = matchesWithScores
+      .filter(match => match.matchScore >= 30) // Lower threshold from 50 to 30
       .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 20);
+      .slice(0, 50); // Show more matches (up from 20)
+
+    console.log('🔵 Final filtered matches:', matches.length);
 
     return NextResponse.json(matches);
   } catch (error) {
@@ -141,38 +155,64 @@ export async function GET(request: Request) {
   }
 }
 
+function normalizeValue(value: string): string {
+  if (!value) return '';
+  return value
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/-/g, '_')
+    .replace(/[^a-z0-9_]/g, '');
+}
+
 function calculateMatchScore(user1: any, user2: any): number {
   let totalScore = 0;
   let totalWeight = 0;
 
+  // Simplified weights - focus on key compatibility factors
   const fields = {
-    foodPreference: 1,
-    sleepSchedule: 1,
-    socialPersonality: 2,
     religionSpirituality: 3,
     relationshipType: 3,
-    careerPriority: 2,
-    childrenPreference: 3,
-    livingSetup: 2,
-    relocationFlexibility: 2,
-    marriageTimeline: 3,
-    relationshipIntent: 3
+    childrenPreference: 2,
+    marriageTimeline: 2,
+    relationshipIntent: 2,
+    foodPreference: 1,
+    sleepSchedule: 1,
+    socialPersonality: 1,
+    careerPriority: 1,
+    livingSetup: 1,
+    relocationFlexibility: 1
   };
 
   for (const [field, weight] of Object.entries(fields)) {
     if (user1[field] && user2[field]) {
-      if (user1[field] === user2[field]) {
+      const value1 = normalizeValue(user1[field]);
+      const value2 = normalizeValue(user2[field]);
+
+      console.log(`Comparing ${field}:`, { value1, value2, weight });
+
+      if (value1 === value2) {
         totalScore += weight;
-      } else if (areCompatibleAnswers(field, user1[field], user2[field])) {
-        totalScore += weight * 0.5;
+        console.log(`✅ Exact match on ${field}, adding ${weight} points`);
+      } else if (areCompatibleAnswers(field, value1, value2)) {
+        totalScore += weight * 0.75; // Increased from 0.5 to 0.75 for compatible answers
+        console.log(`✅ Compatible match on ${field}, adding ${weight * 0.75} points`);
+      } else {
+        // Give some points even for mismatches to avoid too many zeros
+        totalScore += weight * 0.25;
+        console.log(`⚠️ Mismatch on ${field}, adding ${weight * 0.25} points`);
       }
       totalWeight += weight;
     }
   }
 
-  // Prevent division by zero
-  if (totalWeight === 0) return 0;
-  return Math.round((totalScore / totalWeight) * 100);
+  if (totalWeight === 0) {
+    console.log('❌ No matching fields found');
+    return 0;
+  }
+  
+  const finalScore = Math.round((totalScore / totalWeight) * 100);
+  console.log(`Final score: ${finalScore}% (${totalScore}/${totalWeight})`);
+  return finalScore;
 }
 
 function getMatchingCriteria(user1: any, user2: any): string[] {
@@ -210,30 +250,38 @@ function getMatchingCriteria(user1: any, user2: any): string[] {
 }
 
 function areCompatibleAnswers(field: string, value1: string, value2: string): boolean {
+  // Simplified compatibility rules
   const compatibilityRules: Record<string, string[][]> = {
     socialPersonality: [
       ['extrovert', 'ambivert'],
       ['introvert', 'ambivert']
     ],
+    foodPreference: [
+      ['vegetarian', 'eggetarian'],
+      ['non_vegetarian', 'eggetarian']
+    ],
     sleepSchedule: [
       ['early_bird', 'flexible'],
       ['night_owl', 'flexible']
     ],
-    relocationFlexibility: [
-      ['willing', 'conditional'],
-      ['not_willing', 'conditional']
+    religionSpirituality: [
+      ['moderately_religious', 'somewhat_religious'],
+      ['moderately_religious', 'very_religious'],
+      ['somewhat_religious', 'very_religious']
     ],
     marriageTimeline: [
-      ['0-6_months', '6-12_months'],
-      ['1-2_years', '2-3_years']
+      ['within_6_months', 'within_1_year'],
+      ['within_1_year', 'within_2_years']
     ]
   };
 
-  if (compatibilityRules[field]) {
-    return compatibilityRules[field].some(pair => 
-      (pair.includes(value1) && pair.includes(value2))
-    );
+  // If no specific compatibility rule exists, return false
+  if (!compatibilityRules[field]) {
+    return false;
   }
 
-  return value1 === value2;
+  // Check if the combination exists in compatibility rules
+  return compatibilityRules[field].some(
+    ([a, b]) => (value1 === a && value2 === b) || (value1 === b && value2 === a)
+  );
 } 
