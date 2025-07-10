@@ -471,55 +471,7 @@ export default function Home() {
                   </Link>
                 </motion.div>
 
-                {/* AI Personalization */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 }}
-                  className="group"
-                >
-                  <Link href="/ai-personalization" className="block">
-                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
-                      <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Bot className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {language === 'hi' ? 'AI पर्सनलाइजेशन' : 'AI Personalization'}
-                      </h3>
-                      <p className="text-sm text-white/80">
-                        {language === 'hi' 
-                          ? 'AI सहायता'
-                          : 'AI assistance'
-                        }
-                      </p>
-                    </div>
-                  </Link>
-                </motion.div>
 
-                {/* Brahman Chat */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.9 }}
-                  className="group"
-                >
-                  <Link href="/brahmanchat" className="block">
-                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
-                      <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <MessageSquareText className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {language === 'hi' ? 'ब्राह्मण चैट' : 'Brahman Chat'}
-                      </h3>
-                      <p className="text-sm text-white/80">
-                        {language === 'hi' 
-                          ? 'धार्मिक मार्गदर्शन'
-                          : 'Religious guidance'
-                        }
-                      </p>
-                    </div>
-                  </Link>
-                </motion.div>
 
                 {/* Success Stories */}
                 <motion.div

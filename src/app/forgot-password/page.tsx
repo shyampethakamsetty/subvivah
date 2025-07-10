@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
@@ -23,6 +23,8 @@ export default function ForgotPasswordPage() {
     number: false,
     special: false,
   });
+  const [resendTimer, setResendTimer] = useState(0);
+  const [canResend, setCanResend] = useState(false);
 
   const validatePassword = (password: string) => {
     const requirements = {
@@ -42,6 +44,59 @@ export default function ForgotPasswordPage() {
     validatePassword(value);
   };
 
+  // Timer for resend functionality
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  const handleResendCode = async () => {
+    setLoading(true);
+    setMessage('');
+    setCanResend(false);
+    setResendTimer(60); // 60 seconds cooldown
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('✅ New verification code sent! Check your email (including spam folder)');
+        setIsSuccess(true);
+      } else {
+        setMessage(data.error || 'Failed to send verification code');
+        setIsSuccess(false);
+        setCanResend(true);
+        setResendTimer(0);
+      }
+    } catch (error) {
+      setMessage('An error occurred. Please try again.');
+      setIsSuccess(false);
+      setCanResend(true);
+      setResendTimer(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -59,10 +114,14 @@ export default function ForgotPasswordPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
+        setMessage('✅ Verification code sent! Check your email (including spam folder)');
+        setIsSuccess(true);
         setStep('otp');
+        setResendTimer(60); // Start 60-second timer
+        setCanResend(false);
       } else {
         setMessage(data.error || 'Failed to send verification code');
+        setIsSuccess(false);
       }
     } catch (error) {
       setMessage('An error occurred. Please try again.');
@@ -138,6 +197,29 @@ export default function ForgotPasswordPage() {
             ? 'Enter the verification code sent to your email and set your new password.'
             : 'Password reset successful!'}
         </p>
+        
+        {/* Spam Check Reminder */}
+        {step === 'otp' && (
+          <div className="mt-4 p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-medium text-yellow-200 mb-1">
+                  Can't find the email?
+                </h4>
+                <div className="text-xs text-yellow-300 space-y-1">
+                  <p>• Check your <strong>spam/junk folder</strong></p>
+                  <p>• Look for emails from <strong>subvivah.com@gmail.com</strong></p>
+                  <p>• The email might take a few minutes to arrive</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-8 w-full max-w-md mx-auto">
@@ -213,6 +295,20 @@ export default function ForgotPasswordPage() {
                     placeholder="000000"
                     maxLength={6}
                   />
+                </div>
+                
+                {/* Email Delivery Help */}
+                <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-md">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <div className="text-xs text-blue-300">
+                      <p>📧 Check your <strong>inbox, spam, and junk folders</strong></p>
+                      <p>⏱️ Email may take 2-5 minutes to arrive</p>
+                      <p>🔍 Look for emails from <strong>subvivah.com@gmail.com</strong></p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -341,19 +437,41 @@ export default function ForgotPasswordPage() {
                 >
                   Back to login
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep('email');
-                    setMessage('');
-                    setOtp('');
-                    setNewPassword('');
-                    setConfirmPassword('');
-                  }}
-                  className="text-sm text-purple-300 hover:text-purple-200 transition-colors"
-                >
-                  Send another code
-                </button>
+                
+                {/* Resend Code Button */}
+                <div className="flex flex-col items-center space-y-2">
+                  {canResend ? (
+                    <button
+                      type="button"
+                      onClick={handleResendCode}
+                      disabled={loading}
+                      className="flex items-center space-x-2 text-sm text-purple-300 hover:text-purple-200 transition-colors disabled:opacity-50"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span>Resend code</span>
+                    </button>
+                  ) : (
+                    <div className="text-xs text-purple-400">
+                      Resend available in {resendTimer}s
+                    </div>
+                  )}
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep('email');
+                      setMessage('');
+                      setOtp('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                      setResendTimer(0);
+                      setCanResend(false);
+                    }}
+                    className="text-sm text-purple-300 hover:text-purple-200 transition-colors"
+                  >
+                    Use different email
+                  </button>
+                </div>
               </div>
             </form>
           ) : (
