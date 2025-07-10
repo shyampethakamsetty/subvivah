@@ -194,8 +194,8 @@ const PersonalizedInterviewLLM: React.FC<PersonalizedInterviewLLMProps> = ({
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
         <div className="flex items-start space-x-4">
           <SpeakingAvatar
-            message={currentQuestionData.question}
-            isSpeaking={true}
+            text={currentQuestionData.question}
+            size="md"
           />
           <div className="flex-1">
             <div className="mb-6">

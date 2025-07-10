@@ -27,7 +27,9 @@ import {
   User,
   Heart,
   Search,
-  Calendar
+  Calendar,
+  Crown,
+  Phone
 } from 'lucide-react';
 
 // Dynamically import components that use browser APIs
@@ -258,48 +260,342 @@ export default function Home() {
                   }
                 }
               }}
-              className="flex flex-col sm:flex-row justify-center gap-4"
+              className="w-full max-w-6xl mx-auto"
             >
-              {!isAuthenticated ? (
-                <>
-                  <Link
-                    href="/register"
-                    className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto"
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {/* Registration */}
+                {!isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="group"
                   >
-                    {t.getStarted}
-                  </Link>
-                  <Link
-                    href="/search"
-                    className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto"
+                    <Link href="/register" className="block">
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'खाता बनाएं' : 'Create Account'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'अपनी यात्रा शुरू करें'
+                            : 'Start your journey'
+                          }
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Profile Management */}
+                {isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="group"
                   >
-                    {t.browseProfiles}
+                    <Link href="/profile" className="block">
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'मेरी प्रोफाइल' : 'My Profile'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'अपनी प्रोफाइल प्रबंधित करें'
+                            : 'Manage your profile'
+                          }
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Search Profiles */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="group"
+                >
+                  <Link href="/search" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Search className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'प्रोफाइल खोजें' : 'Search Profiles'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'सही साथी खोजें'
+                          : 'Find the right match'
+                        }
+                      </p>
+                    </div>
                   </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/profile"
-                    className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg w-full sm:w-auto flex items-center gap-2"
+                </motion.div>
+
+                {/* AI Matches */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="group"
+                >
+                  <Link href="/personalized-matches" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Brain className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'AI मैचेस' : 'AI Matches'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'AI द्वारा चुने गए मैचेस'
+                          : 'AI-curated matches'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Matches */}
+                {isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="group"
                   >
-                    <User className="w-5 h-5" />
-                    {language === 'hi' ? 'मेरी प्रोफ़ाइल' : 'My Profile'}
-                  </Link>
-                  <Link
-                    href="/matches"
-                    className="bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/30 transition duration-300 shadow-lg w-full sm:w-auto flex items-center gap-2"
+                    <Link href="/matches" className="block">
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <Heart className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'मेरे मैचेस' : 'My Matches'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'अपने मैचेस देखें'
+                            : 'View your matches'
+                          }
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Messages */}
+                {isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="group"
                   >
-                    <Heart className="w-5 h-5" />
-                    {language === 'hi' ? 'मैचेस' : 'Matches'}
+                    <Link href="/messages" className="block">
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <MessageSquare className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'संदेश' : 'Messages'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'चैट करें'
+                            : 'Chat with connections'
+                          }
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Kundli Matching */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="group"
+                >
+                  <Link href="/kundli" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Star className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'कुंडली मैचिंग' : 'Kundli Matching'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'ज्योतिष के अनुसार'
+                          : 'Based on astrology'
+                        }
+                      </p>
+                    </div>
                   </Link>
-                  <Link
-                    href="/personalized-matches"
-                    className="bg-purple-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-purple-700 transition duration-300 shadow-lg w-full sm:w-auto flex items-center gap-2"
-                  >
-                    <Brain className="w-5 h-5" />
-                    {language === 'hi' ? 'AI मैचेस' : 'AI Matches'}
+                </motion.div>
+
+                {/* Dating */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="group"
+                >
+                  <Link href="/dating" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Calendar className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'डेटिंग' : 'Dating'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'रोमांटिक प्लान'
+                          : 'Plan romantic dates'
+                        }
+                      </p>
+                    </div>
                   </Link>
-                </>
-              )}
+                </motion.div>
+
+                {/* AI Personalization */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="group"
+                >
+                  <Link href="/ai-personalization" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Bot className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'AI पर्सनलाइजेशन' : 'AI Personalization'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'AI सहायता'
+                          : 'AI assistance'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Brahman Chat */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.9 }}
+                  className="group"
+                >
+                  <Link href="/brahmanchat" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <MessageSquareText className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'ब्राह्मण चैट' : 'Brahman Chat'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'धार्मिक मार्गदर्शन'
+                          : 'Religious guidance'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Success Stories */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.0 }}
+                  className="group"
+                >
+                  <Link href="/success-stories" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <HeartHandshake className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'सफल कहानियां' : 'Success Stories'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'प्रेरणादायक कहानियां'
+                          : 'Inspiring stories'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Premium Membership */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.1 }}
+                  className="group"
+                >
+                  <Link href="/premium" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Crown className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'प्रीमियम' : 'Premium'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'विशेष सुविधाएं'
+                          : 'Exclusive features'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Contact */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.2 }}
+                  className="group"
+                >
+                  <Link href="/contact" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Phone className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'संपर्क' : 'Contact'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'सहायता प्राप्त करें'
+                          : 'Get support'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+              </div>
             </motion.div>
           </motion.div>
 
@@ -338,101 +634,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Quick Actions for Authenticated Users */}
-      {isAuthenticated && (
-        <section className="py-12 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-8"
-            >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {language === 'hi' ? 'त्वरित कार्य' : 'Quick Actions'}
-              </h2>
-              <p className="text-gray-600">
-                {language === 'hi' ? 'अपनी यात्रा जारी रखें' : 'Continue your journey'}
-              </p>
-            </motion.div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Link href="/search" className="block text-center">
-                  <Search className="w-8 h-8 text-red-500 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {language === 'hi' ? 'प्रोफाइल खोजें' : 'Search Profiles'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {language === 'hi' ? 'नए कनेक्शन्स खोजें' : 'Find new connections'}
-                  </p>
-                </Link>
-              </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Link href="/personalized-matches" className="block text-center">
-                  <Brain className="w-8 h-8 text-purple-500 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {language === 'hi' ? 'AI मैचेस' : 'AI Matches'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {language === 'hi' ? 'AI द्वारा चुने गए मैचेस' : 'AI-curated matches'}
-                  </p>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Link href="/messages" className="block text-center">
-                  <MessageSquare className="w-8 h-8 text-blue-500 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {language === 'hi' ? 'संदेश' : 'Messages'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {language === 'hi' ? 'अपने कनेक्शन्स से बात करें' : 'Chat with your connections'}
-                  </p>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Link href="/dating" className="block text-center">
-                  <Calendar className="w-8 h-8 text-green-500 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {language === 'hi' ? 'डेटिंग' : 'Dating'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {language === 'hi' ? 'रोमांटिक प्लान बनाएं' : 'Plan romantic dates'}
-                  </p>
-                </Link>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Beautiful Memories Section */}
       <section className="py-16 bg-white">
