@@ -101,6 +101,7 @@ const maritalStatusOptions = [
 function SearchPageContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [profilesLoading, setProfilesLoading] = useState(false); 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchParams, setSearchParams] = useState({
     ageMin: '',
@@ -115,6 +116,7 @@ function SearchPageContent() {
     occupation: '',
     workLocation: ''
   });
+  const [debouncedParams, setDebouncedParams] = useState({...searchParams});
   const [users, setUsers] = useState<SearchUser[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUser, setSelectedUser] = useState<SearchUser | null>(null);
@@ -129,6 +131,22 @@ function SearchPageContent() {
   });
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
+  // Debounce search params to prevent frequent API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedParams(searchParams);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchParams]);
+
+  // Only trigger search when debounced params change
+  useEffect(() => {
+    if (isAuthenticated) {
+      handleSearch(1);
+    }
+  }, [debouncedParams, isAuthenticated]);
+
   useEffect(() => {
     // Check authentication status
     const checkAuth = async () => {
@@ -142,10 +160,6 @@ function SearchPageContent() {
         });
         const data = await response.json();
         setIsAuthenticated(data.isAuthenticated);
-        
-        if (data.isAuthenticated) {
-          handleSearch(1);
-        }
       } catch (error) {
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
@@ -157,9 +171,9 @@ function SearchPageContent() {
   }, []);
 
   const handleSearch = useCallback(async (page = 1) => {
-    setLoading(true);
+    setProfilesLoading(true);
     try {
-      const validParams = Object.entries(searchParams).reduce((acc, [key, value]) => {
+      const validParams = Object.entries(debouncedParams).reduce((acc, [key, value]) => {
         if (value && value.trim() !== '') {
           acc[key] = value;
         }
@@ -184,15 +198,9 @@ function SearchPageContent() {
     } catch (error) {
       console.error('Search error:', error);
     } finally {
-      setLoading(false);
+      setProfilesLoading(false);
     }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      handleSearch(1);
-    }
-  }, [handleSearch, isAuthenticated]);
+  }, [debouncedParams]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -203,7 +211,7 @@ function SearchPageContent() {
   };
 
   const clearFilters = () => {
-    setSearchParams({
+    const emptyFilters = {
       ageMin: '',
       ageMax: '',
       heightMin: '',
@@ -215,8 +223,15 @@ function SearchPageContent() {
       education: '',
       occupation: '',
       workLocation: ''
-    });
+    };
+    setSearchParams(emptyFilters);
+    setDebouncedParams(emptyFilters); // Immediately update debounced params to trigger search
     setActiveFilters([]);
+  };
+
+  // Apply filters immediately without waiting for debounce
+  const applyFilters = () => {
+    setDebouncedParams({...searchParams});
   };
 
   const handleQuickSearchUserSelect = (user: User) => {
@@ -303,7 +318,13 @@ function SearchPageContent() {
                 <span className="capitalize">{filter.replace(/([A-Z])/g, ' $1').toLowerCase()}: {searchParams[filter as keyof typeof searchParams]}</span>
                 <button
                   onClick={() => {
+                    // Update both searchParams and debouncedParams to remove the filter
                     setSearchParams(prev => ({
+                      ...prev,
+                      [filter]: ''
+                    }));
+                    // Update debounced params immediately to trigger search
+                    setDebouncedParams(prev => ({
                       ...prev,
                       [filter]: ''
                     }));
@@ -504,7 +525,7 @@ function SearchPageContent() {
                 Clear All
               </button>
               <button
-                onClick={() => handleSearch(1)}
+                onClick={applyFilters}
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
               >
                 <Search className="w-4 h-4" />
@@ -514,96 +535,108 @@ function SearchPageContent() {
           </div>
         )}
 
+        {/* Profiles Section - Only show loading here */}
         <div className="mt-8">
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
+          {profilesLoading ? (
+            <div className="flex items-center justify-center py-16">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
             </div>
-          ) : users.length === 0 ? (
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 text-center">
-              <div className="inline-flex justify-center items-center w-12 h-12 rounded-full bg-purple-900/50 mb-4">
-                <UserX className="w-6 h-6 text-purple-200" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">No Profiles Found</h3>
-              <p className="text-purple-200">Try adjusting your search criteria</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300"
-                >
-                  <div 
-                    className="relative aspect-[4/3] cursor-pointer group"
+          ) : users.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/15 transition-all cursor-pointer"
                     onClick={() => handleUserClick(user)}
                   >
-                    {user.photos && user.photos.length > 0 ? (
-                      <div className="relative w-full h-full">
+                    <div className="aspect-[4/3] relative">
+                      {user.photos && user.photos.length > 0 ? (
                         <Image
                           src={user.photos[0].url}
                           alt={`${capitalizeWords(user.firstName)} ${capitalizeWords(user.lastName)}`}
                           fill
                           className="object-cover"
-                          sizes="(max-width: 768px) 50vw, 33vw"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                         />
-                        {user.photos.length > 1 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePhotoClick(user, 0);
-                            }}
-                            className="absolute bottom-2 right-2 px-3 py-1.5 bg-black/60 text-white text-sm rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
-                          >
-                            <Image src="/images/photos.svg" alt="Photos" width={16} height={16} /> {user.photos.length} Photos
-                          </button>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
-                      </div>
-                    ) : (
-                      <div className="w-full h-full bg-purple-900/50 flex items-center justify-center">
-                        <UserIcon className="w-14 h-14 text-white/50" />
-                      </div>
-                    )}
-                    
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <h3 className="text-lg font-semibold text-white mb-0.5 line-clamp-1">
+                      ) : (
+                        <div className="w-full h-full bg-purple-900/50 flex items-center justify-center">
+                          <UserIcon className="w-12 h-12 text-white/50" />
+                        </div>
+                      )}
+
+                      {user.photos && user.photos.length > 1 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePhotoClick(user, 0);
+                          }}
+                          className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5 hover:bg-black/70 transition-colors"
+                        >
+                          <ZoomIn className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="p-4">
+                      <h3 className="text-lg font-medium text-white truncate">
                         {capitalizeWords(user.firstName)} {capitalizeWords(user.lastName)}
                       </h3>
-                      <div className="flex items-center gap-2 text-white/90 text-sm">
+                      <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
+                        <Calendar className="w-4 h-4" />
                         <span>{user.age} years</span>
-                        {user.height && (
-                          <>
-                            <span>•</span>
-                            <span>{user.height}</span>
-                          </>
-                        )}
                       </div>
+                      {user.education && (
+                        <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
+                          <GraduationCap className="w-4 h-4" />
+                          <span className="truncate">{user.education}</span>
+                        </div>
+                      )}
+                      {user.occupation && (
+                        <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
+                          <Briefcase className="w-4 h-4" />
+                          <span className="truncate">{user.occupation}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                  <div className="p-2.5 space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-white/80 text-sm">
-                      <MapPin className="w-4 h-4" />
-                      <span className="truncate">{user.workLocation || 'Location not specified'}</span>
-                    </div>
-                    {user.education && (
-                      <div className="flex items-center gap-1.5 text-white/80">
-                        <GraduationCap className="w-4 h-4" />
-                        <span className="text-sm truncate">{user.education}</span>
-                      </div>
-                    )}
-                    {user.occupation && (
-                      <div className="flex items-center gap-1.5 text-white/80">
-                        <Briefcase className="w-4 h-4" />
-                        <span className="text-sm truncate">{user.occupation}</span>
-                      </div>
-                    )}
-                  </div>
+                ))}
+              </div>
+              
+              {/* Pagination */}
+              {pagination.pages > 1 && (
+                <div className="flex justify-center mt-8 gap-2">
+                  {[...Array(pagination.pages)].map((_, i) => {
+                    const pageNumber = i + 1;
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handleSearch(pageNumber)}
+                        className={`px-4 py-2 rounded-lg text-sm ${
+                          pageNumber === pagination.currentPage
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-white/10 text-white hover:bg-white/20'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
                 </div>
-              ))}
+              )}
+            </>
+          ) : (
+            <div className="text-center py-16">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-4">
+                <UserX className="w-8 h-8 text-purple-300" />
+              </div>
+              <h3 className="text-xl font-medium text-white mb-2">No profiles found</h3>
+              <p className="text-purple-200 max-w-md mx-auto">
+                Try adjusting your search filters to find more matches, or check back later as new profiles are added daily.
+              </p>
             </div>
           )}
+        </div>
 
           {/* Photo Gallery Modal */}
           {showPhotoGallery && selectedUser && (
@@ -767,26 +800,6 @@ function SearchPageContent() {
               </div>
             </div>
           )}
-
-          {/* Pagination */}
-          {users.length > 0 && pagination.pages > 1 && (
-            <div className="flex justify-center mt-8 gap-2">
-              {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handleSearch(page)}
-                  className={`px-4 py-2 rounded-lg text-sm ${
-                    page === pagination.currentPage
-                      ? 'bg-purple-500 text-white'
-                      : 'bg-white/10 text-white hover:bg-white/20'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

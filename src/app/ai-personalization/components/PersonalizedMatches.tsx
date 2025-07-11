@@ -175,12 +175,12 @@ export default function PersonalizedMatches() {
         {/* Name on image */}
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <h3 className="text-xl font-semibold text-white">
-            {match.user.firstName} {match.user.lastName}
-          </h3>
+          {match.user.firstName} {match.user.lastName}
+        </h3>
           <div className="flex items-center gap-2">
             <span className="text-sm text-white/80 font-medium">
-              {match.user.gender}
-            </span>
+            {match.user.gender}
+          </span>
           </div>
         </div>
       </div>
@@ -210,29 +210,29 @@ export default function PersonalizedMatches() {
         <div className="pt-3 border-t border-white/10">
           <p className="text-xs text-purple-200 mb-2">Matching criteria:</p>
           <div className="flex flex-wrap gap-2">
-            {match.matchingCriteria.slice(0, 3).map((criteria, idx) => (
-              <span
-                key={idx}
-                className={`text-xs px-2 py-1 ${
-                  match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
-                  match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
-                  'bg-purple-800/50 text-purple-200'
-                } rounded-full`}
-              >
-                {criteria}
-              </span>
-            ))}
-            {match.matchingCriteria.length > 3 && (
-              <span
-                className={`text-xs px-2 py-1 ${
-                  match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
-                  match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
-                  'bg-purple-800/50 text-purple-200'
-                } rounded-full`}
-              >
-                +{match.matchingCriteria.length - 3} more
-              </span>
-            )}
+          {match.matchingCriteria.slice(0, 3).map((criteria, idx) => (
+            <span
+              key={idx}
+              className={`text-xs px-2 py-1 ${
+                match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
+                match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
+                'bg-purple-800/50 text-purple-200'
+              } rounded-full`}
+            >
+              {criteria}
+            </span>
+          ))}
+          {match.matchingCriteria.length > 3 && (
+            <span
+              className={`text-xs px-2 py-1 ${
+                match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
+                match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
+                'bg-purple-800/50 text-purple-200'
+              } rounded-full`}
+            >
+              +{match.matchingCriteria.length - 3} more
+            </span>
+          )}
           </div>
         </div>
       </div>

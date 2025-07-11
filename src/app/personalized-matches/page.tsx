@@ -308,12 +308,12 @@ export default function PersonalizedMatches() {
             >
               <Link href={`/personalized-matches/${match.id}`} className="block">
                 <div className="relative h-72 overflow-hidden">
-                  <Image
-                    src={match.user.photos.find(p => p.isProfile)?.url || '/default-profile.jpg'}
-                    alt={`${match.user.firstName}'s photo`}
-                    fill
+                <Image
+                  src={match.user.photos.find(p => p.isProfile)?.url || '/default-profile.jpg'}
+                  alt={`${match.user.firstName}'s photo`}
+                  fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                   
                   {/* Match score badge */}
@@ -325,14 +325,14 @@ export default function PersonalizedMatches() {
                       text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg
                     `}>
                       {match.matchScore}% Match
-                    </div>
-                  </div>
-                  
+                </div>
+              </div>
+
                   {/* Name and info at bottom of image */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h3 className="text-xl font-bold text-white mb-1 group-hover:text-purple-200 transition-colors">
-                      {match.user.firstName} {match.user.lastName}
-                    </h3>
+                  {match.user.firstName} {match.user.lastName}
+                </h3>
                   </div>
                 </div>
               </Link>
@@ -362,20 +362,20 @@ export default function PersonalizedMatches() {
 
                 {/* Action buttons */}
                 <div className="flex justify-between items-center mt-4">
-                  <Link
-                    href={`/personalized-matches/${match.id}`}
+                    <Link
+                      href={`/personalized-matches/${match.id}`}
                     className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 rounded-lg transition-all duration-300 flex-grow text-center font-medium"
-                  >
+                    >
                     View Profile
-                  </Link>
+                    </Link>
                   
-                  <Link
-                    href={`/messages/${match.id}`}
+                    <Link
+                      href={`/messages/${match.id}`}
                     className="ml-2 bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-lg transition-all duration-300"
-                    title={t[language].message}
-                  >
-                    <MessageSquare className="w-5 h-5" />
-                  </Link>
+                      title={t[language].message}
+                    >
+                      <MessageSquare className="w-5 h-5" />
+                    </Link>
                 </div>
               </div>
             </motion.div>

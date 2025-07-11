@@ -30,6 +30,9 @@ export default function GoogleLoginButton() {
 
     script.onload = () => {
       if (window.google) {
+        console.log('🔄 Google Sign-In SDK loaded');
+        console.log('📱 Client ID being used:', process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+        
         window.google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
@@ -39,6 +42,7 @@ export default function GoogleLoginButton() {
         // Render the button if the container exists
         const buttonContainer = document.getElementById('google-signin-button');
         if (buttonContainer && !buttonRendered) {
+          console.log('🔘 Rendering Google Sign-In button');
           window.google.accounts.id.renderButton(
             buttonContainer,
             { 
@@ -52,7 +56,11 @@ export default function GoogleLoginButton() {
             }
           );
           setButtonRendered(true);
+        } else if (!buttonContainer) {
+          console.error('❌ Google Sign-In button container not found');
         }
+      } else {
+        console.error('❌ Google Sign-In SDK failed to load properly');
       }
     };
 
@@ -70,6 +78,7 @@ export default function GoogleLoginButton() {
       return;
     }
     
+    console.log('🔐 Google credential received, sending to server');
     setIsLoading(true);
     
     try {
@@ -82,13 +91,15 @@ export default function GoogleLoginButton() {
       });
 
       if (res.ok) {
+        console.log('✅ Google authentication successful');
         window.location.href = '/profile';
       } else {
-        console.error('Google login failed');
+        const errorData = await res.json();
+        console.error('❌ Google login failed:', errorData);
         alert('Failed to login with Google. Please try again.');
       }
     } catch (error) {
-      console.error('Error during Google login:', error);
+      console.error('❌ Error during Google login:', error);
       alert('An error occurred during login. Please try again.');
     } finally {
       setIsLoading(false);

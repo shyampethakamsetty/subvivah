@@ -60,10 +60,11 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
   // Live commentary system - only current status
   const [currentCommentary, setCurrentCommentary] = useState<string>('Camera ready');
   
-  // Face positioning thresholds - Further relaxed for flickering tolerance
-  const FACE_DISTANCE_MIN = 0.10; // Minimum face size (too far) - further relaxed from 0.12
-  const FACE_DISTANCE_MAX = 0.55; // Maximum face size (too close) - further relaxed from 0.50
-  const FACE_CENTER_THRESHOLD = 0.25; // Maximum offset from center - further relaxed from 0.20
+  // Face positioning thresholds - Much more flexible for better user experience
+  // These values have been significantly relaxed to reduce "hold still" frustration
+  const FACE_DISTANCE_MIN = 0.05; // Minimum face size (too far) - much more relaxed
+  const FACE_DISTANCE_MAX = 0.75; // Maximum face size (too close) - much more relaxed
+  const FACE_CENTER_THRESHOLD = 0.40; // Maximum offset from center - much more relaxed
 
   // Add refs and state for hold timer
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -398,12 +399,18 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
     setFaceDistance(faceDistanceVal);
     setFaceCenterOffset(faceCenterOffsetVal);
 
-    // Position commentary
+    // Position commentary - more encouraging and less strict
     if (startedRef.current) {
       if (positionCheck.isGood) {
-        updateCommentary('🎯 Perfect positioning! Face centered and at ideal distance');
+        updateCommentary('🎯 Great positioning! Ready for verification');
+      } else if (faceDistanceVal < 0.05) {
+        updateCommentary('📷 Move a bit closer to the camera');
+      } else if (faceDistanceVal > 0.75) {
+        updateCommentary('📷 Move a bit away from the camera');
+      } else if (faceCenterOffsetVal.x > 0.40 || faceCenterOffsetVal.y > 0.40) {
+        updateCommentary('📷 Center your face in the frame');
       } else {
-        updateCommentary(`⚠️ ${positionCheck.message}`);
+        updateCommentary('📷 Position looks good, continue with verification');
       }
     }
     
@@ -488,7 +495,15 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
         // Enhanced final step validation - Further relaxed tolerance for flickering
         // Initial check: 12° tolerance for starting hold timer (increased from 8°)
         // Skip position validation if analysis has already started
-        if (!analysisStarted && (!positionCheck.isGood || lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES || Math.abs(yawVal) > 12)) {
+        // Much more forgiving - only check for extreme positioning issues
+        const isExtremelyOutOfPosition = !positionCheck.isGood && (
+          faceDistanceVal < 0.02 || // Only if face is extremely small
+          faceDistanceVal > 0.85 || // Only if face is extremely large
+          faceCenterOffsetVal.x > 0.50 || // Only if face is extremely off-center
+          faceCenterOffsetVal.y > 0.50
+        );
+        
+        if (!analysisStarted && (isExtremelyOutOfPosition || lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES || Math.abs(yawVal) > 25)) {
           setPrompt(positionCheck.isGood ? (lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES ? `Improve lighting (Current: ${lighting})` : 'Look straight ahead!') : positionCheck.message);
           updateCommentary(`⚠️ Position adjustment needed: ${positionCheck.isGood ? (lowLightingFrames >= LIGHTING_CONSECUTIVE_FRAMES ? `Improve lighting (Current: ${lighting})` : 'Look straight ahead!') : positionCheck.message}`);
           // Reset hold timer if user moves out of position
@@ -503,6 +518,7 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
         }
         
         // All conditions met, start or continue hold timer
+        // More resilient to small movements - only reset if position is extremely bad
         if (!holdStartTimeRef.current) {
           holdStartTimeRef.current = Date.now();
           setIsHoldActive(true);
@@ -510,11 +526,19 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
         }
         const elapsed = Date.now() - holdStartTimeRef.current;
         
+        // Only reset hold timer if position is extremely bad (not just slightly off)
+        if (holdStartTimeRef.current && isExtremelyOutOfPosition) {
+          holdStartTimeRef.current = null;
+          setIsHoldActive(false);
+          setHasSpokenHoldStill(false);
+          return;
+        }
+        
         // Allow small movements during hold period - much more forgiving for flickering
-        // Hold period check: 15° tolerance for completing analysis (much more forgiving)
-        const isAcceptablePosition = positionCheck.isGood && 
+        // Hold period check: 30° tolerance for completing analysis (very forgiving)
+        const isAcceptablePosition = (positionCheck.isGood || faceDistanceVal >= 0.05) && 
           lowLightingFrames < LIGHTING_CONSECUTIVE_FRAMES && 
-          Math.abs(yawVal) <= 15; // Much more tolerant during hold for flickering
+          Math.abs(yawVal) <= 30; // Very tolerant during hold for natural movement
         
         if (elapsed >= 2000 && !genderResult && !analyzing && !analysisStarted && isAcceptablePosition) {
           // Hold complete, proceed to analysis - prevent re-analysis
@@ -565,7 +589,8 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onNext, onVerificat
               updateCommentary('❌ Camera not ready for analysis.');
             }
           }
-        } else if (elapsed < 2000 && !hasSpokenHoldStill) {
+        } else if (elapsed < 2000 && !hasSpokenHoldStill && elapsed > 1000) {
+          // Only say "hold still" after 1 second of holding, and only once
           setPrompt('Hold still');
           speakInstruction('Hold still');
           setHasSpokenHoldStill(true);

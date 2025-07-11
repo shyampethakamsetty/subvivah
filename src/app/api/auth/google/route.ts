@@ -14,7 +14,8 @@ export async function POST(request: Request) {
     console.log('🔄 ===== GOOGLE AUTH PROCESS STARTED =====');
     console.log('Environment:', process.env.NODE_ENV);
     console.log('App URL:', process.env.NEXT_PUBLIC_APP_URL);
-    console.log('Client ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+    console.log('Server Client ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+    console.log('Public Client ID exists:', !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
     
     const { token } = await request.json();
 
@@ -28,10 +29,21 @@ export async function POST(request: Request) {
 
     console.log('🔍 Verifying Google token...');
     try {
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
+      // Try with the server-side client ID first
+      let ticket;
+      try {
+        ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+      } catch (serverError) {
+        console.log('⚠️ Failed to verify with server client ID, trying public client ID...');
+        // If that fails, try with the public client ID
+        ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        });
+      }
 
       const payload = ticket.getPayload();
       if (!payload) {
