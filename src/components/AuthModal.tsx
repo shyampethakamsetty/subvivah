@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Heart, Mail, Lock, X, Sparkles, Eye, EyeOff, User, Calendar, Phone } from 'lucide-react';
 import styles from './AuthModal.module.css';
+import GoogleLoginButton from './GoogleLoginButton';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -318,6 +319,23 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
                           {isLoading ? 'Signing in...' : 'Sign in'}
                         </button>
                       </div>
+                      
+                      <div className="mt-6">
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-purple-400/30"></div>
+                          </div>
+                          <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-gradient-to-br from-purple-900 to-purple-800 text-purple-200">
+                              Or continue with
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-6">
+                          <GoogleLoginButton />
+                        </div>
+                      </div>
                     </form>
                   )}
                   {/* Register Form */}
@@ -505,6 +523,23 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
                         >
                           {isLoading ? 'Creating Account...' : 'Create Account'}
                         </button>
+                      </div>
+                      
+                      <div className="mt-6">
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-purple-400/30"></div>
+                          </div>
+                          <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-gradient-to-br from-purple-900 to-purple-800 text-purple-200">
+                              Or sign up with
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-6">
+                          <GoogleLoginButton />
+                        </div>
                       </div>
                     </form>
                   )}
