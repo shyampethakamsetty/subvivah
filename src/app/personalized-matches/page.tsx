@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Heart, X, MessageSquare } from 'lucide-react';
+import { MessageSquare, X } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import StaticPersonalizedMatches from '@/components/StaticPersonalizedMatches';
 
@@ -304,67 +304,78 @@ export default function PersonalizedMatches() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white/5 backdrop-blur-lg rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+              className="group bg-white/5 backdrop-blur-lg rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/10 hover:border-purple-500/30"
             >
-              <div className="relative h-64">
-                <Image
-                  src={match.user.photos.find(p => p.isProfile)?.url || '/default-profile.jpg'}
-                  alt={`${match.user.firstName}'s photo`}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute top-2 right-2 bg-purple-600 text-white px-3 py-1 rounded-full text-sm">
-                  {match.matchScore}% {t[language].matchScore}
+              <Link href={`/personalized-matches/${match.id}`} className="block">
+                <div className="relative h-72 overflow-hidden">
+                  <Image
+                    src={match.user.photos.find(p => p.isProfile)?.url || '/default-profile.jpg'}
+                    alt={`${match.user.firstName}'s photo`}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                  
+                  {/* Match score badge */}
+                  <div className="absolute top-3 right-3">
+                    <div className={`
+                      ${match.matchScore >= 70 ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 
+                        match.matchScore >= 50 ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 
+                        'bg-gradient-to-r from-purple-500 to-pink-600'}
+                      text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg
+                    `}>
+                      {match.matchScore}% Match
+                    </div>
+                  </div>
+                  
+                  {/* Name and info at bottom of image */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-purple-200 transition-colors">
+                      {match.user.firstName} {match.user.lastName}
+                    </h3>
+                  </div>
                 </div>
-              </div>
+              </Link>
 
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">
-                  {match.user.firstName} {match.user.lastName}
-                </h3>
-
+              <div className="p-5">
+                {/* Matching criteria tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {match.matchingCriteria.slice(0, 4).map((criteria, i) => (
+                  {match.matchingCriteria.slice(0, 3).map((criteria, i) => (
                     <span
                       key={i}
-                      className="bg-purple-600/20 text-purple-300 text-xs px-2 py-1 rounded-full"
+                      className={`
+                        ${match.matchScore >= 70 ? 'bg-green-900/20 text-green-300' : 
+                          match.matchScore >= 50 ? 'bg-blue-900/20 text-blue-300' : 
+                          'bg-purple-900/20 text-purple-300'}
+                        text-xs px-2.5 py-1 rounded-full
+                      `}
                     >
                       {criteria}
                     </span>
                   ))}
-                  {match.matchingCriteria.length > 4 && (
-                    <span className="bg-purple-600/20 text-purple-300 text-xs px-2 py-1 rounded-full">
-                      +{match.matchingCriteria.length - 4} more
+                  {match.matchingCriteria.length > 3 && (
+                    <span className="bg-purple-900/20 text-purple-300 text-xs px-2.5 py-1 rounded-full">
+                      +{match.matchingCriteria.length - 3} more
                     </span>
                   )}
                 </div>
 
+                {/* Action buttons */}
                 <div className="flex justify-between items-center mt-4">
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/personalized-matches/${match.id}`}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors"
-                    >
-                      Show Details
-                    </Link>
-                  </div>
+                  <Link
+                    href={`/personalized-matches/${match.id}`}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 rounded-lg transition-all duration-300 flex-grow text-center font-medium"
+                  >
+                    View Profile
+                  </Link>
                   
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleSendInterest(match.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
-                      title={t[language].sendInterest}
-                    >
-                      <Heart className="w-5 h-5" />
-                    </button>
-                    <Link
-                      href={`/messages/${match.id}`}
-                      className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-full"
-                      title={t[language].message}
-                    >
-                      <MessageSquare className="w-5 h-5" />
-                    </Link>
-                  </div>
+                  <Link
+                    href={`/messages/${match.id}`}
+                    className="ml-2 bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-lg transition-all duration-300"
+                    title={t[language].message}
+                  >
+                    <MessageSquare className="w-5 h-5" />
+                  </Link>
                 </div>
               </div>
             </motion.div>

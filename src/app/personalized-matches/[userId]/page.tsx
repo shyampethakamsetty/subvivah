@@ -22,7 +22,10 @@ import {
   ChevronRight,
   X,
   ZoomIn,
-  ArrowLeft
+  ArrowLeft,
+  CheckCircle,
+  User,
+  DollarSign
 } from 'lucide-react';
 import { capitalizeWords } from '@/utils/textFormatting';
 import withAuth from '@/components/withAuth';
@@ -168,7 +171,7 @@ function PersonalizedMatchProfilePage() {
         </button>
 
         {/* Main Profile Section */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden border border-white/20">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden border border-white/20 shadow-xl">
           {/* Profile Header */}
           <div className="relative">
             {/* Main Photo */}
@@ -199,35 +202,59 @@ function PersonalizedMatchProfilePage() {
 
             {/* Photo Gallery Preview */}
             {profile.user.photos && profile.user.photos.length > 1 && (
-              <div className="absolute bottom-6 right-6 flex gap-2">
-                {profile.user.photos.map((photo, index) => (
+              <div className="absolute bottom-6 right-6 flex space-x-2">
+                {profile.user.photos.slice(0, 5).map((photo, idx) => (
                   <button
-                    key={index}
-                    onClick={() => openPhotoGallery(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      selectedPhotoIndex === index
-                        ? 'bg-white scale-125'
-                        : 'bg-white/50 hover:bg-white/70'
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openPhotoGallery(idx);
+                    }}
+                    className={`w-10 h-10 rounded-md overflow-hidden border-2 transition-all ${
+                      selectedPhotoIndex === idx ? 'border-pink-500 scale-110' : 'border-white/30 hover:border-white/60'
                     }`}
-                  />
+                  >
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={photo.url}
+                        alt={`${profile.user.firstName}'s photo ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </button>
                 ))}
+                {profile.user.photos.length > 5 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openPhotoGallery(5);
+                    }}
+                    className="w-10 h-10 rounded-md flex items-center justify-center bg-white/20 text-white text-xs font-medium hover:bg-white/30 transition-colors"
+                  >
+                    +{profile.user.photos.length - 5}
+                  </button>
+                )}
               </div>
             )}
           </div>
 
-          <div className="p-6 space-y-8">
-            {/* Match Score and Compatibility */}
-            {profile.matchScore !== undefined && (
-              <div className="bg-purple-600/20 backdrop-blur-sm rounded-lg p-6 border border-purple-500/30">
-                <div className="flex items-center gap-3 mb-4">
-                  <Sparkles className="w-6 h-6 text-purple-400" />
-                  <h2 className="text-xl font-semibold text-white">Compatibility</h2>
-                </div>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="bg-purple-600 text-white px-4 py-2 rounded-full text-lg font-semibold">
-                    {profile.matchScore}% Match
+          {/* Profile Content */}
+          <div className="p-6 sm:p-8 space-y-8">
+            {/* Match Score Section */}
+            {profile.matchScore !== undefined && profile.matchingCriteria && (
+              <div className="bg-purple-900/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/30">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+                  <div className={`
+                    ${profile.matchScore >= 70 ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 
+                      profile.matchScore >= 50 ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 
+                      'bg-gradient-to-r from-purple-500 to-pink-600'}
+                    text-white px-5 py-2.5 rounded-full text-lg font-semibold shadow-lg flex items-center gap-2
+                  `}>
+                    <span className="text-2xl">{profile.matchScore}%</span>
+                    <span className="text-sm opacity-90">Match</span>
                   </div>
-                  <div className="text-purple-300">
+                  <div className="text-purple-300 mt-2 sm:mt-0">
                     {profile.matchScore >= 70 ? 'Excellent Match' :
                      profile.matchScore >= 50 ? 'Great Match' :
                      profile.matchScore >= 30 ? 'Good Match' : 'Compatible'}
@@ -235,11 +262,14 @@ function PersonalizedMatchProfilePage() {
                 </div>
                 {profile.matchingCriteria && profile.matchingCriteria.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-medium text-white mb-3">What You Have in Common:</h3>
+                    <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+                      What You Have in Common
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {profile.matchingCriteria.map((criteria, index) => (
-                        <div key={index} className="flex items-center gap-2 text-purple-200">
-                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <div key={index} className="flex items-center gap-2 text-purple-200 bg-purple-800/20 px-3 py-2 rounded-lg">
+                          <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
                           <span>{criteria}</span>
                         </div>
                       ))}
@@ -251,101 +281,128 @@ function PersonalizedMatchProfilePage() {
 
             {/* About Me Section */}
             {profile.aboutMe && (
-              <div className="text-white/90">
-                <h2 className="text-xl font-semibold mb-3 text-white">About Me</h2>
+              <div className="text-white/90 bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <h2 className="text-xl font-semibold mb-4 text-white flex items-center gap-2">
+                  <User className="w-5 h-5 text-purple-300" />
+                  About Me
+                </h2>
                 <p className="leading-relaxed">{capitalizeWords(profile.aboutMe)}</p>
               </div>
             )}
 
             {/* Basic Details and Education & Career in a grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-purple-300" />
+                  Basic Details
+                </h2>
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-white">Basic Details</h2>
-                <div className="space-y-3">
                   {profile.maritalStatus && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <Heart className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <Heart className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Marital Status</p>
-                        <p>{capitalizeWords(profile.maritalStatus)}</p>
+                        <p className="text-white">{capitalizeWords(profile.maritalStatus)}</p>
                       </div>
                     </div>
                   )}
                   {profile.religion && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <Star className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <Star className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Religion</p>
-                        <p>{capitalizeWords(profile.religion)}</p>
+                        <p className="text-white">{capitalizeWords(profile.religion)}</p>
                       </div>
                     </div>
                   )}
                   {profile.caste && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <Users className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Caste</p>
-                        <p>{capitalizeWords(profile.caste)}</p>
+                        <p className="text-white">{capitalizeWords(profile.caste)}</p>
                       </div>
                     </div>
                   )}
                   {profile.motherTongue && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <Languages className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <Languages className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Mother Tongue</p>
-                        <p>{capitalizeWords(profile.motherTongue)}</p>
+                        <p className="text-white">{capitalizeWords(profile.motherTongue)}</p>
                       </div>
                     </div>
                   )}
                   {profile.familyType && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <Home className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <Home className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Family Type</p>
-                        <p>{capitalizeWords(profile.familyType)}</p>
+                        <p className="text-white">{capitalizeWords(profile.familyType)}</p>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
 
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-purple-300" />
+                  Education & Career
+                </h2>
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-white">Education & Career</h2>
-                <div className="space-y-3">
                   {profile.education && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <GraduationCap className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <GraduationCap className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Education</p>
-                        <p>{capitalizeWords(profile.education)}</p>
+                        <p className="text-white">{capitalizeWords(profile.education)}</p>
                       </div>
                     </div>
                   )}
                   {profile.occupation && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <Briefcase className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <Briefcase className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Occupation</p>
-                        <p>{capitalizeWords(profile.occupation)}</p>
+                        <p className="text-white">{capitalizeWords(profile.occupation)}</p>
                       </div>
                     </div>
                   )}
                   {profile.workLocation && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <MapPin className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <MapPin className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Work Location</p>
-                        <p>{capitalizeWords(profile.workLocation)}</p>
+                        <p className="text-white">{capitalizeWords(profile.workLocation)}</p>
                       </div>
                     </div>
                   )}
                   {profile.annualIncome && (
                     <div className="flex items-center gap-3 text-white/80">
-                      <Star className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-full bg-purple-900/50 flex items-center justify-center">
+                        <DollarSign className="w-5 h-5 text-purple-300" />
+                      </div>
                       <div>
                         <p className="text-white/60 text-sm">Annual Income</p>
-                        <p>{capitalizeWords(profile.annualIncome)}</p>
+                        <p className="text-white">{capitalizeWords(profile.annualIncome)}</p>
                       </div>
                     </div>
                   )}
@@ -357,14 +414,14 @@ function PersonalizedMatchProfilePage() {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link
                 href={`/messages?userId=${profile.userId}`}
-                className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
               >
                 <MessageCircle className="w-5 h-5" />
                 Send Message
               </Link>
               <button
                 onClick={() => router.back()}
-                className="flex-1 border border-white/20 text-white px-6 py-3 rounded-lg hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-white/10 hover:bg-white/15 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 border border-white/20"
               >
                 <ArrowLeft className="w-5 h-5" />
                 Back to Matches

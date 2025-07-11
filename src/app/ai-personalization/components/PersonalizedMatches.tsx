@@ -142,89 +142,98 @@ export default function PersonalizedMatches() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
-      className={`bg-purple-900/40 backdrop-blur-sm rounded-2xl overflow-hidden border ${
+      className={`group bg-purple-900/40 backdrop-blur-sm rounded-2xl overflow-hidden border ${
         match.matchScore >= 70 ? 'border-green-500/30 hover:border-green-500/50' :
         match.matchScore >= 50 ? 'border-emerald-500/30 hover:border-emerald-500/50' :
         'border-purple-500/20 hover:border-purple-500/40'
-      } transition-all cursor-pointer`}
+      } transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-purple-500/10`}
       onClick={() => handleUserClick(match)}
     >
-      <div className="relative h-48 w-full">
+      <div className="relative h-56 w-full overflow-hidden">
         {match.user.photos?.[0] ? (
           <Image
             src={match.user.photos[0].url}
             alt={`${match.user.firstName}'s profile`}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="h-full bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center">
+          <div className="h-full bg-gradient-to-br from-purple-600/30 to-pink-600/30 flex items-center justify-center">
             <span className="text-4xl font-bold text-purple-200">
               {match.user.firstName[0]}{match.user.lastName[0]}
             </span>
           </div>
         )}
-        <div className={`absolute top-2 right-2 ${getScoreColor(match.matchScore)} text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1`}>
+        <div className={`absolute top-3 right-3 ${getScoreColor(match.matchScore)} text-white px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1 shadow-lg`}>
           <span>{match.matchScore}%</span>
           {selectedMatch === match.id && (
             <span className="text-xs ml-1">• {getScoreText(match.matchScore)}</span>
           )}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
-      </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-purple-100 mb-2">
-          {match.user.firstName} {match.user.lastName}
-        </h3>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm text-purple-300 font-medium">
-            {match.user.gender}
-          </span>
+        
+        {/* Name on image */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="text-xl font-semibold text-white">
+            {match.user.firstName} {match.user.lastName}
+          </h3>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white/80 font-medium">
+              {match.user.gender}
+            </span>
+          </div>
         </div>
-        <div className="space-y-1.5">
+      </div>
+      
+      <div className="p-4">
+        <div className="space-y-2 mb-3">
           {match.user.workLocation && (
-            <div className="flex items-center gap-1.5 text-white/80 text-sm">
-              <MapPin className="w-4 h-4" />
+            <div className="flex items-center gap-2 text-white/80 text-sm">
+              <MapPin className="w-4 h-4 text-purple-300" />
               <span className="truncate">{match.user.workLocation}</span>
             </div>
           )}
           {match.user.education && (
-            <div className="flex items-center gap-1.5 text-white/80">
-              <GraduationCap className="w-4 h-4" />
-              <span className="text-sm truncate">{match.user.education}</span>
+            <div className="flex items-center gap-2 text-white/80 text-sm">
+              <GraduationCap className="w-4 h-4 text-purple-300" />
+              <span className="truncate">{match.user.education}</span>
             </div>
           )}
           {match.user.occupation && (
-            <div className="flex items-center gap-1.5 text-white/80">
-              <Briefcase className="w-4 h-4" />
-              <span className="text-sm truncate">{match.user.occupation}</span>
+            <div className="flex items-center gap-2 text-white/80 text-sm">
+              <Briefcase className="w-4 h-4 text-purple-300" />
+              <span className="truncate">{match.user.occupation}</span>
             </div>
           )}
         </div>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {match.matchingCriteria.slice(0, 3).map((criteria, idx) => (
-            <span
-              key={idx}
-              className={`text-xs px-2 py-1 ${
-                match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
-                match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
-                'bg-purple-800/50 text-purple-200'
-              } rounded-full`}
-            >
-              {criteria}
-            </span>
-          ))}
-          {match.matchingCriteria.length > 3 && (
-            <span
-              className={`text-xs px-2 py-1 ${
-                match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
-                match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
-                'bg-purple-800/50 text-purple-200'
-              } rounded-full`}
-            >
-              +{match.matchingCriteria.length - 3} more
-            </span>
-          )}
+        
+        <div className="pt-3 border-t border-white/10">
+          <p className="text-xs text-purple-200 mb-2">Matching criteria:</p>
+          <div className="flex flex-wrap gap-2">
+            {match.matchingCriteria.slice(0, 3).map((criteria, idx) => (
+              <span
+                key={idx}
+                className={`text-xs px-2 py-1 ${
+                  match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
+                  match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
+                  'bg-purple-800/50 text-purple-200'
+                } rounded-full`}
+              >
+                {criteria}
+              </span>
+            ))}
+            {match.matchingCriteria.length > 3 && (
+              <span
+                className={`text-xs px-2 py-1 ${
+                  match.matchScore >= 70 ? 'bg-green-800/30 text-green-200' :
+                  match.matchScore >= 50 ? 'bg-emerald-800/30 text-emerald-200' :
+                  'bg-purple-800/50 text-purple-200'
+                } rounded-full`}
+              >
+                +{match.matchingCriteria.length - 3} more
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
