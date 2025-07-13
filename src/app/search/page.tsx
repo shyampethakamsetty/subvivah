@@ -543,15 +543,15 @@ function SearchPageContent() {
             </div>
           ) : users.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {users.map((user) => (
-                  <div
-                    key={user.id}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {users.map((user) => (
+                <div
+                  key={user.id}
                     className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/15 transition-all cursor-pointer"
                     onClick={() => handleUserClick(user)}
                   >
                     <div className="aspect-[4/3] relative">
-                      {user.photos && user.photos.length > 0 ? (
+                    {user.photos && user.photos.length > 0 ? (
                         <Image
                           src={user.photos[0].url}
                           alt={`${capitalizeWords(user.firstName)} ${capitalizeWords(user.lastName)}`}
@@ -566,18 +566,18 @@ function SearchPageContent() {
                       )}
 
                       {user.photos && user.photos.length > 1 && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePhotoClick(user, 0);
-                          }}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePhotoClick(user, 0);
+                            }}
                           className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full p-1.5 hover:bg-black/70 transition-colors"
-                        >
+                          >
                           <ZoomIn className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-
+                          </button>
+                        )}
+                      </div>
+                    
                     <div className="p-4">
                       <h3 className="text-lg font-medium text-white truncate">
                         {capitalizeWords(user.firstName)} {capitalizeWords(user.lastName)}
@@ -585,22 +585,22 @@ function SearchPageContent() {
                       <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
                         <Calendar className="w-4 h-4" />
                         <span>{user.age} years</span>
-                      </div>
-                      {user.education && (
-                        <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
-                          <GraduationCap className="w-4 h-4" />
-                          <span className="truncate">{user.education}</span>
-                        </div>
-                      )}
-                      {user.occupation && (
-                        <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
-                          <Briefcase className="w-4 h-4" />
-                          <span className="truncate">{user.occupation}</span>
-                        </div>
-                      )}
                     </div>
+                    {user.education && (
+                        <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
+                        <GraduationCap className="w-4 h-4" />
+                          <span className="truncate">{user.education}</span>
+                      </div>
+                    )}
+                    {user.occupation && (
+                        <div className="flex items-center gap-2 text-sm text-purple-200 mt-1">
+                        <Briefcase className="w-4 h-4" />
+                          <span className="truncate">{user.occupation}</span>
+                      </div>
+                    )}
                   </div>
-                ))}
+                </div>
+              ))}
               </div>
               
               {/* Pagination */}
