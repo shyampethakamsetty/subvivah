@@ -4,8 +4,10 @@ const nextConfig = {
   poweredByHeader: false,
   distDir: '.next',
   generateEtags: false,
+  env: {
+    PORT: '3001'
+  },
   experimental: {
-    appDir: true,
     serverComponentsExternalPackages: ['@prisma/client']
   },
   async headers() {

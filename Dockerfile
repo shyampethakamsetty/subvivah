@@ -13,6 +13,14 @@ COPY .env .env
 COPY . .
 RUN npm run build
 
+# Copy static files to the standalone directory
+RUN cp -r .next/static .next/standalone/.next/ && \
+    cp -r .next/static .next/standalone/.next/static
+
+# Copy public directory to standalone
+RUN cp -r public .next/standalone/
+
 EXPOSE 3001
 
-CMD ["npm", "start"]
+ENV PORT=3001
+CMD ["node", ".next/standalone/server.js"]
