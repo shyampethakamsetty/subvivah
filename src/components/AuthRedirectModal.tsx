@@ -37,7 +37,13 @@ export default function AuthRedirectModal({ isOpen, onClose }: AuthRedirectModal
               Go to Login
             </button>
             <button
-              onClick={() => router.push('/register')}
+              onClick={() => {
+                // Show register popup instead of redirecting
+                if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                  (window as any).showRegisterPopup();
+                }
+                onClose();
+              }}
               className="w-full py-2.5 px-4 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors"
             >
               Create Account

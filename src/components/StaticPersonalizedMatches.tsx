@@ -50,7 +50,8 @@ export default function StaticPersonalizedMatches() {
       }
     } catch (error) {
       console.error('Error showing register popup:', error);
-      window.location.href = '/register';
+      // Fallback to reload the page if popup fails
+      window.location.reload();
     }
   };
 

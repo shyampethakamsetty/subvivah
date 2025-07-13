@@ -271,7 +271,14 @@ export default function Home() {
                     transition={{ delay: 0.1 }}
                     className="group"
                   >
-                    <Link href="/register" className="block">
+                    <button 
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                          (window as any).showRegisterPopup();
+                        }
+                      }}
+                      className="block w-full"
+                    >
                       <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
                         <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                           <User className="w-8 h-8 text-white" />
@@ -286,7 +293,7 @@ export default function Home() {
                           }
                         </p>
                       </div>
-                    </Link>
+                    </button>
                   </motion.div>
                 )}
 

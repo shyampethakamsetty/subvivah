@@ -200,12 +200,16 @@ export default function PremiumPage() {
           <p className="text-gray-600 mb-8">
             Join our community of verified profiles and start your journey to finding true love
           </p>
-          <Link
-            href="/register"
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                (window as any).showRegisterPopup();
+              }
+            }}
             className="inline-block bg-purple-600 text-white px-8 py-3 rounded-md text-lg font-medium hover:bg-purple-700"
           >
             Create Your Profile Now
-          </Link>
+          </button>
         </div>
       </div>
     </div>

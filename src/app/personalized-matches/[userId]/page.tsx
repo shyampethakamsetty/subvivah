@@ -411,17 +411,10 @@ function PersonalizedMatchProfilePage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link
-                href={`/messages?userId=${profile.userId}`}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Send Message
-              </Link>
+            <div className="flex justify-center pt-4">
               <button
                 onClick={() => router.back()}
-                className="flex-1 bg-white/10 hover:bg-white/15 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 border border-white/20"
+                className="bg-white/10 hover:bg-white/15 text-white px-8 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 border border-white/20"
               >
                 <ArrowLeft className="w-5 h-5" />
                 Back to Matches

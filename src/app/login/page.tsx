@@ -153,12 +153,16 @@ export default function LoginPage() {
           <div className="text-center mt-6">
             <p className="text-sm text-purple-200">
               Don't have an account?{" "}
-              <Link 
-                href="/register" 
+              <button 
+                onClick={() => {
+                  if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                    (window as any).showRegisterPopup();
+                  }
+                }}
                 className="font-medium text-purple-300 hover:text-purple-200 transition-colors"
               >
                 Create one now
-              </Link>
+              </button>
             </p>
           </div>
 
