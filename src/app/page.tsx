@@ -149,30 +149,197 @@ export default function Home() {
       <Chatbot />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 bg-white">
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="absolute inset-0 overflow-hidden"
-        >
-          <div className="relative w-full h-full">
-            <Image
-              src="/images/home-bg.jpg"
-              alt="Home background image"
-              fill
-              style={{
-                objectFit: 'cover',
-                objectPosition: 'center 20%',
-              }}
-              className="opacity-80"
-              priority
-              sizes="100vw"
-              quality={100}
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-black/30 to-gray-900/60"></div>
-        </motion.div>
+      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 overflow-hidden">
+        {/* AI Matchmaking Video Background */}
+        <div className="absolute inset-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+            style={{ filter: 'brightness(0.8) contrast(1.1)' }}
+          >
+            <source src="/videos/ai-matchmaking.mp4" type="video/mp4" />
+            {/* Fallback animated background if video doesn't load */}
+            <div className="w-full h-full bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
+              {/* Animated Starfield Background */}
+              <div className="absolute inset-0">
+                {/* Stars Layer 1 - Small stars */}
+                <div className="absolute inset-0">
+                  {[...Array(50)].map((_, i) => (
+                    <motion.div
+                      key={`star1-${i}`}
+                      className="absolute w-1 h-1 bg-white rounded-full"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        opacity: [0.3, 1, 0.3],
+                        scale: [0.5, 1, 0.5],
+                      }}
+                      transition={{
+                        duration: 2 + Math.random() * 3,
+                        repeat: Infinity,
+                        delay: Math.random() * 2,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Stars Layer 2 - Medium stars */}
+                <div className="absolute inset-0">
+                  {[...Array(30)].map((_, i) => (
+                    <motion.div
+                      key={`star2-${i}`}
+                      className="absolute w-2 h-2 bg-blue-200 rounded-full"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        opacity: [0.4, 1, 0.4],
+                        scale: [0.8, 1.2, 0.8],
+                      }}
+                      transition={{
+                        duration: 3 + Math.random() * 2,
+                        repeat: Infinity,
+                        delay: Math.random() * 3,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Stars Layer 3 - Large stars */}
+                <div className="absolute inset-0">
+                  {[...Array(15)].map((_, i) => (
+                    <motion.div
+                      key={`star3-${i}`}
+                      className="absolute w-3 h-3 bg-white rounded-full"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        opacity: [0.5, 1, 0.5],
+                        scale: [1, 1.5, 1],
+                      }}
+                      transition={{
+                        duration: 4 + Math.random() * 2,
+                        repeat: Infinity,
+                        delay: Math.random() * 4,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Shooting Stars */}
+                <div className="absolute inset-0">
+                  {[...Array(8)].map((_, i) => (
+                    <motion.div
+                      key={`shooting-${i}`}
+                      className="absolute w-1 h-1 bg-white rounded-full"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        x: [0, 200],
+                        y: [0, 200],
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 2 + Math.random() * 2,
+                        repeat: Infinity,
+                        delay: Math.random() * 5,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Love Connections - Floating Hearts */}
+                <div className="absolute inset-0">
+                  {[...Array(12)].map((_, i) => (
+                    <motion.div
+                      key={`heart-${i}`}
+                      className="absolute text-pink-300"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        y: [0, -20, 0],
+                        opacity: [0.3, 1, 0.3],
+                        rotate: [0, 360],
+                      }}
+                      transition={{
+                        duration: 4 + Math.random() * 3,
+                        repeat: Infinity,
+                        delay: Math.random() * 4,
+                      }}
+                    >
+                      <Heart className="w-4 h-4" />
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Connection Lines */}
+                <div className="absolute inset-0">
+                  <svg className="w-full h-full" style={{ position: 'absolute' }}>
+                    {[...Array(6)].map((_, i) => (
+                      <motion.line
+                        key={`line-${i}`}
+                        x1={`${20 + Math.random() * 60}%`}
+                        y1={`${20 + Math.random() * 60}%`}
+                        x2={`${20 + Math.random() * 60}%`}
+                        y2={`${20 + Math.random() * 60}%`}
+                        stroke="rgba(147, 51, 234, 0.3)"
+                        strokeWidth="1"
+                        strokeDasharray="5,5"
+                        animate={{
+                          strokeDashoffset: [0, 10],
+                          opacity: [0.2, 0.8, 0.2],
+                        }}
+                        transition={{
+                          duration: 3 + Math.random() * 2,
+                          repeat: Infinity,
+                          delay: Math.random() * 2,
+                        }}
+                      />
+                    ))}
+                  </svg>
+                </div>
+
+                {/* Floating Particles */}
+                <div className="absolute inset-0">
+                  {[...Array(20)].map((_, i) => (
+                    <motion.div
+                      key={`particle-${i}`}
+                      className="absolute w-1 h-1 bg-blue-300 rounded-full"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        y: [0, -100],
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 6 + Math.random() * 4,
+                        repeat: Infinity,
+                        delay: Math.random() * 6,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-indigo-900/30 to-purple-900/40"></div>
+              </div>
+            </div>
+          </video>
+        </div>
         <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24 flex flex-col items-center justify-center min-h-screen">
           <motion.div 
             className="text-center"
@@ -189,65 +356,7 @@ export default function Home() {
               }
             }}
           >
-            <motion.h1 
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: {
-                    duration: 0.6,
-                    ease: "easeOut"
-                  }
-                }
-              }}
-              className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg"
-            >
-              {isAuthenticated 
-                ? (language === 'hi' 
-                    ? `नमस्कार ${user?.firstName || ''}!`
-                    : `Welcome back, ${user?.firstName || ''}!`)
-                : t.heroTitle
-              }
-            </motion.h1>
-            <motion.p 
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: {
-                    duration: 0.6,
-                    ease: "easeOut"
-                  }
-                }
-              }}
-              className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" 
-              style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}
-            >
-              {t.heroSubtitle}
-            </motion.p>
-            <motion.p 
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: {
-                    duration: 0.6,
-                    ease: "easeOut"
-                  }
-                }
-              }}
-              className="text-base sm:text-lg text-white mb-8"
-            >
-              {isAuthenticated 
-                ? (language === 'hi' 
-                    ? 'आपके लिए नए मैचेस और अपडेट्स देखें। अपनी प्रोफ़ाइल को अपडेट करें या नए कनेक्शन्स खोजें।'
-                    : 'Discover new matches and updates for you. Update your profile or find new connections.')
-                : t.heroDescription
-              }
-            </motion.p>
+
           </motion.div>
 
           {/* Scroll Indicator */}
