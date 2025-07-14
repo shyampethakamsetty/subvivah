@@ -167,9 +167,11 @@ export default function ForgotPasswordPage() {
       if (response.ok) {
         setMessage('Password has been reset successfully!');
         setStep('success');
-        // Redirect to login after 3 seconds
+        // Show login popup after 3 seconds
         setTimeout(() => {
-          router.push('/login');
+          if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
+            (window as any).showLoginPopup();
+          }
         }, 3000);
       } else {
         setMessage(data.error || 'Failed to reset password');
@@ -270,10 +272,10 @@ export default function ForgotPasswordPage() {
 
               <div className="text-center">
                 <Link 
-                  href="/login" 
+                  href="/"
                   className="text-sm text-purple-300 hover:text-purple-200 transition-colors"
                 >
-                  Back to login
+                  Back to Home
                 </Link>
               </div>
             </form>
@@ -432,10 +434,10 @@ export default function ForgotPasswordPage() {
 
               <div className="text-center space-y-3">
                 <Link 
-                  href="/login" 
+                  href="/"
                   className="block text-sm text-purple-300 hover:text-purple-200 transition-colors"
                 >
-                  Back to login
+                  Back to Home
                 </Link>
                 
                 {/* Resend Code Button */}
@@ -490,10 +492,10 @@ export default function ForgotPasswordPage() {
 
               <div className="text-center">
                 <Link 
-                  href="/login" 
+                  href="/"
                   className="text-sm text-purple-300 hover:text-purple-200 transition-colors"
                 >
-                  Go to login now
+                  Back to Home
                 </Link>
               </div>
             </div>

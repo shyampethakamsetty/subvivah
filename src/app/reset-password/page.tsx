@@ -92,9 +92,11 @@ export default function ResetPasswordPage() {
       if (response.ok) {
         setMessage('Password has been reset successfully!');
         setIsSuccess(true);
-        // Redirect to login after 3 seconds
+        // Show login popup after 3 seconds
         setTimeout(() => {
-          router.push('/login');
+          if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
+            (window as any).showLoginPopup();
+          }
         }, 3000);
       } else {
         setMessage(data.error || 'Failed to reset password');

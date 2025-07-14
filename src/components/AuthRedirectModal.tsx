@@ -31,7 +31,13 @@ export default function AuthRedirectModal({ isOpen, onClose }: AuthRedirectModal
 
           <div className="space-y-3">
             <button
-              onClick={() => router.push('/login')}
+              onClick={() => {
+                // Show login popup instead of redirecting
+                if (typeof window !== 'undefined' && typeof (window as any).showLoginPopup === 'function') {
+                  (window as any).showLoginPopup();
+                }
+                onClose();
+              }}
               className="w-full py-2.5 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
               Go to Login
