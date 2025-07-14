@@ -149,198 +149,31 @@ export default function Home() {
       <Chatbot />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 overflow-hidden">
-        {/* AI Matchmaking Video Background */}
-        <div className="absolute inset-0">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-            style={{ filter: 'brightness(0.8) contrast(1.1)' }}
-          >
-            <source src="/videos/ai-matchmaking.mp4" type="video/mp4" />
-            {/* Fallback animated background if video doesn't load */}
-            <div className="w-full h-full bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
-              {/* Animated Starfield Background */}
-              <div className="absolute inset-0">
-                {/* Stars Layer 1 - Small stars */}
-                <div className="absolute inset-0">
-                  {[...Array(50)].map((_, i) => (
-                    <motion.div
-                      key={`star1-${i}`}
-                      className="absolute w-1 h-1 bg-white rounded-full"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                      animate={{
-                        opacity: [0.3, 1, 0.3],
-                        scale: [0.5, 1, 0.5],
-                      }}
-                      transition={{
-                        duration: 2 + Math.random() * 3,
-                        repeat: Infinity,
-                        delay: Math.random() * 2,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Stars Layer 2 - Medium stars */}
-                <div className="absolute inset-0">
-                  {[...Array(30)].map((_, i) => (
-                    <motion.div
-                      key={`star2-${i}`}
-                      className="absolute w-2 h-2 bg-blue-200 rounded-full"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                      animate={{
-                        opacity: [0.4, 1, 0.4],
-                        scale: [0.8, 1.2, 0.8],
-                      }}
-                      transition={{
-                        duration: 3 + Math.random() * 2,
-                        repeat: Infinity,
-                        delay: Math.random() * 3,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Stars Layer 3 - Large stars */}
-                <div className="absolute inset-0">
-                  {[...Array(15)].map((_, i) => (
-                    <motion.div
-                      key={`star3-${i}`}
-                      className="absolute w-3 h-3 bg-white rounded-full"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                      animate={{
-                        opacity: [0.5, 1, 0.5],
-                        scale: [1, 1.5, 1],
-                      }}
-                      transition={{
-                        duration: 4 + Math.random() * 2,
-                        repeat: Infinity,
-                        delay: Math.random() * 4,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Shooting Stars */}
-                <div className="absolute inset-0">
-                  {[...Array(8)].map((_, i) => (
-                    <motion.div
-                      key={`shooting-${i}`}
-                      className="absolute w-1 h-1 bg-white rounded-full"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                      animate={{
-                        x: [0, 200],
-                        y: [0, 200],
-                        opacity: [0, 1, 0],
-                      }}
-                      transition={{
-                        duration: 2 + Math.random() * 2,
-                        repeat: Infinity,
-                        delay: Math.random() * 5,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Love Connections - Floating Hearts */}
-                <div className="absolute inset-0">
-                  {[...Array(12)].map((_, i) => (
-                    <motion.div
-                      key={`heart-${i}`}
-                      className="absolute text-pink-300"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                      animate={{
-                        y: [0, -20, 0],
-                        opacity: [0.3, 1, 0.3],
-                        rotate: [0, 360],
-                      }}
-                      transition={{
-                        duration: 4 + Math.random() * 3,
-                        repeat: Infinity,
-                        delay: Math.random() * 4,
-                      }}
-                    >
-                      <Heart className="w-4 h-4" />
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Connection Lines */}
-                <div className="absolute inset-0">
-                  <svg className="w-full h-full" style={{ position: 'absolute' }}>
-                    {[...Array(6)].map((_, i) => (
-                      <motion.line
-                        key={`line-${i}`}
-                        x1={`${20 + Math.random() * 60}%`}
-                        y1={`${20 + Math.random() * 60}%`}
-                        x2={`${20 + Math.random() * 60}%`}
-                        y2={`${20 + Math.random() * 60}%`}
-                        stroke="rgba(147, 51, 234, 0.3)"
-                        strokeWidth="1"
-                        strokeDasharray="5,5"
-                        animate={{
-                          strokeDashoffset: [0, 10],
-                          opacity: [0.2, 0.8, 0.2],
-                        }}
-                        transition={{
-                          duration: 3 + Math.random() * 2,
-                          repeat: Infinity,
-                          delay: Math.random() * 2,
-                        }}
-                      />
-                    ))}
-                  </svg>
-                </div>
-
-                {/* Floating Particles */}
-                <div className="absolute inset-0">
-                  {[...Array(20)].map((_, i) => (
-                    <motion.div
-                      key={`particle-${i}`}
-                      className="absolute w-1 h-1 bg-blue-300 rounded-full"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                      animate={{
-                        y: [0, -100],
-                        opacity: [0, 1, 0],
-                      }}
-                      transition={{
-                        duration: 6 + Math.random() * 4,
-                        repeat: Infinity,
-                        delay: Math.random() * 6,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-indigo-900/30 to-purple-900/40"></div>
-              </div>
-            </div>
-          </video>
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24 flex flex-col items-center justify-center min-h-screen">
+      <section className="relative min-h-screen flex flex-col items-center px-2 sm:px-6 lg:px-8 bg-white">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="absolute inset-0 overflow-hidden"
+        >
+          <div className="relative w-full h-full">
+            <Image
+              src="/images/home-bg.jpg"
+              alt="Home background image"
+              fill
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center 20%',
+              }}
+              className="opacity-80"
+              priority
+              sizes="100vw"
+              quality={100}
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-black/30 to-gray-900/60"></div>
+        </motion.div>
+        <div className="relative z-10 max-w-7xl mx-auto py-16 sm:py-24 flex flex-col items-center justify-between min-h-screen">
           <motion.div 
             className="text-center"
             initial="hidden"
@@ -356,7 +189,373 @@ export default function Home() {
               }
             }}
           >
+            <motion.h1 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg"
+            >
+              {isAuthenticated 
+                ? (language === 'hi' 
+                    ? `नमस्कार ${user?.firstName || ''}!`
+                    : `Welcome back, ${user?.firstName || ''}!`)
+                : t.heroTitle
+              }
+            </motion.h1>
+            <motion.p 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="text-lg sm:text-2xl font-semibold text-white mb-8 drop-shadow-lg" 
+              style={{ fontFamily: 'var(--font-devanagari, sans-serif)' }}
+            >
+              {t.heroSubtitle}
+            </motion.p>
+            <motion.p 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="text-base sm:text-lg text-white mb-8"
+            >
+              {isAuthenticated 
+                ? (language === 'hi' 
+                    ? 'आपके लिए नए मैचेस और अपडेट्स देखें। अपनी प्रोफ़ाइल को अपडेट करें या नए कनेक्शन्स खोजें।'
+                    : 'Discover new matches and updates for you. Update your profile or find new connections.')
+                : t.heroDescription
+              }
+            </motion.p>
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className="w-full max-w-6xl mx-auto"
+            >
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {/* Registration */}
+                {!isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="group"
+                  >
+                    <button 
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
+                          (window as any).showRegisterPopup();
+                        }
+                      }}
+                      className="block w-full"
+                    >
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'खाता बनाएं' : 'Create Account'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'अपनी यात्रा शुरू करें'
+                            : 'Start your journey'
+                          }
+                        </p>
+                      </div>
+                    </button>
+                  </motion.div>
+                )}
 
+                {/* Profile Management */}
+                {isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="group"
+                  >
+                    <Link href="/profile" className="block">
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'मेरी प्रोफाइल' : 'My Profile'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'अपनी प्रोफाइल प्रबंधित करें'
+                            : 'Manage your profile'
+                          }
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Search Profiles */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="group"
+                >
+                  <Link href="/search" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Search className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'प्रोफाइल खोजें' : 'Search Profiles'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'सही साथी खोजें'
+                          : 'Find the right match'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* AI Matches */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="group"
+                >
+                  <Link href="/personalized-matches" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Brain className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'AI मैचेस' : 'AI Matches'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'AI द्वारा चुने गए मैचेस'
+                          : 'AI-curated matches'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Matches */}
+                {isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="group"
+                  >
+                    <Link href="/matches" className="block">
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <Heart className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'मेरे मैचेस' : 'My Matches'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'अपने मैचेस देखें'
+                            : 'View your matches'
+                          }
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Messages */}
+                {isAuthenticated && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="group"
+                  >
+                    <Link href="/messages" className="block">
+                      <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <MessageSquare className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {language === 'hi' ? 'संदेश' : 'Messages'}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {language === 'hi' 
+                            ? 'चैट करें'
+                            : 'Chat with connections'
+                          }
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Kundli Matching */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="group"
+                >
+                  <Link href="/kundli" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Star className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'कुंडली मैचिंग' : 'Kundli Matching'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'ज्योतिष के अनुसार'
+                          : 'Based on astrology'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Dating */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="group"
+                >
+                  <Link href="/dating" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Calendar className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'डेटिंग' : 'Dating'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'रोमांटिक प्लान'
+                          : 'Plan romantic dates'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+
+
+                {/* Success Stories */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.0 }}
+                  className="group"
+                >
+                  <Link href="/success-stories" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <HeartHandshake className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'सफल कहानियां' : 'Success Stories'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'प्रेरणादायक कहानियां'
+                          : 'Inspiring stories'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Premium Membership */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.1 }}
+                  className="group"
+                >
+                  <Link href="/premium" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Crown className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'प्रीमियम' : 'Premium'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'विशेष सुविधाएं'
+                          : 'Exclusive features'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                {/* Contact */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.2 }}
+                  className="group"
+                >
+                  <Link href="/contact" className="block">
+                    <div className="bg-white/20 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-white/30 hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Phone className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {language === 'hi' ? 'संपर्क' : 'Contact'}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {language === 'hi' 
+                          ? 'सहायता प्राप्त करें'
+                          : 'Get support'
+                        }
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+              </div>
+            </motion.div>
           </motion.div>
 
           {/* Scroll Indicator */}
@@ -389,310 +588,6 @@ export default function Home() {
                   d="M19 14l-7 7m0 0l-7-7m7 7V3"
                 />
               </svg>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Shards Section - Moved below the hero image */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-6xl mx-auto"
-          >
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {/* Registration */}
-              {!isAuthenticated && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="group"
-                >
-                  <button 
-                    onClick={() => {
-                      if (typeof window !== 'undefined' && typeof (window as any).showRegisterPopup === 'function') {
-                        (window as any).showRegisterPopup();
-                      }
-                    }}
-                    className="block w-full"
-                  >
-                    <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-red-200 hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <User className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {language === 'hi' ? 'खाता बनाएं' : 'Create Account'}
-                      </h3>
-                      <p className="text-sm text-white/90">
-                        {language === 'hi' 
-                          ? 'अपनी यात्रा शुरू करें'
-                          : 'Start your journey'
-                        }
-                      </p>
-                    </div>
-                  </button>
-                </motion.div>
-              )}
-
-              {/* Profile Management */}
-              {isAuthenticated && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="group"
-                >
-                  <Link href="/profile" className="block">
-                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-blue-200 hover:bg-gradient-to-br hover:from-blue-600 hover:to-blue-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <User className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {language === 'hi' ? 'मेरी प्रोफाइल' : 'My Profile'}
-                      </h3>
-                      <p className="text-sm text-white/90">
-                        {language === 'hi' 
-                          ? 'अपनी प्रोफाइल प्रबंधित करें'
-                          : 'Manage your profile'
-                        }
-                      </p>
-                    </div>
-                  </Link>
-                </motion.div>
-              )}
-
-              {/* Search Profiles */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="group"
-              >
-                <Link href="/search" className="block">
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-green-200 hover:bg-gradient-to-br hover:from-green-600 hover:to-green-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Search className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {language === 'hi' ? 'प्रोफाइल खोजें' : 'Search Profiles'}
-                    </h3>
-                    <p className="text-sm text-white/90">
-                      {language === 'hi' 
-                        ? 'सही साथी खोजें'
-                        : 'Find the right match'
-                      }
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-
-              {/* AI Matches */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-                className="group"
-              >
-                <Link href="/personalized-matches" className="block">
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-purple-200 hover:bg-gradient-to-br hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Brain className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {language === 'hi' ? 'AI मैचेस' : 'AI Matches'}
-                    </h3>
-                    <p className="text-sm text-white/90">
-                      {language === 'hi' 
-                        ? 'AI द्वारा चुने गए मैचेस'
-                        : 'AI-curated matches'
-                      }
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-
-              {/* Matches */}
-              {isAuthenticated && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="group"
-                >
-                  <Link href="/matches" className="block">
-                    <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-pink-200 hover:bg-gradient-to-br hover:from-pink-600 hover:to-pink-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Heart className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {language === 'hi' ? 'मेरे मैचेस' : 'My Matches'}
-                      </h3>
-                      <p className="text-sm text-white/90">
-                        {language === 'hi' 
-                          ? 'अपने मैचेस देखें'
-                          : 'View your matches'
-                        }
-                      </p>
-                    </div>
-                  </Link>
-                </motion.div>
-              )}
-
-              {/* Messages */}
-              {isAuthenticated && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="group"
-                >
-                  <Link href="/messages" className="block">
-                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-blue-200 hover:bg-gradient-to-br hover:from-blue-600 hover:to-blue-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <MessageSquare className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {language === 'hi' ? 'संदेश' : 'Messages'}
-                      </h3>
-                      <p className="text-sm text-white/90">
-                        {language === 'hi' 
-                          ? 'चैट करें'
-                          : 'Chat with connections'
-                        }
-                      </p>
-                    </div>
-                  </Link>
-                </motion.div>
-              )}
-
-              {/* Kundli Matching */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 }}
-                className="group"
-              >
-                <Link href="/kundli" className="block">
-                  <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-yellow-200 hover:bg-gradient-to-br hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Star className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {language === 'hi' ? 'कुंडली मैचिंग' : 'Kundli Matching'}
-                    </h3>
-                    <p className="text-sm text-white/90">
-                      {language === 'hi' 
-                        ? 'ज्योतिष के अनुसार'
-                        : 'Based on astrology'
-                      }
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-
-              {/* Dating */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.7 }}
-                className="group"
-              >
-                <Link href="/dating" className="block">
-                  <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-red-200 hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Calendar className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {language === 'hi' ? 'डेटिंग' : 'Dating'}
-                    </h3>
-                    <p className="text-sm text-white/90">
-                      {language === 'hi' 
-                        ? 'रोमांटिक प्लान'
-                        : 'Plan romantic dates'
-                      }
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-
-              {/* Success Stories */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.0 }}
-                className="group"
-              >
-                <Link href="/success-stories" className="block">
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-green-200 hover:bg-gradient-to-br hover:from-green-600 hover:to-green-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <HeartHandshake className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {language === 'hi' ? 'सफल कहानियां' : 'Success Stories'}
-                    </h3>
-                    <p className="text-sm text-white/90">
-                      {language === 'hi' 
-                        ? 'प्रेरणादायक कहानियां'
-                        : 'Inspiring stories'
-                      }
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-
-              {/* Premium Membership */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.1 }}
-                className="group"
-              >
-                <Link href="/premium" className="block">
-                  <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-yellow-200 hover:bg-gradient-to-br hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Crown className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {language === 'hi' ? 'प्रीमियम' : 'Premium'}
-                    </h3>
-                    <p className="text-sm text-white/90">
-                      {language === 'hi' 
-                        ? 'विशेष सुविधाएं'
-                        : 'Exclusive features'
-                      }
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-
-              {/* Contact */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.2 }}
-                className="group"
-              >
-                <Link href="/contact" className="block">
-                  <div className="bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl p-6 h-48 flex flex-col justify-center items-center text-center border border-gray-200 hover:bg-gradient-to-br hover:from-gray-600 hover:to-gray-700 transition-all duration-300 group-hover:scale-105 shadow-lg">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Phone className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {language === 'hi' ? 'संपर्क' : 'Contact'}
-                    </h3>
-                    <p className="text-sm text-white/90">
-                      {language === 'hi' 
-                        ? 'सहायता प्राप्त करें'
-                        : 'Get support'
-                      }
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
             </div>
           </motion.div>
         </div>
